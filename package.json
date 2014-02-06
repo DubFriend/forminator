@@ -1,0 +1,32 @@
+{
+  "name": "forminator",
+  "version": "0.0.0",
+  "description": "form generator",
+  "main": "forminator.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DubFriend/forminator"
+  },
+  "keywords": [
+    "form",
+    "generator"
+  ],
+  "author": "Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DubFriend/forminator/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.3.2",
+    "grunt-contrib-qunit": "~0.4.0",
+    "grunt-preprocess": "~4.0.0"
+  }
+}

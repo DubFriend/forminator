@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>QUnit Example</title>
+    <link rel="stylesheet" href="qunit-1.14.0.css">
+</head>
+<body>
+    <script id="forminator" type="text/template">
+        <form id="frm-name">
+            <div class="frm-group">
+                <label>Text Input</label>
+                <input type="text" name="text"/>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
+                <label>Textarea</label>
+                <textarea name="textarea"></textarea>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
+                <label>Select</label>
+                <select name="select">
+                    <option value="a">A</option>
+                    <option value="b">B</option>
+                </select>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
+                <label>Radio</label>
+                <input type="radio" name="radio" value="A"/>
+                <input type="radio" name="radio" value="B"/>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
+                <label>Checkbox</label>
+                <input type="checkbox" name="checkbox[]" value="A"/>
+                <input type="checkbox" name="checkbox[]" value="B"/>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
+                <label>File</label>
+                <input type="file" name="file"/>
+            </div>
+        
+            <div class="frm-group">
+                <input type="submit" name="submit" value="Submit"/>
+                <input type="button" name="button" value="Button"/>
+            </div>
+        </form>
+        
+    </script>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <script src="../lib/jquery-1.11.0.js"></script>
+    <script src="../src/library.js"></script>
+    <script src="../src/main.js"></script>
+    <script src="qunit-1.14.0.js"></script>
+    <script src="forminator.js"></script>
+</body>
+</html>
