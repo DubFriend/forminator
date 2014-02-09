@@ -192,18 +192,19 @@ var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
         inputs = {};
+        files = {};
 
-
-    var addInputsBasic = function (type, selector) {
+    var addInputsBasic = function (type, selector, group) {
+        group = group || inputs;
         $self.find(selector).each(function () {
-            inputs[$(this).attr('name')] = factory.input[type]({ $: $(this) });
+            group[$(this).attr('name')] = factory.input[type]({ $: $(this) });
         });
     };
 
     addInputsBasic('text', 'input[type="text"]');
     addInputsBasic('textarea', 'textarea');
     addInputsBasic('select', 'select');
-    addInputsBasic('file', 'input[type="file"]');
+    addInputsBasic('file', 'input[type="file"]', files);
 
     var addInputsGroup = function (type, selector) {
         var names = [];
@@ -222,5 +223,8 @@ var buildFormInputs = function (fig) {
     addInputsGroup('radio', 'input[type="radio"]');
     addInputsGroup('checkbox', 'input[type="checkbox"]');
 
-    return inputs;
+    return {
+        inputs: inputs,
+        files: files
+    };
 };
