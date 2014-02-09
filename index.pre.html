@@ -8,9 +8,14 @@
 
     <!-- @include form.html -->
 
+    <script src="lib/jquery-1.11.0"></script>
+    <script src="lib/jQuery.AjaxFileUpload.js/jquery.ajaxfileupload.js"></script>
     <script src="forminator.js"></script>
     <script>
-
+        var form = forminator.init({
+            $: $('#frm-name'),
+            url: 'respond.php'
+        });
     </script>
 </body>
 </html>

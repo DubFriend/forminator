@@ -17,6 +17,17 @@ module.exports = function (grunt) {
                 src: [
                     'src/intro.js',
                     'src/library.js',
+                    'src/factory.js',
+                    'src/input/base.js',
+                    'src/input/checkbox.js',
+                    'src/input/file.js',
+                    'src/input/radio.js',
+                    'src/input/select.js',
+                    'src/input/text.js',
+                    'src/input/textarea.js',
+                    'src/buildFormInputs.js',
+                    'src/createFormGroup.js',
+                    'src/createForm.js',
                     'src/main.js',
                     'src/outro.js'
                 ],

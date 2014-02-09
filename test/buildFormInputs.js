@@ -7,14 +7,8 @@ module('buildFormInputs',{
             $: $('#frm-name'),
             factory: createMockFactory()
         });
-
         this.inputs = results.inputs;
         this.files = results.files;
-
-        // this.inputs = buildFormInputs({
-        //     $: $('#frm-name'),
-        //     factory: createMockFactory()
-        // });
     }
 });
 

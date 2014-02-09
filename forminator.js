@@ -364,20 +364,37 @@ if (typeof console === "undefined"){
     console.warn = function () {};
 }
 
-var createFormGroup = function (fig) {
+var createFactory = function (fig) {
     var self = {},
-        $self = fig.$input.closest('.frm-group'),
-        input = fig.input;
+        url = fig.url,
+        $self = fig.$;
 
-    self.$ = function (selector) {
-        return selector ? $self.find(selector) : $self;
+    self.input = {
+        text: createInputText,
+        textarea: createInputTextarea,
+        select: createInputSelect,
+        radio: createInputRadio,
+        checkbox: createInputCheckbox,
+        file: createInputFile
     };
+
+    self.buildFormInputs = function () {
+        return buildFormInputs({
+            $: $self,
+            factory: self
+        });
+    };
+
+    self.form = function () {
+        return createForm({
+            $: $self,
+            url: url,
+            inputs: self.buildFormInputs()
+        });
+    };
+
+    return self;
 };
-
-
-
-
-
 
 var createInput = function (fig, my) {
     var self = mixinPubSub(),
@@ -412,82 +429,6 @@ var createInput = function (fig, my) {
             }
         };
     };
-
-    return self;
-};
-
-var createInputText = function (fig) {
-    var my = {},
-        self = createInput(fig, my);
-
-    self.getType = function () {
-        return 'text';
-    };
-
-    self.$().keyup(function (e) {
-        self.publish('change', self.get());
-    });
-
-    return self;
-};
-
-var createInputTextarea = function (fig) {
-    var my = {},
-        self = createInput(fig, my);
-
-    self.getType = function () {
-        return 'textarea';
-    };
-
-    self.get = function () {
-        return self.$().html();
-    };
-
-    self.set = my.buildSetter(function (newValue) {
-        this.$().html(newValue);
-    });
-
-    self.$().keyup(function () {
-        self.publish('change', self.get());
-    });
-
-    return self;
-};
-
-var createInputSelect = function (fig) {
-    var my = {},
-        self = createInput(fig, my);
-
-    self.getType = function () {
-        return 'select';
-    };
-
-    self.$().change(function () {
-        self.publish('change', self.get());
-    });
-
-    return self;
-};
-
-var createInputRadio = function (fig) {
-    var my = {},
-        self = createInput(fig, my);
-
-    self.getType = function () {
-        return 'radio';
-    };
-
-    self.get = function () {
-        return self.$().filter(':checked').val();
-    };
-
-    self.set = my.buildSetter(function (newValue) {
-        self.$().filter('[value="' + newValue + '"]').prop('checked', true);
-    });
-
-    self.$().change(function () {
-        self.publish('change', self.get());
-    });
 
     return self;
 };
@@ -554,10 +495,86 @@ var createInputFile = function (fig) {
     return self;
 };
 
+var createInputRadio = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'radio';
+    };
+
+    self.get = function () {
+        return self.$().filter(':checked').val();
+    };
+
+    self.set = my.buildSetter(function (newValue) {
+        self.$().filter('[value="' + newValue + '"]').prop('checked', true);
+    });
+
+    self.$().change(function () {
+        self.publish('change', self.get());
+    });
+
+    return self;
+};
+
+var createInputSelect = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'select';
+    };
+
+    self.$().change(function () {
+        self.publish('change', self.get());
+    });
+
+    return self;
+};
+
+var createInputText = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'text';
+    };
+
+    self.$().keyup(function (e) {
+        self.publish('change', self.get());
+    });
+
+    return self;
+};
+
+var createInputTextarea = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'textarea';
+    };
+
+    self.get = function () {
+        return self.$().html();
+    };
+
+    self.set = my.buildSetter(function (newValue) {
+        this.$().html(newValue);
+    });
+
+    self.$().keyup(function () {
+        self.publish('change', self.get());
+    });
+
+    return self;
+};
+
 var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
-        inputs = {};
+        inputs = {},
         files = {};
 
     var addInputsBasic = function (type, selector, group) {
@@ -594,5 +611,60 @@ var buildFormInputs = function (fig) {
         files: files
     };
 };
+
+var createFormGroup = function (fig) {
+    var self = {},
+        $self = fig.$input.closest('.frm-group');
+
+    self.$ = function (selector) {
+        return selector ? $self.find(selector) : $self;
+    };
+};
+
+var createForm = function (fig) {
+    var self = {},
+        $self = fig.$,
+        url = fig.url,
+        inputs = fig.inputs;
+
+    $self.submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: { foo: 'bar' },
+            dataType: 'json',
+            beforeSend: function () {
+                console.log('beforeSend');
+            },
+            success: function (response) {
+                console.log('success', response);
+            },
+            error: function () {
+                console.log('error');
+            },
+            complete: function () {
+                console.log('complete');
+            }
+        });
+        console.log('submit');
+    });
+
+    return self;
+};
+
+var forminator = {};
+
+forminator.init = function (fig) {
+    var $self = fig.$,
+        url = fig.url,
+        factory = createFactory({
+            $: $self,
+            url: url
+        }),
+        form = factory.form();
+};
+
+window.forminator = forminator;
 
 }());
