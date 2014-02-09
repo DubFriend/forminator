@@ -7,10 +7,16 @@
 </head>
 <body>
     <script id="forminator" type="text/template">
-        <form id="frm-name">
+        <form id="frm-name" method="POST">
             <div class="frm-group">
                 <label>Text Input</label>
                 <input type="text" name="text"/>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
+                <label>Text Input</label>
+                <input type="text" name="text2"/>
                 <div class="frm-feedback"></div>
             </div>
         
@@ -21,8 +27,23 @@
             </div>
         
             <div class="frm-group">
+                <label>Textarea</label>
+                <textarea name="textarea2"></textarea>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
                 <label>Select</label>
                 <select name="select">
+                    <option value="a">A</option>
+                    <option value="b">B</option>
+                </select>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
+                <label>Select</label>
+                <select name="select2">
                     <option value="a">A</option>
                     <option value="b">B</option>
                 </select>
@@ -37,6 +58,13 @@
             </div>
         
             <div class="frm-group">
+                <label>Radio</label>
+                <input type="radio" name="radio2" value="a"/>
+                <input type="radio" name="radio2" value="b"/>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
                 <label>Checkbox</label>
                 <input type="checkbox" name="checkbox[]" value="a"/>
                 <input type="checkbox" name="checkbox[]" value="b"/>
@@ -44,13 +72,28 @@
             </div>
         
             <div class="frm-group">
+                <label>Checkbox</label>
+                <input type="checkbox" name="checkbox2[]" value="a"/>
+                <input type="checkbox" name="checkbox2[]" value="b"/>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
                 <label>File</label>
                 <input type="file" name="file"/>
+                <div class="frm-feedback"></div>
+            </div>
+        
+            <div class="frm-group">
+                <label>File</label>
+                <input type="file" name="file2"/>
+                <div class="frm-feedback"></div>
             </div>
         
             <div class="frm-group">
                 <input type="submit" name="submit" value="Submit"/>
                 <input type="button" name="button" value="Button"/>
+                <div class="frm-feedback"></div>
             </div>
         </form>
         
@@ -61,6 +104,8 @@
     <script src="../src/library.js"></script>
     <script src="../src/main.js"></script>
     <script src="qunit-1.14.0.js"></script>
+    <script src="mocks/factory.js"></script>
     <script src="input.js"></script>
+    <script src="buildFormInputs.js"></script>
 </body>
 </html>

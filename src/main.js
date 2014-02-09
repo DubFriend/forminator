@@ -1,3 +1,18 @@
+var createFormGroup = function (fig) {
+    var self = {},
+        $self = fig.$input.closest('.frm-group'),
+        input = fig.input;
+
+    self.$ = function (selector) {
+        return selector ? $self.find(selector) : $self;
+    };
+};
+
+
+
+
+
+
 var createInput = function (fig, my) {
     var self = mixinPubSub(),
         $self = fig.$;
@@ -136,7 +151,7 @@ var createInputCheckbox = function (fig) {
 
         if(oldValues.length === newValues.length) {
             foreach(oldValues, function (value) {
-                if(newValues.indexOf(value) === -1) {
+                if(indexOf(newValues, value) === -1) {
                     isDifferent = true;
                 }
             });
@@ -164,7 +179,7 @@ var createInputCheckbox = function (fig) {
 };
 
 var createInputFile = function (fig) {
-    var self = createInput();
+    var self = {};
 
     self.getType = function () {
         return 'file';
@@ -173,14 +188,39 @@ var createInputFile = function (fig) {
     return self;
 };
 
-var buildFormElements = function (fig) {
+var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
         inputs = {};
 
-    $self.find('input[type="text"]').each(function () {
-        inputs[$(this).attr('name')] = factory.input.text({ $: $(this) });
-    });
+
+    var addInputsBasic = function (type, selector) {
+        $self.find(selector).each(function () {
+            inputs[$(this).attr('name')] = factory.input[type]({ $: $(this) });
+        });
+    };
+
+    addInputsBasic('text', 'input[type="text"]');
+    addInputsBasic('textarea', 'textarea');
+    addInputsBasic('select', 'select');
+    addInputsBasic('file', 'input[type="file"]');
+
+    var addInputsGroup = function (type, selector) {
+        var names = [];
+            $self.find(selector).each(function () {
+            if(indexOf(names, $(this).attr('name')) === -1) {
+                names.push($(this).attr('name'));
+            }
+        });
+        foreach(names, function (name) {
+            inputs[name] = factory.input[type]({
+                $: $self.find('input[name="' + name + '"]')
+            });
+        });
+    };
+
+    addInputsGroup('radio', 'input[type="radio"]');
+    addInputsGroup('checkbox', 'input[type="checkbox"]');
 
     return inputs;
 };

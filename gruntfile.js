@@ -16,7 +16,7 @@ module.exports = function (grunt) {
             dist: {
                 src: [
                     'src/intro.js',
-                    'src/lib.js',
+                    'src/library.js',
                     'src/main.js',
                     'src/outro.js'
                 ],
@@ -37,7 +37,7 @@ module.exports = function (grunt) {
 
         watch: {
             scripts: {
-                files: ['**/*.js'],
+                files: ['**/*'],
                 tasks: ['preprocess', 'concat', 'uglify', 'qunit'],
                 options: { spawn: true }
             }

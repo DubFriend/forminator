@@ -2,18 +2,6 @@ var identity = function (x) {
     return x;
 };
 
-var increment = function (x) {
-    return x += 1;
-};
-
-var decrement = function (x) {
-    return x -= 1;
-};
-
-var dot = function (key, object) {
-    return object[key];
-};
-
 var partial = function (f) {
     var args = Array.prototype.slice.call(arguments, 1);
     return function () {
@@ -23,7 +11,7 @@ var partial = function (f) {
 };
 
 var isArray = function (value) {
-    return value instanceof Array;
+    return $.isArray(value);
 };
 
 var isObject = function (value) {
@@ -51,9 +39,13 @@ var isInteger = function (candidate) {
     return isNumeric(candidate) && Number(candidate) % 1 === 0;
 };
 
+var indexOf = function (object, value) {
+    return $.inArray(value, object);
+};
+
 //deep copy of json objects
 var copy = function (object) {
-    return JSON.parse(JSON.stringify(object));
+    return $.extend(true, {}, object);
 };
 
 var shallowCopy = function (objects) {
@@ -125,6 +117,12 @@ var map = function (collection, callback, keyCallback) {
         mapToObject(collection, callback, keyCallback);
 };
 
+var pluck = function(collection, key) {
+    return map(collection, function (value) {
+        return value[key];
+    });
+};
+
 var keys = function (collection) {
     return mapToArray(collection, function (val, key) {
         return key;
@@ -137,8 +135,8 @@ var values = function (collection) {
     });
 };
 
-var reduce = function (collection, callback) {
-    var accumulation;
+var reduce = function (collection, callback, initialAccumulation) {
+    var accumulation = initialAccumulation;
     foreach(collection, function (val, key) {
         accumulation = callback(accumulation, val, key, collection);
     });
@@ -169,24 +167,24 @@ var filter = function (collection, callback) {
 };
 
 var union = function () {
-    var united = {};
-    foreach(arguments, function (object) {
-        foreach(object, function (value, key) {
+    var united = {}, i;
+    for(i = 0; i < arguments.length; i += 1) {
+        foreach(arguments[i], function (value, key) {
             united[key] = value;
         });
-    });
+    }
     return united;
 };
 
 var subSet = function (object, subsetKeys) {
     return filter(object, function (value, key) {
-        return subsetKeys.indexOf(key) !== -1;
+        return indexOf(subsetKeys, key) !== -1;
     });
 };
 
 var excludedSet = function (object, excludedKeys) {
     return filter(object, function (value, key) {
-        return excludedKeys.indexOf(key) === -1;
+        return indexOf(excludedKeys, key) === -1;
     });
 };
 
@@ -259,7 +257,7 @@ var mixinPubSub = function (object) {
 
     object.unsubscribe = function (callback) {
         foreach(topics, function (subscribers) {
-            var index = subscribers.indexOf(callback);
+            var index = indexOf(subscribers, callback);
             if(index !== -1) {
                 subscribers.splice(index, 1);
             }
@@ -278,30 +276,11 @@ var queryjs = (function () {
 
     var queryjs = {};
 
-    var foreach = function (object, callback) {
-        var key;
-        for(key in object) {
-            if(object.hasOwnProperty(key)) {
-                callback(object[key], key, object);
-            }
-        }
-    };
-
-    var extend = function () {
-        var united = {};
-        foreach(arguments, function (object, key) {
-            foreach(object, function (value, key) {
-                united[key] = value;
-            });
-        });
-        return united;
-    };
-
     var parse = function (url) {
         var domain = '', hash = '';
         var getParameterStrings = function () {
-            var isHash = url.indexOf('#') !== -1,
-                isQuery = url.indexOf('?') !== -1,
+            var isHash = indexOf(url, '#') !== -1,
+                isQuery = indexOf(url, '?') !== -1,
                 queryString = '';
 
             if(isQuery) {
@@ -364,7 +343,7 @@ var queryjs = (function () {
 
     queryjs.set = function (url, params) {
         var parsed = parse(url);
-        parsed.parameters = extend(parsed.parameters, params);
+        parsed.parameters = union(parsed.parameters, params);
         return stringify(parsed);
     };
 

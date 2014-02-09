@@ -35,6 +35,11 @@ var testNotPublishesOnSetNotChange = function() {
     this.input.set('b');
 };
 
+var testGetType = function (type) {
+    return function () {
+        deepEqual(this.input.getType(), type, 'getType returns ' + type);
+    };
+};
 
 
 module("createInputText", {
@@ -48,6 +53,7 @@ test("textInput get", testGet);
 test("textInput set", testSet);
 test("textInput set publishes change if changed", testPublishesOnSetChange);
 test("textInput set no publish if data not different", testNotPublishesOnSetNotChange);
+test("textInput getType", testGetType('text'));
 
 test("textInput set publishes change on keyup", function () {
     expect(1);
@@ -91,6 +97,8 @@ test("textareaInput set publishes change on keyup", function () {
     this.$.trigger(keyUpEvent);
 });
 
+test("textareaInput getType", testGetType('textarea'));
+
 module("createInputSelect", {
     setup: buildSetup({
         selector: '[name="select"]',
@@ -112,6 +120,7 @@ test("selectInput set publishes change on change", function () {
     this.$.change();
 });
 
+test("selectInput getType", testGetType('select'));
 
 module("createInputRadio", {
     setup: buildSetup({
@@ -141,6 +150,8 @@ test("radioInput set publishes change on change", function () {
     });
     this.$.filter('[value="a"]').change();
 });
+
+test("radioInput getType", testGetType('radio'));
 
 module("createInputCheckbox", {
     setup: buildSetup({
@@ -173,7 +184,7 @@ test("checkboxInput set multiple", function() {
 test("checkboxInput set publishes change if changed", testPublishesOnSetChange);
 test("checkboxInput set no publish if data not different", testNotPublishesOnSetNotChange);
 
-test("radioInput set publishes change on click", function () {
+test("checkboxInput set publishes change on click", function () {
     expect(1);
     this.input.subscribe('change', function (data) {
         deepEqual(data, ['a'], 'published');
@@ -181,4 +192,13 @@ test("radioInput set publishes change on click", function () {
     this.$.filter('[value="a"]').click();
 });
 
-// module("buildFormElements", { setup: setup });
+test("checkboxInput getType", testGetType('checkbox'));
+
+module("createInputCheckbox", {
+    setup: buildSetup({
+        selector: '[name="file"]',
+        createInput: createInputFile
+    })
+});
+
+test("fileInput getType", testGetType('file'));
