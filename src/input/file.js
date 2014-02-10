@@ -1,5 +1,6 @@
 var createInputFile = function (fig) {
-    var self = {};
+    var my = {},
+        self = createBaseInput(fig, my);
 
     self.getType = function () {
         return 'file';

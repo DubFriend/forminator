@@ -8,6 +8,7 @@ forminator.init = function (fig) {
             url: url
         }),
         form = factory.form();
+
 };
 
 window.forminator = forminator;

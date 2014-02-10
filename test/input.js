@@ -41,6 +41,25 @@ var testGetType = function (type) {
     };
 };
 
+var testDisabled = function () {
+    expect(2);
+    this.input.subscribe('isEnabled', function (isEnabled) {
+        deepEqual(isEnabled, false, 'publishes result');
+    });
+    this.input.disable();
+    deepEqual(this.$.prop('disabled'), true, 'disabled property set');
+};
+
+var testEnabled = function () {
+    expect(2);
+    this.input.disable();
+    this.input.subscribe('isEnabled', function (isEnabled) {
+        deepEqual(isEnabled, true, 'publishes result');
+    });
+    this.input.enable();
+    deepEqual(this.$.prop('disabled'), false, 'disabled property not set');
+};
+
 
 module("createInputText", {
     setup: buildSetup({
@@ -54,6 +73,8 @@ test("textInput set", testSet);
 test("textInput set publishes change if changed", testPublishesOnSetChange);
 test("textInput set no publish if data not different", testNotPublishesOnSetNotChange);
 test("textInput getType", testGetType('text'));
+test("textInput disable", testDisabled);
+test("textInput enable", testEnabled);
 
 test("textInput set publishes change on keyup", function () {
     expect(1);
@@ -98,6 +119,8 @@ test("textareaInput set publishes change on keyup", function () {
 });
 
 test("textareaInput getType", testGetType('textarea'));
+test("textareaInput disable", testDisabled);
+test("textareaInput enable", testEnabled);
 
 module("createInputSelect", {
     setup: buildSetup({
@@ -121,6 +144,8 @@ test("selectInput set publishes change on change", function () {
 });
 
 test("selectInput getType", testGetType('select'));
+test("selectInput disable", testDisabled);
+test("selectInput enable", testEnabled);
 
 module("createInputRadio", {
     setup: buildSetup({
@@ -152,6 +177,8 @@ test("radioInput set publishes change on change", function () {
 });
 
 test("radioInput getType", testGetType('radio'));
+test("radioInput disable", testDisabled);
+test("radioInput enable", testEnabled);
 
 module("createInputCheckbox", {
     setup: buildSetup({
@@ -193,6 +220,8 @@ test("checkboxInput set publishes change on click", function () {
 });
 
 test("checkboxInput getType", testGetType('checkbox'));
+test("checkboxInput disable", testDisabled);
+test("checkboxInput enable", testEnabled);
 
 module("createInputCheckbox", {
     setup: buildSetup({
@@ -202,3 +231,5 @@ module("createInputCheckbox", {
 });
 
 test("fileInput getType", testGetType('file'));
+test("fileInput disable", testDisabled);
+test("fileInput enable", testEnabled);

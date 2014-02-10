@@ -1,8 +1,7 @@
 var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
-        inputs = {},
-        files = {};
+        inputs = {};
 
     var addInputsBasic = function (type, selector, group) {
         group = group || inputs;
@@ -14,7 +13,7 @@ var buildFormInputs = function (fig) {
     addInputsBasic('text', 'input[type="text"]');
     addInputsBasic('textarea', 'textarea');
     addInputsBasic('select', 'select');
-    addInputsBasic('file', 'input[type="file"]', files);
+    addInputsBasic('file', 'input[type="file"]');
 
     var addInputsGroup = function (type, selector) {
         var names = [];
@@ -33,8 +32,5 @@ var buildFormInputs = function (fig) {
     addInputsGroup('radio', 'input[type="radio"]');
     addInputsGroup('checkbox', 'input[type="checkbox"]');
 
-    return {
-        inputs: inputs,
-        files: files
-    };
+    return inputs;
 };

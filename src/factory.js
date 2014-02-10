@@ -12,18 +12,14 @@ var createFactory = function (fig) {
         file: createInputFile
     };
 
-    self.buildFormInputs = function () {
-        return buildFormInputs({
-            $: $self,
-            factory: self
-        });
-    };
-
     self.form = function () {
         return createForm({
             $: $self,
             url: url,
-            inputs: self.buildFormInputs()
+            inputs: buildFormInputs({
+                $: $self,
+                factory: self
+            })
         });
     };
 

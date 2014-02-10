@@ -43,6 +43,10 @@ var indexOf = function (object, value) {
     return $.inArray(value, object);
 };
 
+var inArray = function (array, value) {
+    return indexOf(array, value) !== -1;
+};
+
 //deep copy of json objects
 var copy = function (object) {
     return $.extend(true, {}, object);
@@ -120,6 +124,13 @@ var map = function (collection, callback, keyCallback) {
 var pluck = function(collection, key) {
     return map(collection, function (value) {
         return value[key];
+    });
+};
+
+var call = function (collection, functionName, args, self) {
+    foreach(collection, function (object) {
+        // object[functionName]();
+        object[functionName].apply(object, args || []);
     });
 };
 

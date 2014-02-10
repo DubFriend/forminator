@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 09-02-2014
+// (MIT) 10-02-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -48,6 +48,10 @@ var isInteger = function (candidate) {
 
 var indexOf = function (object, value) {
     return $.inArray(value, object);
+};
+
+var inArray = function (array, value) {
+    return indexOf(array, value) !== -1;
 };
 
 //deep copy of json objects
@@ -127,6 +131,13 @@ var map = function (collection, callback, keyCallback) {
 var pluck = function(collection, key) {
     return map(collection, function (value) {
         return value[key];
+    });
+};
+
+var call = function (collection, functionName, args, self) {
+    foreach(collection, function (object) {
+        // object[functionName]();
+        object[functionName].apply(object, args || []);
     });
 };
 
@@ -378,25 +389,21 @@ var createFactory = function (fig) {
         file: createInputFile
     };
 
-    self.buildFormInputs = function () {
-        return buildFormInputs({
-            $: $self,
-            factory: self
-        });
-    };
-
     self.form = function () {
         return createForm({
             $: $self,
             url: url,
-            inputs: self.buildFormInputs()
+            inputs: buildFormInputs({
+                $: $self,
+                factory: self
+            })
         });
     };
 
     return self;
 };
 
-var createInput = function (fig, my) {
+var createBaseInput = function (fig, my) {
     var self = mixinPubSub(),
         $self = fig.$;
 
@@ -407,6 +414,23 @@ var createInput = function (fig, my) {
     self.$ = function (selector) {
         return selector ? $self.find(selector) : $self;
     };
+
+    self.disable = function () {
+        self.$().prop('disabled', true);
+        self.publish('isEnabled', false);
+    };
+
+    self.enable = function () {
+        self.$().prop('disabled', false);
+        self.publish('isEnabled', true);
+    };
+
+    return self;
+};
+
+
+var createInput = function (fig, my) {
+    var self = createBaseInput(fig, my);
 
     self.get = function () {
         return self.$().val();
@@ -486,7 +510,8 @@ var createInputCheckbox = function (fig) {
 };
 
 var createInputFile = function (fig) {
-    var self = {};
+    var my = {},
+        self = createBaseInput(fig, my);
 
     self.getType = function () {
         return 'file';
@@ -574,8 +599,7 @@ var createInputTextarea = function (fig) {
 var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
-        inputs = {},
-        files = {};
+        inputs = {};
 
     var addInputsBasic = function (type, selector, group) {
         group = group || inputs;
@@ -587,7 +611,7 @@ var buildFormInputs = function (fig) {
     addInputsBasic('text', 'input[type="text"]');
     addInputsBasic('textarea', 'textarea');
     addInputsBasic('select', 'select');
-    addInputsBasic('file', 'input[type="file"]', files);
+    addInputsBasic('file', 'input[type="file"]');
 
     var addInputsGroup = function (type, selector) {
         var names = [];
@@ -606,10 +630,7 @@ var buildFormInputs = function (fig) {
     addInputsGroup('radio', 'input[type="radio"]');
     addInputsGroup('checkbox', 'input[type="checkbox"]');
 
-    return {
-        inputs: inputs,
-        files: files
-    };
+    return inputs;
 };
 
 var createFormGroup = function (fig) {
@@ -627,27 +648,62 @@ var createForm = function (fig) {
         url = fig.url,
         inputs = fig.inputs;
 
+    self.disable = function () {
+        call(inputs, 'disable');
+    };
+
+    self.enable = function () {
+        call(inputs, 'enable');
+    };
+
+    self.validate = function (data) {
+        return {};
+    };
+
+    self.get = function () {
+        return map(
+            filter(inputs, function (input) {
+                return !inArray(['file', 'button'], input.getType());
+            }),
+            function (input) {
+                return input.get();
+            }
+        );
+    };
+
     $self.submit(function (e) {
         e.preventDefault();
+        var data = self.get(),
+            errors = self.validate(data);
+        if(isEmpty(errors)) {
         $.ajax({
             url: url,
             method: 'POST',
-            data: { foo: 'bar' },
+            data: data,
             dataType: 'json',
             beforeSend: function () {
+                self.disable();
                 console.log('beforeSend');
             },
             success: function (response) {
                 console.log('success', response);
             },
-            error: function () {
+            error: function (jqXHR) {
                 console.log('error');
+                if(jqXHR.status === 409) {
+                    that.publish('error', jqXHR.responseJSON);
+                }
             },
             complete: function () {
+                self.enable();
                 console.log('complete');
             }
         });
         console.log('submit');
+        }
+        else {
+            console.log('error', errors);
+        }
     });
 
     return self;
@@ -663,6 +719,7 @@ forminator.init = function (fig) {
             url: url
         }),
         form = factory.form();
+
 };
 
 window.forminator = forminator;
