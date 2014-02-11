@@ -386,7 +386,8 @@ var createFactory = function (fig) {
         select: createInputSelect,
         radio: createInputRadio,
         checkbox: createInputCheckbox,
-        file: createInputFile
+        file: createInputFile,
+        button: createInputButton
     };
 
     self.form = function () {
@@ -452,6 +453,17 @@ var createInput = function (fig, my) {
                 self.publish('change', newValue);
             }
         };
+    };
+
+    return self;
+};
+
+var createInputButton = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'button';
     };
 
     return self;

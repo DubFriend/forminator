@@ -9,7 +9,8 @@ var createFactory = function (fig) {
         select: createInputSelect,
         radio: createInputRadio,
         checkbox: createInputCheckbox,
-        file: createInputFile
+        file: createInputFile,
+        button: createInputButton
     };
 
     self.form = function () {

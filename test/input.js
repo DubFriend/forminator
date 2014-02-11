@@ -223,7 +223,7 @@ test("checkboxInput getType", testGetType('checkbox'));
 test("checkboxInput disable", testDisabled);
 test("checkboxInput enable", testEnabled);
 
-module("createInputCheckbox", {
+module("createInputFile", {
     setup: buildSetup({
         selector: '[name="file"]',
         createInput: createInputFile
@@ -233,3 +233,16 @@ module("createInputCheckbox", {
 test("fileInput getType", testGetType('file'));
 test("fileInput disable", testDisabled);
 test("fileInput enable", testEnabled);
+
+module("createInputFile", {
+    setup: buildSetup({
+        selector: '[name="button"]',
+        createInput: createInputButton
+    })
+});
+
+test("buttonInput getType", testGetType('button'));
+test("buttonInput disable", testDisabled);
+test("buttonInput enable", testEnabled);
+test("buttonInput get", testGet);
+test("buttonInput set", testSet);
