@@ -16,6 +16,7 @@ var createFactory = function (fig) {
     self.form = function () {
         return createForm({
             $: $self,
+            ajax: ajax,
             url: url,
             inputs: buildFormInputs({
                 $: $self,

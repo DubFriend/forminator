@@ -1,6 +1,7 @@
 var createForm = function (fig) {
-    var self = {},
+    var self = mixinPubSub(),
         $self = fig.$,
+        ajax = fig.ajax,
         url = fig.url,
         inputs = fig.inputs;
 
@@ -31,31 +32,34 @@ var createForm = function (fig) {
         e.preventDefault();
         var data = self.get(),
             errors = self.validate(data);
+
         if(isEmpty(errors)) {
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: data,
-            dataType: 'json',
-            beforeSend: function () {
-                self.disable();
-                console.log('beforeSend');
-            },
-            success: function (response) {
-                console.log('success', response);
-            },
-            error: function (jqXHR) {
-                console.log('error');
-                if(jqXHR.status === 409) {
-                    that.publish('error', jqXHR.responseJSON);
+            ajax({
+                url: url,
+                method: 'POST',
+                data: data,
+                dataType: 'json',
+                beforeSend: function () {
+                    self.disable();
+                    // console.log('beforeSend');
+                },
+                success: function (response) {
+                    // console.log('success', response);
+                },
+                error: function (jqXHR) {
+                    console.log('error');
+                    if(jqXHR.status === 409) {
+                        self.publish('error', jqXHR.responseJSON);
+                    }
+                },
+                complete: function () {
+                    // setTimeout(function () {
+                    self.enable();
+                    // }, 2000);
+                    // console.log('complete');
                 }
-            },
-            complete: function () {
-                self.enable();
-                console.log('complete');
-            }
-        });
-        console.log('submit');
+            });
+            // console.log('submit');
         }
         else {
             console.log('error', errors);
