@@ -1,7 +1,8 @@
+var $fixture = $('#qunit-fixture');
 module('createForm',{
     setup: function () {
         var self = this;
-
+        $fixture.html($('#forminator').html());
         self.preventDefaultCalled = false;
         self.$mockEvent = {
             preventDefault: function () {
@@ -11,16 +12,16 @@ module('createForm',{
 
         self.submitCalled = false;
         self.callback = null;
-        self.$mock = {
-            submit: function (callback) {
-                self.submitCalled = true;
-                self.callback = callback;
-            }
+        self.$mock = $('#frm-name');
+        self.$mock.submit = function (callback) {
+            self.submitCalled = true;
+            self.callback = callback;
         };
 
         self.fileInputDisabled = null;
         self.buttonInputDisabled = null;
         self.textInputDisabled = null;
+        self.textGetData = 'textInputData';
         self.inputs = {
             fileInput: {
                 getType: function () { return 'file'; },
@@ -36,11 +37,12 @@ module('createForm',{
             },
             textInput: {
                 getType: function () { return 'text'; },
-                get: function () { return 'textInputData'; },
+                get: function () { return self.textGetData; },
                 disable: function () { self.textInputDisabled = true; },
                 enable: function () { self.textInputDisabled = false; }
             }
         };
+
 
         self.ajaxCalled = false;
         self.ajaxFig = null;
@@ -50,6 +52,14 @@ module('createForm',{
             ajax: function (fig) {
                 self.ajaxCalled = true;
                 self.ajaxFig = fig;
+            },
+            validate: function (data) {
+                if(data.textInput === 'wrong') {
+                    return {
+                        textInput: 'textErrorMessage',
+                        GLOBAL: 'globalErrorMessage'
+                    };
+                }
             },
             url: 'testURL'
         });

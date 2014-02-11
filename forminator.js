@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 10-02-2014
+// (MIT) 11-02-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -395,10 +395,12 @@ var createFactory = function (fig) {
             $: $self,
             ajax: ajax,
             url: url,
-            inputs: buildFormInputs({
-                $: $self,
-                factory: self
-            })
+            inputs: map(
+                buildFormInputs({ $: $self, factory: self }),
+                function (input) {
+                    return createFormGroup({ input: input });
+                }
+            )
         });
     };
 
@@ -652,11 +654,30 @@ var buildFormInputs = function (fig) {
 
 var createFormGroup = function (fig) {
     var self = {},
-        $self = fig.$input.closest('.frm-group');
+        input = fig.input,
+        $self = input.$().closest('.frm-group');
+
+    self.get = input.get || function () {};
+    self.set = input.set || function () {};
+    self.disable = input.disable;
+    self.enable = input.enable;
+    self.getType = input.getType;
 
     self.$ = function (selector) {
         return selector ? $self.find(selector) : $self;
     };
+
+    self.setFeedback = function (message) {
+        self.$().addClass('error');
+        self.$('.frm-feedback').html(message);
+    };
+
+    self.clearFeedback = function () {
+        self.$().removeClass('error');
+        self.$('.frm-feedback').html('');
+    };
+
+    return self;
 };
 
 var createForm = function (fig) {
@@ -674,7 +695,7 @@ var createForm = function (fig) {
         call(inputs, 'enable');
     };
 
-    self.validate = function (data) {
+    self.validate = fig.validate || function (data) {
         return {};
     };
 
@@ -702,13 +723,11 @@ var createForm = function (fig) {
                 dataType: 'json',
                 beforeSend: function () {
                     self.disable();
-                    // console.log('beforeSend');
                 },
                 success: function (response) {
-                    // console.log('success', response);
+                    console.log(response);
                 },
                 error: function (jqXHR) {
-                    console.log('error');
                     if(jqXHR.status === 409) {
                         self.publish('error', jqXHR.responseJSON);
                     }
@@ -717,10 +736,8 @@ var createForm = function (fig) {
                     // setTimeout(function () {
                     self.enable();
                     // }, 2000);
-                    // console.log('complete');
                 }
             });
-            // console.log('submit');
         }
         else {
             console.log('error', errors);

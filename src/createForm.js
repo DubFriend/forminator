@@ -13,7 +13,7 @@ var createForm = function (fig) {
         call(inputs, 'enable');
     };
 
-    self.validate = function (data) {
+    self.validate = fig.validate || function (data) {
         return {};
     };
 
@@ -41,13 +41,11 @@ var createForm = function (fig) {
                 dataType: 'json',
                 beforeSend: function () {
                     self.disable();
-                    // console.log('beforeSend');
                 },
                 success: function (response) {
-                    // console.log('success', response);
+                    console.log(response);
                 },
                 error: function (jqXHR) {
-                    console.log('error');
                     if(jqXHR.status === 409) {
                         self.publish('error', jqXHR.responseJSON);
                     }
@@ -56,10 +54,8 @@ var createForm = function (fig) {
                     // setTimeout(function () {
                     self.enable();
                     // }, 2000);
-                    // console.log('complete');
                 }
             });
-            // console.log('submit');
         }
         else {
             console.log('error', errors);

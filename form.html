@@ -1,4 +1,4 @@
-<form id="frm-name" method="POST">
+<form id="frm-name" method="POST" enctype="multipart/form-data" action="respond.php">
     <div class="frm-group">
         <label>Text</label>
         <input type="text" name="text"/>
@@ -83,7 +83,11 @@
 
     <div class="frm-group">
         <input type="submit" name="submit" value="Submit"/>
-        <input type="button" name="button" value="Button"/>
-        <div class="frm-feedback"></div>
     </div>
+
+    <div class="frm-group">
+        <input type="button" name="button" value="Button"/>
+    </div>
+
+    <div class="frm-global-feedback"></div>
 </form>

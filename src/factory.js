@@ -18,10 +18,12 @@ var createFactory = function (fig) {
             $: $self,
             ajax: ajax,
             url: url,
-            inputs: buildFormInputs({
-                $: $self,
-                factory: self
-            })
+            inputs: map(
+                buildFormInputs({ $: $self, factory: self }),
+                function (input) {
+                    return createFormGroup({ input: input });
+                }
+            )
         });
     };
 

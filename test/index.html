@@ -7,7 +7,7 @@
 </head>
 <body>
     <script id="forminator" type="text/template">
-        <form id="frm-name" method="POST">
+        <form id="frm-name" method="POST" enctype="multipart/form-data" action="respond.php">
             <div class="frm-group">
                 <label>Text</label>
                 <input type="text" name="text"/>
@@ -92,9 +92,13 @@
         
             <div class="frm-group">
                 <input type="submit" name="submit" value="Submit"/>
-                <input type="button" name="button" value="Button"/>
-                <div class="frm-feedback"></div>
             </div>
+        
+            <div class="frm-group">
+                <input type="button" name="button" value="Button"/>
+            </div>
+        
+            <div class="frm-global-feedback"></div>
         </form>
         
     </script>
@@ -112,11 +116,13 @@
     <script src="../src/input/text.js"></script>
     <script src="../src/input/textarea.js"></script>
     <script src="../src/buildFormInputs.js"></script>
+    <script src="../src/createFormGroup.js"></script>
     <script src="../src/createForm.js"></script>
     <script src="qunit-1.14.0.js"></script>
     <script src="mocks/factory.js"></script>
     <script src="input.js"></script>
     <script src="buildFormInputs.js"></script>
     <script src="createForm.js"></script>
+    <script src="createFormGroup.js"></script>
 </body>
 </html>
