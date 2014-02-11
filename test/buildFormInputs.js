@@ -34,3 +34,5 @@ buildTest('select', 1);
 buildTest('select2', 1);
 buildTest('file', 1);
 buildTest('file2', 1);
+buildTest('submit', 1);
+buildTest('button', 1);

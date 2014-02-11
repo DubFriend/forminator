@@ -624,6 +624,7 @@ var buildFormInputs = function (fig) {
     addInputsBasic('textarea', 'textarea');
     addInputsBasic('select', 'select');
     addInputsBasic('file', 'input[type="file"]');
+    addInputsBasic('button', 'input[type="button"], input[type="submit"]');
 
     var addInputsGroup = function (type, selector) {
         var names = [];
