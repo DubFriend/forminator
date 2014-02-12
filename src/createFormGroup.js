@@ -13,15 +13,31 @@ var createFormGroup = function (fig) {
         return selector ? $self.find(selector) : $self;
     };
 
-    self.setFeedback = function (message) {
-        self.$().addClass('error');
-        self.$('.frm-feedback').html(message);
-    };
+    // minimizing dom manipulation.
+    (function () {
+        var oldMessage = null,
+            isError = false;
 
-    self.clearFeedback = function () {
-        self.$().removeClass('error');
-        self.$('.frm-feedback').html('');
-    };
+        self.setFeedback = function (newMessage) {
+            if(!isError) {
+                self.$().addClass('error');
+            }
+            if(newMessage !== oldMessage) {
+                self.$('.frm-feedback').html(newMessage);
+            }
+            oldMessage = newMessage;
+            isError = true;
+        };
+
+        self.clearFeedback = function () {
+            if(isError) {
+                self.$().removeClass('error');
+                self.$('.frm-feedback').html('');
+            }
+            oldMessage = null;
+            isError = false;
+        };
+    }());
 
     return self;
 };

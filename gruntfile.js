@@ -16,6 +16,7 @@ module.exports = function (grunt) {
             dist: {
                 src: [
                     'src/intro.js',
+                    'lib/jQuery.AjaxFileUpload.js/jquery.ajaxfileupload.js',
                     'src/library.js',
                     'src/factory.js',
                     'src/ajax.js',

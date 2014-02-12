@@ -3,18 +3,61 @@
 <head>
     <meta charset="utf-8">
     <title>Forminator</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style type="text/css">
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: rgb(41, 41, 41);
+        }
+
+        #frm-name {
+            border: 1px solid white;
+            padding: 0.2em;
+        }
+
+        #frm-name.error {
+            border: 1px solid rgb(232, 37, 37);
+        }
+
+        #frm-name.success {
+            border: 1px solid green;
+        }
+
+        #frm-name.error .frm-global-feedback, .frm-group.error * {
+            color: rgb(232, 37, 37);
+        }
+
+        #frm-name.success .frm-global-feedback {
+            color: green;
+        }
+    </style>
 </head>
 <body>
 
     <!-- @include form.html -->
 
     <script src="lib/jquery-1.11.0"></script>
-    <script src="lib/jQuery.AjaxFileUpload.js/jquery.ajaxfileupload.js"></script>
     <script src="forminator.js"></script>
     <script>
         var form = forminator.init({
             $: $('#frm-name'),
-            url: 'respond.php'
+            validate: function (data) {
+                var errors = {};
+
+                if(data.text.length > 3) {
+                    errors.text = '3 character maximum';
+                }
+                else if(data.text === 'foo') {
+                    errors.text = 'cannot be "foo"';
+                }
+
+                if(errors.text) {
+                    errors.GLOBAL = 'An error occured.';
+                }
+
+                return errors;
+            }
         });
     </script>
 </body>

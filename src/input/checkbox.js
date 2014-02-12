@@ -37,7 +37,8 @@ var createInputCheckbox = function (fig) {
                 $(this).prop('checked', false);
             });
             foreach(newValues, function (value) {
-                self.$().filter('[value="' + value + '"]').prop('checked', true);
+                self.$().filter('[value="' + value + '"]')
+                    .prop('checked', true);
             });
             self.publish('change', newValues);
         }

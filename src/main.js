@@ -7,8 +7,11 @@ forminator.init = function (fig) {
             $: $self,
             url: url
         }),
-        form = factory.form();
+        form = factory.form({
+            validate: fig.validate
+        });
 
+    return form;
 };
 
 window.forminator = forminator;

@@ -13,8 +13,9 @@ var createFactory = function (fig) {
         button: createInputButton
     };
 
-    self.form = function () {
-        return createForm({
+    self.form = function (override) {
+        override = override || {};
+        return createForm(union({
             $: $self,
             ajax: ajax,
             url: url,
@@ -24,7 +25,7 @@ var createFactory = function (fig) {
                     return createFormGroup({ input: input });
                 }
             )
-        });
+        }, override));
     };
 
     return self;

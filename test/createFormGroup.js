@@ -1,4 +1,4 @@
-module('createForm',{
+module('createFormGroup',{
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
@@ -48,14 +48,20 @@ test('delegates getType', function () {
 
 test('setFeedback', function () {
     this.formGroup.setFeedback('foo');
-    strictEqual(this.$group.find('.frm-feedback').html(), 'foo', 'sets feedback div');
+    strictEqual(
+        this.$group.find('.frm-feedback').html(), 'foo',
+        'sets feedback div'
+    );
     ok(this.$group.hasClass('error'), 'adds error class');
 });
 
+// dependent on test 'setFeedback'
 test('clearFeedback', function () {
-    this.$group.addClass('error');
-    this.$group.find('.frm-feedback').html('foo');
+    this.formGroup.setFeedback('foo');
     this.formGroup.clearFeedback();
-    strictEqual(this.$group.find('.frm-feedback').html(), '', 'clears feedback div');
+    strictEqual(this.$group.find(
+        '.frm-feedback').html(), '',
+        'clears feedback div'
+    );
     ok(!this.$group.hasClass('error'), 'removes error class');
 });
