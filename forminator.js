@@ -1,184 +1,454 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 12-02-2014
+// (MIT) 27-02-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
 
-/*
-// jQuery Ajax File Uploader
-//
-// @author: Jordan Feldstein <jfeldstein.com>
-//
-//  - Ajaxifies an individual <input type="file">
-//  - Files are sandboxed. Doesn't matter how many, or where they are, on the page.
-//  - Allows for extra parameters to be included with the file
-//  - onStart callback can cancel the upload by returning false
-*/
+(function ($) {
+    'use strict';
 
+    var isArray = function (value) {
+        return $.isArray(value);
+    };
 
-(function($) {
-    $.fn.ajaxfileupload = function(options) {
-        var settings = {
-          params: {},
-          action: '',
-          onStart: function() {
-            console.log('starting upload');
-            console.log(this);
-          },
-          onComplete: function(response) {
-            console.log('got response: ');
-            console.log(response); console.log(this);
-          },
-          onCancel: function() {
-            console.log('cancelling: '); console.log(this);
-          },
-          validate_extensions : true,
-          valid_extensions : ['gif','png','jpg','jpeg'],
-          submit_button : null
+    var isObject = function (value) {
+        return !isArray(value) && (value instanceof Object);
+    };
+
+    var foreach = function (collection, callback) {
+        for(var i in collection) {
+            if(collection.hasOwnProperty(i)) {
+                callback(collection[i], i, collection);
+            }
+        }
+    };
+
+    var partial = function (f) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return function () {
+            var remainingArgs = Array.prototype.slice.call(arguments);
+            return f.apply(null, args.concat(remainingArgs));
         };
+    };
 
-        var uploading_file = false;
+    var union = function () {
+        var united = {}, i;
+        for(i = 0; i < arguments.length; i += 1) {
+            foreach(arguments[i], function (value, key) {
+                united[key] = value;
+            });
+        }
+        return united;
+    };
 
-        if ( options ) {
-          $.extend( settings, options );
+    var filter = function (collection, callback) {
+        var filtered;
+
+        if(isArray(collection)) {
+            filtered = [];
+            foreach(collection, function (val, key, coll) {
+                if(callback(val, key, coll)) {
+                    filtered.push(val);
+                }
+            });
+        }
+        else {
+            filtered = {};
+            foreach(collection, function (val, key, coll) {
+                if(callback(val, key, coll)) {
+                    filtered[key] = val;
+                }
+            });
         }
 
+        return filtered;
+    };
 
-        // 'this' is a jQuery collection of one or more (hopefully)
-        //  file elements, but doesn't check for this yet
-        return this.each(function() {
-          var $element = $(this);
+    var indexOf = function (object, value) {
+        return $.inArray(value, object);
+    };
 
-          // Skip elements that are already setup. May replace this
-          //  with uninit() later, to allow updating that settings
-          if($element.data('ajaxUploader-setup') === true) return;
-
-          $element.change(function()
-          {
-            // since a new image was selected, reset the marker
-            uploading_file = false;
-
-            // only update the file from here if we haven't assigned a submit button
-            if (settings.submit_button == null)
-            {
-              upload_file();
-            }
-          });
-
-          if (settings.submit_button == null)
-          {
-            // do nothing
-          } else
-          {
-            settings.submit_button.click(function(e)
-            {
-              // Prevent non-AJAXy submit
-              e.preventDefault();
-
-              // only attempt to upload file if we're not uploading
-              if (!uploading_file)
-              {
-                upload_file();
-              }
-            });
-          }
-
-          var upload_file = function()
-          {
-            if($element.val() == '') return settings.onCancel.apply($element, [settings.params]);
-
-            // make sure extension is valid
-            var ext = $element.val().split('.').pop().toLowerCase();
-            if(true === settings.validate_extensions && $.inArray(ext, settings.valid_extensions) == -1)
-            {
-              // Pass back to the user
-              settings.onComplete.apply($element, [{status: false, message: 'The select file type is invalid. File must be ' + settings.valid_extensions.join(', ') + '.'}, settings.params]);
-            } else
-            {
-              uploading_file = true;
-
-              // Creates the form, extra inputs and iframe used to
-              //  submit / upload the file
-              wrapElement($element);
-
-              // Call user-supplied (or default) onStart(), setting
-              //  it's this context to the file DOM element
-              var ret = settings.onStart.apply($element, [settings.params]);
-
-              // let onStart have the option to cancel the upload
-              if(ret !== false)
-              {
-                $element.parent('form').submit(function(e) { e.stopPropagation(); }).submit();
-              }
-            }
-          };
-
-          // Mark this element as setup
-          $element.data('ajaxUploader-setup', true);
-
-          /*
-          // Internal handler that tries to parse the response
-          //  and clean up after ourselves.
-          */
-          var handleResponse = function(loadedFrame, element) {
-            var response, responseStr = loadedFrame.contentWindow.document.body.innerHTML;
-            try {
-              //response = $.parseJSON($.trim(responseStr));
-              response = JSON.parse(responseStr);
-            } catch(e) {
-              response = responseStr;
-            }
-
-            // Tear-down the wrapper form
-            element.siblings().remove();
-            element.unwrap();
-
-            uploading_file = false;
-
-            // Pass back to the user
-            settings.onComplete.apply(element, [response, settings.params]);
-          };
-
-          /*
-          // Wraps element in a <form> tag, and inserts hidden inputs for each
-          //  key:value pair in settings.params so they can be sent along with
-          //  the upload. Then, creates an iframe that the whole thing is
-          //  uploaded through.
-          */
-          var wrapElement = function(element) {
-            // Create an iframe to submit through, using a semi-unique ID
-            var frame_id = 'ajaxUploader-iframe-' + Math.round(new Date().getTime() / 1000);
-            $('body').after('<iframe width="0" height="0" style="display:none;" name="'+frame_id+'" id="'+frame_id+'"/>');
-            $('#'+frame_id).load(function() {
-              handleResponse(this, element);
-            });
-
-            // Wrap it in a form
-            element.wrap(function() {
-              return '<form action="' +
-                settings.action +
-              '" method="POST" enctype="multipart/form-data" target="'+frame_id+'" />';
-            })
-            // Insert <input type='hidden'>'s for each param
-            .before(function() {
-              var key, html = '';
-              for(key in settings.params) {
-                var paramVal = settings.params[key];
-                if (typeof paramVal === 'function') {
-                  paramVal = paramVal();
-                }
-                html += '<input type="hidden" name="' + key + '" value="' + paramVal + '" />';
-              }
-              return html;
-            });
-          };
-
-
-
+    var excludedSet = function (object, excludedKeys) {
+        return filter(object, function (value, key) {
+            return indexOf(excludedKeys, key) === -1;
         });
-      };
-})(jQuery);
+    };
+
+    var bind = function (self, f) {
+        return function boundFunction () {
+            (f || function () {}).apply(self, arguments);
+        };
+    };
+
+    var doesEndWithBrackets = function (string) {
+        return (/\[\]$/).test(string);
+    };
+
+    var insertIndexIntoBrackets = function (string, index) {
+        return string.substring(0, string.length - 1) + index + ']';
+    };
+
+    // unnamed inputs are ignored.
+    var groupInputsByNameAttribute = function ($elems) {
+        var grouped = {};
+        $elems.each(function () {
+            var name = $(this).attr('name');
+            if(name) {
+                if(!grouped[name]) {
+                    grouped[name] = [];
+                }
+                grouped[name].push($(this));
+            }
+        });
+        return grouped;
+    };
+
+    // $form gets set by $.fn.fileAjax
+    var $form;
+
+    var getNonFileInputs = function () {
+        return $form.find(
+            'input[type="checkbox"], ' +
+            'input[type="radio"], ' +
+            'input[type="text"], ' +
+            'input[type="hidden"], ' +
+            'textarea, ' +
+            'select'
+        );
+    };
+
+    var getData = function (figGetData) {
+        var flattenData = function (data) {
+            var formatted = {};
+            foreach(data, function (value, name) {
+                (function recurse (name, value) {
+                    if(isObject(value) || isArray(value)) {
+                        foreach(value, function (val, key) {
+                            recurse(name + '[' + key + ']', val);
+                        });
+                    }
+                    else {
+                        formatted[name] = value;
+                    }
+                }(name, value));
+            });
+            return formatted;
+        };
+
+        var getFormsData = function () {
+            var grouped = groupInputsByNameAttribute(getNonFileInputs());
+
+            var data = {};
+
+            var addData = function ($input, name) {
+                var isCheckBoxOrRadio = function () {
+                    return $input.is('input[type="checkbox"]') ||
+                           $input.is('input[type="radio"]');
+                };
+
+                var getInputsValue = function () {
+                    if($input.is('textarea')) {
+                        return $input.html();
+                    }
+                    else if(isCheckBoxOrRadio()) {
+                        if($input.is(':checked')) {
+                            return $input.val();
+                        }
+                    }
+                    else {
+                        return $input.val();
+                    }
+                };
+
+                var value = getInputsValue();
+                if(isCheckBoxOrRadio() && value || !isCheckBoxOrRadio()) {
+                    data[name] = value;
+                }
+            };
+
+            foreach(grouped, function (inputGroup, name) {
+                if(doesEndWithBrackets(name)) {
+                    foreach(inputGroup, function ($input, index) {
+                        addData($input, insertIndexIntoBrackets(name, index));
+                    });
+                }
+                else if(inputGroup.length > 1) {
+                    foreach(inputGroup, function ($input) {
+                        addData($input, name);
+                    });
+                }
+                else {
+                    addData(inputGroup[0], name);
+                }
+            });
+
+            return data;
+        };
+
+        return figGetData ? flattenData(figGetData()) : getFormsData();
+    };
+
+    var extractMetaDataFromResonse = function (text) {
+        if(text) {
+            var data = text.match(/#@#.*#@#/igm);
+            if(data && data[0]) {
+                data = data[0].substring(3, data[0].length - 3);
+                data = $.parseJSON(data);
+                return data;
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
+    };
+
+    var extractBodyFromResponse = function (text) {
+        if(text) {
+            return text.replace(/#@#.*#@#/igm, '');
+        }
+        else {
+            return null;
+        }
+    };
+
+    var ajax2 = function (fig) {
+        // get object of $fileElements where the keys are
+        // names formatted for a FormData object.
+        var getFileElements = function () {
+            // inserts indexed numbers into braketed items.
+            // ex: "file[]", "file[]" -> "file[0]", "file[1]"
+            var formatName = function (rawName, index) {
+                // test if ends in brackets
+                return doesEndWithBrackets(rawName) ?
+                    insertIndexIntoBrackets(rawName, index) : rawName;
+            };
+
+            var grouped = groupInputsByNameAttribute(
+                $form.find('input[type="file"]')
+            );
+
+            var elements = {};
+            foreach(grouped, function (elems, name) {
+                foreach(elems, function ($el, index) {
+                    elements[formatName(name, index)] = $el;
+                });
+            });
+            return elements;
+        };
+
+
+        $form.submit(function (e) {
+            console.log('ajax2');
+            e.preventDefault();
+
+            if(!fig.validate || fig.validate()) {
+
+                var formData = new FormData();
+
+                foreach(getData(), function (value, key) {
+                    formData.append(key, value);
+                });
+
+                foreach(getFileElements(), function ($file, name) {
+                    var file = $file[0];
+                    if(file.files.length > 0) {
+                        if(file.files.length === 0) {
+                            formData.append(name, file.files[0]);
+                        }
+                        else {
+                            foreach(file.files, function (file, index) {
+                                formData.append(name + '[' + index + ']', file);
+                            });
+                        }
+                    }
+                });
+
+                $.ajax(excludedSet(union(fig, {
+                    processData : false,
+                    contentType: false,
+                    data: null,
+                    dataType: 'text',
+                    beforeSend : function(xhr, settings) {
+                        settings.xhr = function () {
+                            var xhr = new window.XMLHttpRequest();
+                            xhr.upload.onprogress = bind(this, fig.onprogress);
+                            xhr.upload.onload = bind(this, fig.onload);
+                            xhr.upload.onerror = bind(this, fig.onerror);
+                            xhr.upload.onabort = bind(this, fig.onabort);
+                            return xhr;
+                        };
+                        settings.data = formData;
+                        if(fig.beforeSend) {
+                            fig.beforeSend();
+                        }
+                    },
+                    success: function (response, textStatus, jqXHR) {
+                        var metaData = extractMetaDataFromResonse(response);
+                        response = extractBodyFromResponse(response);
+                        if(fig.dataType.toLowerCase() === 'json') {
+                            response = $.parseJSON(response);
+                        }
+
+                        var status = metaData && metaData.status || response.status;
+
+                        if(!status || status >= 200 && status < 300) {
+                            if(fig.success) {
+                                fig.success(response, metaData);
+                            }
+                        }
+                        else if(fig.error) {
+                            fig.error(response, metaData);
+                        }
+                    },
+                    error: function (jqXHR) {
+                        var metaData = extractMetaDataFromResonse(jqXHR.responseText);
+                        var response = extractBodyFromResponse(jqXHR.responseText);
+                        if(fig.dataType.toLowerCase() === 'json') {
+                            response = $.parseJSON(response);
+                        }
+
+                        if(fig.error) {
+                            fig.error(response, metaData);
+                        }
+                    },
+                    complete: function () {
+                        if(fig.complete) {
+                            fig.complete();
+                        }
+                    }
+                })), ['$files', 'getData']);
+
+            }
+        });
+    };
+
+    var iframeAjax = function (fig) {
+        $form.submit(function (e) {
+            console.log('iframeAjax');
+            e.stopPropagation();
+
+            if(!fig.validate || fig.validate()) {
+
+                var iframeID = 'file-ajax-id-' + (new Date()).getTime();
+
+                $('body').prepend(
+                    '<iframe width="0" height="0" style="display:none;" ' +
+                    'name="' + iframeID + '" id="' + iframeID + '"/>'
+                );
+
+                var nonFileElements = {};
+                getNonFileInputs().each(function () {
+                    var name = $(this).attr('name');
+                    if(name) {
+                        nonFileElements[name] = $(this);
+                    }
+                });
+
+                var removeNonFileInputsNames = function () {
+                    foreach(nonFileElements, function ($el) {
+                        $el.removeAttr('name');
+                    });
+                };
+
+                var restoreNonFileInputsNames = function () {
+                    foreach(nonFileElements, function ($el, name) {
+                        $el.attr('name', name);
+                    });
+                };
+
+                var $iframe = $('#' + iframeID);
+
+                $iframe.on('load', function(e) {
+                    var responseText = $iframe.contents().find('body').html();
+                    var metaData = extractMetaDataFromResonse(responseText);
+                    var response = extractBodyFromResponse(responseText);
+
+                    response = fig.dataType && fig.dataType.toLowerCase() === 'json' ?
+                            $.parseJSON(response) : response;
+
+                    var status = metaData && metaData.status || response.status;
+
+                    if(!status || status >= 200 && status < 300) {
+                        if(fig.success) {
+                            fig.success(response, metaData);
+                        }
+                    }
+                    else if(fig.error) {
+                        fig.error(response, metaData);
+                    }
+
+                    restoreNonFileInputsNames();
+                    removeHiddenInputs();
+                    $iframe.remove();
+                    if(fig.complete) {
+                        fig.complete();
+                    }
+                });
+
+                // need getData before removeNonFileInputsNames
+                var data = getData();
+                // remove names of existing inputs so they are not sent to the
+                // server and send the data given by getData instead.
+                removeNonFileInputsNames();
+                var hiddenInputs = [];
+                foreach(data, function (value, name) {
+                    var $hidden = $(
+                        '<input type="hidden" ' +
+                               'name="' + name + '" ' +
+                               'value="' + value + '"/>'
+                    );
+                    $form.append($hidden);
+                    hiddenInputs.push($hidden);
+                });
+
+                var removeHiddenInputs = function () {
+                    foreach(hiddenInputs, function ($el) {
+                        $el.remove();
+                    });
+                };
+
+                $form.attr({
+                    target: iframeID,
+                    action: fig.url,
+                    method: 'POST',
+                    enctype: 'multipart/form-data'
+                });
+            }
+            else {
+                e.preventDefault();
+            }
+        });
+    };
+
+    $.fn.fileAjax = function (fig) {
+        $form = $(this);
+
+        if(!$form.is('form')) {
+            throw 'selected element must be a form element';
+        }
+
+        fig.type = 'POST';
+        fig.url = fig.url || $form.attr('action');
+
+        getData = partial(getData, fig.getData);
+
+        if(
+            $.support.ajax &&
+            typeof FormData !== "undefined" &&
+            fig.forceIFrame !== true
+        ) {
+            ajax2(fig);
+        }
+        else {
+            iframeAjax(fig);
+        }
+    };
+
+}(jQuery));
 
 var identity = function (x) {
     return x;
@@ -583,8 +853,8 @@ var createFactory = function (fig) {
     return self;
 };
 
-var ajax = function (fig) {
-    $.ajax(fig);
+var ajax = function ($form, fig) {
+    $form.fileAjax(fig);
 };
 var createBaseInput = function (fig, my) {
     var self = mixinPubSub(),
@@ -711,6 +981,14 @@ var createInputFile = function (fig) {
     self.getType = function () {
         return 'file';
     };
+
+    self.get = function () {
+        return last(self.$().val().split('\\'));
+    };
+
+    self.$().change(function () {
+        self.publish('change', self.get());
+    });
 
     return self;
 };
@@ -915,7 +1193,7 @@ var createForm = function (fig) {
             oldMessage = null;
 
         self.setGlobalSuccess = function (newMessage) {
-            self.clearGlobalFeedback();
+            self.clearFeedback();
             if(!isSuccess) {
                 $self.addClass('success');
             }
@@ -939,6 +1217,8 @@ var createForm = function (fig) {
     }());
 
     self.setFeedback = function (feedback) {
+        feedback = feedback || {};
+        self.clearFeedback();
         foreach(subSet(inputs, keys(feedback)), function (input, name) {
             input.setFeedback(feedback[name]);
         });
@@ -973,44 +1253,46 @@ var createForm = function (fig) {
         );
     };
 
-    $self.submit(function (e) {
-        e.preventDefault();
-        var data = self.get(),
-            errors = self.validate(data);
+    ajax($self, {
+        getData: self.get,
+        url: url,
+        validate: function () {
+            var errors = self.validate(self.get());
+            if(isEmpty(errors)) {
+                return true;
+            }
+            else {
+                self.setFeedback(errors);
+                self.publish('error', errors);
+                return false;
+            }
+        },
 
-        self.clearFeedback();
+        dataType: 'json',
+        onprogress: function (e) {
+            console.log(e.loaded, e.total);
+        },
 
-        if(isEmpty(errors)) {
-            ajax({
-                url: url,
-                method: 'POST',
-                data: data,
-                dataType: 'json',
-                beforeSend: function () {
-                    self.disable();
-                    self.publish('beforeSend');
-                },
-                success: function (response) {
-                    self.setGlobalSuccess(response.successMessage);
-                    self.publish('success', response);
-                },
-                error: function (jqXHR) {
-                    if(jqXHR.status === 409) {
-                        self.setFeedback(jqXHR.responseJSON);
-                        self.publish('error', jqXHR.responseJSON);
-                    }
-                },
-                complete: function () {
-                    // setTimeout(function () {
-                    self.enable();
-                    self.publish('complete');
-                    // }, 500);
-                }
-            });
-        }
-        else {
-            self.setFeedback(errors);
-            self.publish('error', errors);
+        beforeSend: function () {
+            self.disable();
+            self.publish('beforeSend');
+        },
+        success: function (response) {
+            response = response || {};
+            self.setGlobalSuccess(response.successMessage);
+            self.publish('success', response);
+        },
+        error: function (response) {
+            // setTimeout(function () {
+            self.setFeedback(response);
+            self.publish('error', response);
+            // }, 500);
+        },
+        complete: function () {
+            // setTimeout(function () {
+            self.enable();
+            self.publish('complete');
+            // }, 500);
         }
     });
 

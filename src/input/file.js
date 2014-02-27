@@ -6,5 +6,13 @@ var createInputFile = function (fig) {
         return 'file';
     };
 
+    self.get = function () {
+        return last(self.$().val().split('\\'));
+    };
+
+    self.$().change(function () {
+        self.publish('change', self.get());
+    });
+
     return self;
 };

@@ -40,7 +40,7 @@ var createForm = function (fig) {
             oldMessage = null;
 
         self.setGlobalSuccess = function (newMessage) {
-            self.clearGlobalFeedback();
+            self.clearFeedback();
             if(!isSuccess) {
                 $self.addClass('success');
             }
@@ -64,6 +64,8 @@ var createForm = function (fig) {
     }());
 
     self.setFeedback = function (feedback) {
+        feedback = feedback || {};
+        self.clearFeedback();
         foreach(subSet(inputs, keys(feedback)), function (input, name) {
             input.setFeedback(feedback[name]);
         });
@@ -98,44 +100,46 @@ var createForm = function (fig) {
         );
     };
 
-    $self.submit(function (e) {
-        e.preventDefault();
-        var data = self.get(),
-            errors = self.validate(data);
+    ajax($self, {
+        getData: self.get,
+        url: url,
+        validate: function () {
+            var errors = self.validate(self.get());
+            if(isEmpty(errors)) {
+                return true;
+            }
+            else {
+                self.setFeedback(errors);
+                self.publish('error', errors);
+                return false;
+            }
+        },
 
-        self.clearFeedback();
+        dataType: 'json',
+        onprogress: function (e) {
+            console.log(e.loaded, e.total);
+        },
 
-        if(isEmpty(errors)) {
-            ajax({
-                url: url,
-                method: 'POST',
-                data: data,
-                dataType: 'json',
-                beforeSend: function () {
-                    self.disable();
-                    self.publish('beforeSend');
-                },
-                success: function (response) {
-                    self.setGlobalSuccess(response.successMessage);
-                    self.publish('success', response);
-                },
-                error: function (jqXHR) {
-                    if(jqXHR.status === 409) {
-                        self.setFeedback(jqXHR.responseJSON);
-                        self.publish('error', jqXHR.responseJSON);
-                    }
-                },
-                complete: function () {
-                    // setTimeout(function () {
-                    self.enable();
-                    self.publish('complete');
-                    // }, 500);
-                }
-            });
-        }
-        else {
-            self.setFeedback(errors);
-            self.publish('error', errors);
+        beforeSend: function () {
+            self.disable();
+            self.publish('beforeSend');
+        },
+        success: function (response) {
+            response = response || {};
+            self.setGlobalSuccess(response.successMessage);
+            self.publish('success', response);
+        },
+        error: function (response) {
+            // setTimeout(function () {
+            self.setFeedback(response);
+            self.publish('error', response);
+            // }, 500);
+        },
+        complete: function () {
+            // setTimeout(function () {
+            self.enable();
+            self.publish('complete');
+            // }, 500);
         }
     });
 

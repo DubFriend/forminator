@@ -233,6 +233,17 @@ module("createInputFile", {
 test("fileInput getType", testGetType('file'));
 test("fileInput disable", testDisabled);
 test("fileInput enable", testEnabled);
+test("fileInput getFileName, file not set", function () {
+    strictEqual(this.input.get(), '');
+});
+test("fileInput publishes filename when file changed", function () {
+    expect(1);
+    this.input.subscribe('change', function (data) {
+        strictEqual(data, '', 'publishes');
+    });
+    this.$.change();
+});
+
 
 module("createInputFile", {
     setup: buildSetup({

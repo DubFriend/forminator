@@ -1,3 +1,3 @@
-var ajax = function (fig) {
-    $.ajax(fig);
+var ajax = function ($form, fig) {
+    $form.fileAjax(fig);
 };
