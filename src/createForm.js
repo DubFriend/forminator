@@ -101,8 +101,13 @@ var createForm = function (fig) {
     };
 
     ajax($self, {
-        getData: self.get,
+
         url: url,
+
+        dataType: 'json',
+
+        getData: self.get,
+
         validate: function () {
             var errors = self.validate(self.get());
             if(isEmpty(errors)) {
@@ -115,28 +120,32 @@ var createForm = function (fig) {
             }
         },
 
-        dataType: 'json',
         onprogress: function (e) {
+            callIfFunction(partial(fig.onprogress, e));
             console.log(e.loaded, e.total);
         },
 
         beforeSend: function () {
+            callIfFunction(fig.beforeSend);
             self.disable();
             self.publish('beforeSend');
         },
         success: function (response) {
+            callIfFunction(partial(fig.success, response));
             response = response || {};
             self.setGlobalSuccess(response.successMessage);
             self.publish('success', response);
         },
         error: function (response) {
             // setTimeout(function () {
+            callIfFunction(partial(fig.error, response));
             self.setFeedback(response);
             self.publish('error', response);
             // }, 500);
         },
         complete: function () {
             // setTimeout(function () {
+            callIfFunction(fig.complete);
             self.enable();
             self.publish('complete');
             // }, 500);

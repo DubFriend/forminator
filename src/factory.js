@@ -3,6 +3,7 @@ var createFactory = function (fig) {
         url = fig.url,
         $self = fig.$;
 
+
     self.input = {
         text: createInputText,
         textarea: createInputTextarea,
@@ -10,14 +11,19 @@ var createFactory = function (fig) {
         radio: createInputRadio,
         checkbox: createInputCheckbox,
         file: createInputFile,
-        button: createInputButton
+        button: createInputButton,
+        hidden: createInputHidden
     };
 
-    self.form = function (override) {
-        override = override || {};
-        return createForm(union({
+    self.form = function () {
+        return createForm({
             $: $self,
             ajax: ajax,
+            validate: fig.validate,
+            onprogress: fig.onprogress,
+            success: fig.success,
+            error: fig.error,
+            complete: fig.complete,
             url: url,
             inputs: map(
                 buildFormInputs({ $: $self, factory: self }),
@@ -25,7 +31,7 @@ var createFactory = function (fig) {
                     return createFormGroup({ input: input });
                 }
             )
-        }, override));
+        });
     };
 
     return self;

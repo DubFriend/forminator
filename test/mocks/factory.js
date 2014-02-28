@@ -7,7 +7,8 @@ var createMockFactory = function () {
             radio: identity,
             checkbox: identity,
             file: identity,
-            button: identity
+            button: identity,
+            hidden: identity
         }
     };
 };

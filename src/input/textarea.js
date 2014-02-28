@@ -7,11 +7,11 @@ var createInputTextarea = function (fig) {
     };
 
     self.get = function () {
-        return self.$().html();
+        return self.$().val();
     };
 
     self.set = my.buildSetter(function (newValue) {
-        this.$().html(newValue);
+        this.$().text(newValue);
     });
 
     self.$().keyup(function () {

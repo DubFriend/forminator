@@ -1,15 +1,8 @@
 var forminator = {};
 
 forminator.init = function (fig) {
-    var $self = fig.$,
-        url = fig.url,
-        factory = createFactory({
-            $: $self,
-            url: url
-        }),
-        form = factory.form({
-            validate: fig.validate
-        });
+    var factory = createFactory(fig),
+        form = factory.form();
 
     return form;
 };

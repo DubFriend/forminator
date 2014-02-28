@@ -107,6 +107,12 @@
         </div>
     
         <div class="frm-group">
+            <label>Hidden</label>
+            <input type="hidden" name="hidden" value="foo"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
             <label>File</label>
             <input type="file" name="file"/>
             <div class="frm-feedback"></div>
@@ -150,6 +156,9 @@
                 }
 
                 return errors;
+            },
+            success: function (response) {
+                console.log('success', response);
             }
         });
     </script>

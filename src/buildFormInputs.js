@@ -15,6 +15,7 @@ var buildFormInputs = function (fig) {
     addInputsBasic('select', 'select');
     addInputsBasic('file', 'input[type="file"]');
     addInputsBasic('button', 'input[type="button"], input[type="submit"]');
+    addInputsBasic('hidden', 'input[type="hidden"]');
 
     var addInputsGroup = function (type, selector) {
         var names = [];

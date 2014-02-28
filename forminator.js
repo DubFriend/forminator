@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 27-02-2014
+// (MIT) 28-02-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -454,14 +454,6 @@ var identity = function (x) {
     return x;
 };
 
-var partial = function (f) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    return function () {
-        var remainingArgs = Array.prototype.slice.call(arguments);
-        return f.apply(null, args.concat(remainingArgs));
-    };
-};
-
 var isArray = function (value) {
     return $.isArray(value);
 };
@@ -472,6 +464,16 @@ var isObject = function (value) {
 
 var isFunction = function (value) {
     return value instanceof Function;
+};
+
+var partial = function (f) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    if(isFunction(f)) {
+        return function () {
+            var remainingArgs = Array.prototype.slice.call(arguments);
+            return f.apply(null, args.concat(remainingArgs));
+        };
+    }
 };
 
 var isEmpty = function (object) {
@@ -657,6 +659,13 @@ var remove = function (collection, item) {
     });
 };
 
+// call the variable if it is a function.
+var callIfFunction = function (fn) {
+    if(isFunction(fn)) {
+        return fn();
+    }
+};
+
 //execute callback immediately and at most one time on the minimumInterval,
 //ignore block attempts
 var throttle = function (minimumInterval, callback) {
@@ -825,6 +834,7 @@ var createFactory = function (fig) {
         url = fig.url,
         $self = fig.$;
 
+
     self.input = {
         text: createInputText,
         textarea: createInputTextarea,
@@ -832,14 +842,19 @@ var createFactory = function (fig) {
         radio: createInputRadio,
         checkbox: createInputCheckbox,
         file: createInputFile,
-        button: createInputButton
+        button: createInputButton,
+        hidden: createInputHidden
     };
 
-    self.form = function (override) {
-        override = override || {};
-        return createForm(union({
+    self.form = function () {
+        return createForm({
             $: $self,
             ajax: ajax,
+            validate: fig.validate,
+            onprogress: fig.onprogress,
+            success: fig.success,
+            error: fig.error,
+            complete: fig.complete,
             url: url,
             inputs: map(
                 buildFormInputs({ $: $self, factory: self }),
@@ -847,14 +862,62 @@ var createFactory = function (fig) {
                     return createFormGroup({ input: input });
                 }
             )
-        }, override));
+        });
     };
 
     return self;
 };
 
 var ajax = function ($form, fig) {
-    $form.fileAjax(fig);
+    if($form.find('input[type="file"]').length) {
+        // form contains files. fileAjax enables cross browser ajax file uploads
+        var getData = function () {
+            return map(fig.getData() || {}, identity, function (key) {
+                return key.replace(/\[\]$/, '');
+            });
+        };
+        $form.fileAjax(fig);
+    }
+    else {
+        // form has no files, use standard ajax.
+        $form.submit(function (e) {
+            console.log('asdf', callIfFunction(fig.getData));
+            e.preventDefault();
+            if(fig.validate()) {
+                $.ajax({
+                    url: fig.url,
+                    method: 'POST',
+                    data: callIfFunction(fig.getData),
+                    dataType: fig.dataType,
+                    beforeSend: fig.beforeSend,
+                    success: function (response) {
+                        if(
+                            isObject(response) &&
+                            (response.status < 200 || response.status >= 300)
+                        ) {
+                            if(fig.error) {
+                                fig.error(response);
+                            }
+                        }
+                        else {
+                            fig.success(response);
+                        }
+                    },
+                    error: function (jqXHR) {
+                        console.log(jqXHR);
+                        if(fig.error) {
+                            var dataType = fig.dataType ?
+                                fig.dataType.toLowerCase() : null;
+                            fig.error(
+                                jqXHR.responseJSON
+                            );
+                        }
+                    },
+                    complete: fig.complete
+                });
+            }
+        });
+    }
 };
 var createBaseInput = function (fig, my) {
     var self = mixinPubSub(),
@@ -1055,11 +1118,11 @@ var createInputTextarea = function (fig) {
     };
 
     self.get = function () {
-        return self.$().html();
+        return self.$().val();
     };
 
     self.set = my.buildSetter(function (newValue) {
-        this.$().html(newValue);
+        this.$().text(newValue);
     });
 
     self.$().keyup(function () {
@@ -1069,6 +1132,20 @@ var createInputTextarea = function (fig) {
     return self;
 };
 
+var createInputHidden = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'hidden';
+    };
+
+    self.$().keyup(function (e) {
+        self.publish('change', self.get());
+    });
+
+    return self;
+};
 var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
@@ -1086,6 +1163,7 @@ var buildFormInputs = function (fig) {
     addInputsBasic('select', 'select');
     addInputsBasic('file', 'input[type="file"]');
     addInputsBasic('button', 'input[type="button"], input[type="submit"]');
+    addInputsBasic('hidden', 'input[type="hidden"]');
 
     var addInputsGroup = function (type, selector) {
         var names = [];
@@ -1254,8 +1332,13 @@ var createForm = function (fig) {
     };
 
     ajax($self, {
-        getData: self.get,
+
         url: url,
+
+        dataType: 'json',
+
+        getData: self.get,
+
         validate: function () {
             var errors = self.validate(self.get());
             if(isEmpty(errors)) {
@@ -1268,28 +1351,32 @@ var createForm = function (fig) {
             }
         },
 
-        dataType: 'json',
         onprogress: function (e) {
+            callIfFunction(partial(fig.onprogress, e));
             console.log(e.loaded, e.total);
         },
 
         beforeSend: function () {
+            callIfFunction(fig.beforeSend);
             self.disable();
             self.publish('beforeSend');
         },
         success: function (response) {
+            callIfFunction(partial(fig.success, response));
             response = response || {};
             self.setGlobalSuccess(response.successMessage);
             self.publish('success', response);
         },
         error: function (response) {
             // setTimeout(function () {
+            callIfFunction(partial(fig.error, response));
             self.setFeedback(response);
             self.publish('error', response);
             // }, 500);
         },
         complete: function () {
             // setTimeout(function () {
+            callIfFunction(fig.complete);
             self.enable();
             self.publish('complete');
             // }, 500);
@@ -1302,15 +1389,8 @@ var createForm = function (fig) {
 var forminator = {};
 
 forminator.init = function (fig) {
-    var $self = fig.$,
-        url = fig.url,
-        factory = createFactory({
-            $: $self,
-            url: url
-        }),
-        form = factory.form({
-            validate: fig.validate
-        });
+    var factory = createFactory(fig),
+        form = factory.form();
 
     return form;
 };

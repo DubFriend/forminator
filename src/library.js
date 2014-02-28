@@ -2,14 +2,6 @@ var identity = function (x) {
     return x;
 };
 
-var partial = function (f) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    return function () {
-        var remainingArgs = Array.prototype.slice.call(arguments);
-        return f.apply(null, args.concat(remainingArgs));
-    };
-};
-
 var isArray = function (value) {
     return $.isArray(value);
 };
@@ -20,6 +12,16 @@ var isObject = function (value) {
 
 var isFunction = function (value) {
     return value instanceof Function;
+};
+
+var partial = function (f) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    if(isFunction(f)) {
+        return function () {
+            var remainingArgs = Array.prototype.slice.call(arguments);
+            return f.apply(null, args.concat(remainingArgs));
+        };
+    }
 };
 
 var isEmpty = function (object) {
@@ -203,6 +205,13 @@ var remove = function (collection, item) {
     return filter(collection, function (element) {
         return element !== item;
     });
+};
+
+// call the variable if it is a function.
+var callIfFunction = function (fn) {
+    if(isFunction(fn)) {
+        return fn();
+    }
 };
 
 //execute callback immediately and at most one time on the minimumInterval,

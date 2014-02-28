@@ -28,6 +28,7 @@ module.exports = function (grunt) {
                     'src/input/select.js',
                     'src/input/text.js',
                     'src/input/textarea.js',
+                    'src/input/hidden.js',
                     'src/buildFormInputs.js',
                     'src/createFormGroup.js',
                     'src/createForm.js',
