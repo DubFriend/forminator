@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Forminator</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style type="text/css">
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: rgb(41, 41, 41);
+        }
+
+        #frm-name {
+            border: 1px solid white;
+            padding: 0.2em;
+        }
+
+        #frm-name.error {
+            border: 1px solid rgb(232, 37, 37);
+        }
+
+        #frm-name.success {
+            border: 1px solid green;
+        }
+
+        #frm-name.error .frm-global-feedback, .frm-group.error * {
+            color: rgb(232, 37, 37);
+        }
+
+        #frm-name.success .frm-global-feedback {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <form id="frm-name" method="POST" enctype="multipart/form-data" action="respond.php">
+        <div class="frm-group">
+            <label>Text</label>
+            <input type="text" name="text"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Text2</label>
+            <input type="text" name="text2"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Textarea</label>
+            <textarea name="textarea"></textarea>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Textarea2</label>
+            <textarea name="textarea2"></textarea>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Select</label>
+            <select name="select">
+                <option value="a">A</option>
+                <option value="b">B</option>
+            </select>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Select2</label>
+            <select name="select2">
+                <option value="a">A</option>
+                <option value="b">B</option>
+            </select>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Radio</label>
+            <input type="radio" name="radio" value="a"/>
+            <input type="radio" name="radio" value="b"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Radio2</label>
+            <input type="radio" name="radio2" value="a"/>
+            <input type="radio" name="radio2" value="b"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Checkbox</label>
+            <input type="checkbox" name="checkbox[]" value="a"/>
+            <input type="checkbox" name="checkbox[]" value="b"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Checkbox2</label>
+            <input type="checkbox" name="checkbox2[]" value="a"/>
+            <input type="checkbox" name="checkbox2[]" value="b"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Hidden</label>
+            <input type="hidden" name="hidden" value="foo"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>File</label>
+            <input type="file" name="file"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>File2</label>
+            <input type="file" name="file2"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <input type="submit" name="submit" value="Submit"/>
+        </div>
+    
+        <div class="frm-group">
+            <input type="button" name="button" value="Button"/>
+        </div>
+    
+        <div class="frm-global-feedback"></div>
+    </form>
+    
+    <form id="frm-search-name" method="POST" action="respond.php">
+        <legend>Search</legend>
+        <div class="frm-group">
+            <label>Search Text</label>
+            <input type="text" name="text"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Select</label>
+            <select name="select">
+                <option value="a">A</option>
+                <option value="b">B</option>
+            </select>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Radio</label>
+            <input type="radio" name="radio" value="a"/>
+            <input type="radio" name="radio" value="b"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <label>Checkbox</label>
+            <input type="checkbox" name="checkbox[]" value="a"/>
+            <input type="checkbox" name="checkbox[]" value="b"/>
+            <div class="frm-feedback"></div>
+        </div>
+    
+        <div class="frm-group">
+            <input type="submit" name="submit" value="Submit"/>
+        </div>
+    
+        <div class="frm-global-feedback"></div>
+    </form>
+    <ol id="frm-paginator-numbers-name">
+        <li class="frm-number-container">
+            <a data-number="1">One</a>
+        </li>
+    </ol>
+    
+    <form id="frm-paginator-goto-name" method="GET" action="respond.php">
+        <input type="text">
+        <input type="submit" value="Goto Page"/>
+    </form>
+    
+    <div id="frm-ordinator-name">
+        <span>Order by Text</span>
+        <span data-field="text"></span>
+        <span>Order by Extra</span>
+        <span data-field="extra"></span>
+    </div>
+    
+    <div id="frm-list-container-name">
+        <div class="frm-list-item">
+            <span>Text</span>
+            <span data-field="text"></span>
+            <span>Textarea</span>
+            <span data-field="textarea">Default Value</span>
+            <span>Select</span>
+            <span data-field="select"></span>
+            <span>Radio</span>
+            <span data-field="radio"></span>
+            <span>Checkbox</span>
+            <span data-field="checkbox"></span>
+            <span>Hidden</span>
+            <span data-field="hidden"></span>
+            <!-- "extra" field not present in the form -->
+            <span>Extra</span>
+            <span data-field="extra"></span>
+        </div>
+    </div>
+    
+
+    <script src="lib/jquery-1.11.0"></script>
+    <script src="forminator.js"></script>
+    <script>
+        var form = forminator.init({
+            $: $('#frm-name'),
+            validate: function (data) {
+                var errors = {};
+
+                if(data.text.length > 3) {
+                    errors.text = '3 character maximum';
+                }
+                else if(data.text === 'foo') {
+                    errors.text = 'cannot be "foo"';
+                }
+
+                if(errors.text) {
+                    errors.GLOBAL = 'An error occured.';
+                }
+
+                return errors;
+            },
+            success: function (response) {
+                console.log('success', response);
+            }
+        });
+    </script>
+</body>
+</html>

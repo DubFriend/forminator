@@ -71,6 +71,10 @@ module.exports = function (grunt) {
             index: {
                 src: 'index.pre.html',
                 dest: 'index.html'
+            },
+            crud: {
+                src: 'crud.pre.html',
+                dest: 'crud.html'
             }
         }
     });
