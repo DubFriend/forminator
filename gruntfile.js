@@ -52,7 +52,7 @@ module.exports = function (grunt) {
 
         watch: {
             scripts: {
-                files: ['**/*'],
+                files: ['**/*', '!uploads/*'],
                 tasks: ['preprocess', 'concat', 'uglify', 'qunit'],
                 options: { spawn: true }
             }

@@ -3,20 +3,20 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 function uploadFile ($file) {
-    if ($file["error"] > 0) {
-        return array('error' => $file['error']);
+    if ($file["error"][0]) {
+        return array('error' => $file['error'][0]);
     }
     else {
         move_uploaded_file(
-            $file["tmp_name"],
-            "uploads/" . $file["name"]
+            $file["tmp_name"][0],
+            "uploads/" . $file["name"][0]
         );
 
         return array(
-            'name' => $file['name'],
-            'type' => $file['type'],
-            'size' => $file['size'],
-            'tmp_name' => $file['tmp_name']
+            'name' => $file['name'][0],
+            'type' => $file['type'][0],
+            'size' => $file['size'][0],
+            'tmp_name' => $file['tmp_name'][0]
         );
     }
 }

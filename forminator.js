@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 28-02-2014
+// (MIT) 02-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -14,6 +14,10 @@
 
     var isObject = function (value) {
         return !isArray(value) && (value instanceof Object);
+    };
+
+    var isFunction = function (value) {
+        return value instanceof Function;
     };
 
     var foreach = function (collection, callback) {
@@ -215,6 +219,89 @@
         }
     };
 
+    var setInput = function (value, $input) {
+        if(
+            $input.is('input[type="text"]') ||
+            $input.is('select') ||
+            $input.is('input[type="hidden"]') ||
+            $input.is('textarea')
+        ) {
+            $input.val(value);
+        }
+        else if(
+            $input.is('input[type="checkbox"]') ||
+            $input.is('input[type="radio"]')
+        ) {
+            if(value === '' || value === null) {
+                $input.prop('checked', false);
+            }
+            else {
+                $input.filter('[value="' + value + '"]').prop('checked', true);
+            }
+        }
+    };
+
+    var clearFileInputs = function ($frm) {
+        $frm = $frm || $form;
+        // http://stackoverflow.com/questions/1043957/clearing-input-type-file-using-jquery
+        $frm.find('input[type="file"]').each(function () {
+            $(this).wrap('<form>').closest('form').get(0).reset();
+            $(this).unwrap();
+        });
+    };
+
+    var clearForm = function (isClearHidden) {
+        isClearHidden = isClearHidden || false;
+        getNonFileInputs().not('input[type="hidden"]').each(function() {
+            setInput('', $(this));
+        });
+        if(isClearHidden) {
+            $form.find('input[type="hidden"]').each(function () {
+                setInput('', $(this));
+            });
+        }
+        clearFileInputs();
+    };
+
+    // call user function applied with supplied utility functions.
+    var applyUserFunction = function (fn) {
+        if(isFunction(fn)) {
+            return fn.apply({
+                clear: clearForm,
+                clearFileInputs: clearFileInputs,
+                set: function (name, value) {
+                    setInput(value, $form.find('[name="' + name + '"]'));
+                },
+                get: getData
+            }, Array.prototype.slice.call(arguments, 1));
+        }
+    };
+
+    var applyUserResponse = function (parsedResponse, success, error) {
+        var response = parsedResponse.response;
+        var metaData = parsedResponse.metaData;
+        var status = metaData && metaData.status || response.status;
+        if(!status || status >= 200 && status < 300) {
+            applyUserFunction(success, response, metaData);
+        }
+        else {
+            applyUserFunction(error, response, metaData);
+        }
+    };
+
+    var extractResponse = function (response, dataType) {
+        var metaData = extractMetaDataFromResonse(response);
+        response = extractBodyFromResponse(response);
+        if(dataType.toLowerCase() === 'json') {
+            response = $.parseJSON(response);
+        }
+
+        return {
+            metaData: metaData,
+            response: response
+        };
+    };
+
     var ajax2 = function (fig) {
         // get object of $fileElements where the keys are
         // names formatted for a FormData object.
@@ -230,6 +317,8 @@
             var grouped = groupInputsByNameAttribute(
                 $form.find('input[type="file"]')
             );
+
+            console.log(grouped);
 
             var elements = {};
             foreach(grouped, function (elems, name) {
@@ -261,6 +350,7 @@
                         }
                         else {
                             foreach(file.files, function (file, index) {
+                                console.log(file);
                                 formData.append(name + '[' + index + ']', file);
                             });
                         }
@@ -271,6 +361,7 @@
                     processData : false,
                     contentType: false,
                     data: null,
+                    type: 'POST',
                     dataType: 'text',
                     beforeSend : function(xhr, settings) {
                         settings.xhr = function () {
@@ -282,43 +373,35 @@
                             return xhr;
                         };
                         settings.data = formData;
-                        if(fig.beforeSend) {
-                            fig.beforeSend();
-                        }
+                        applyUserFunction(fig.beforeSend);
                     },
                     success: function (response, textStatus, jqXHR) {
-                        var metaData = extractMetaDataFromResonse(response);
-                        response = extractBodyFromResponse(response);
-                        if(fig.dataType.toLowerCase() === 'json') {
-                            response = $.parseJSON(response);
-                        }
-
-                        var status = metaData && metaData.status || response.status;
-
-                        if(!status || status >= 200 && status < 300) {
-                            if(fig.success) {
-                                fig.success(response, metaData);
-                            }
-                        }
-                        else if(fig.error) {
-                            fig.error(response, metaData);
-                        }
+                        var parsedResponse = extractResponse(
+                            response, fig.dataType
+                        );
+                        applyUserResponse(
+                            parsedResponse, fig.success, fig.error
+                        );
                     },
                     error: function (jqXHR) {
-                        var metaData = extractMetaDataFromResonse(jqXHR.responseText);
-                        var response = extractBodyFromResponse(jqXHR.responseText);
-                        if(fig.dataType.toLowerCase() === 'json') {
-                            response = $.parseJSON(response);
-                        }
-
-                        if(fig.error) {
-                            fig.error(response, metaData);
-                        }
+                        var parsedResponse = extractResponse(
+                            jqXHR.responseText, fig.dataType
+                        );
+                        applyUserFunction(
+                            fig.error,
+                            parsedResponse.response,
+                            parsedResponse.metaData
+                        );
                     },
-                    complete: function () {
-                        if(fig.complete) {
-                            fig.complete();
-                        }
+                    complete: function (jqXHR) {
+                        var parsedResponse = extractResponse(
+                            jqXHR.responseText, fig.dataType
+                        );
+                        applyUserFunction(
+                            fig.complete,
+                            parsedResponse.response,
+                            parsedResponse.metaData
+                        );
                     }
                 })), ['$files', 'getData']);
 
@@ -364,29 +447,21 @@
 
                 $iframe.on('load', function(e) {
                     var responseText = $iframe.contents().find('body').html();
-                    var metaData = extractMetaDataFromResonse(responseText);
-                    var response = extractBodyFromResponse(responseText);
+                    var parsedResponse = extractResponse(
+                        responseText, fig.dataType
+                    );
 
-                    response = fig.dataType && fig.dataType.toLowerCase() === 'json' ?
-                            $.parseJSON(response) : response;
-
-                    var status = metaData && metaData.status || response.status;
-
-                    if(!status || status >= 200 && status < 300) {
-                        if(fig.success) {
-                            fig.success(response, metaData);
-                        }
-                    }
-                    else if(fig.error) {
-                        fig.error(response, metaData);
-                    }
+                    applyUserResponse(parsedResponse, fig.success, fig.error);
 
                     restoreNonFileInputsNames();
                     removeHiddenInputs();
                     $iframe.remove();
-                    if(fig.complete) {
-                        fig.complete();
-                    }
+
+                    applyUserFunction(
+                        fig.complete,
+                        parsedResponse.response,
+                        parsedResponse.metaData
+                    );
                 });
 
                 // need getData before removeNonFileInputsNames
@@ -424,14 +499,13 @@
         });
     };
 
-    $.fn.fileAjax = function (fig) {
+    var fileAjax = function (fig) {
         $form = $(this);
 
         if(!$form.is('form')) {
             throw 'selected element must be a form element';
         }
 
-        fig.type = 'POST';
         fig.url = fig.url || $form.attr('action');
 
         getData = partial(getData, fig.getData);
@@ -447,6 +521,10 @@
             iframeAjax(fig);
         }
     };
+
+    fileAjax.clearFileInputs = clearFileInputs;
+
+    $.fn.fileAjax = fileAjax;
 
 }(jQuery));
 
@@ -1329,6 +1407,10 @@ var createForm = function (fig) {
                 return input.get();
             }
         );
+    };
+
+    self.set = function (name, value) {
+        inputs[name].set(value);
     };
 
     ajax($self, {

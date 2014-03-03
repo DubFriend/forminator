@@ -100,6 +100,10 @@ var createForm = function (fig) {
         );
     };
 
+    self.set = function (name, value) {
+        inputs[name].set(value);
+    };
+
     ajax($self, {
 
         url: url,

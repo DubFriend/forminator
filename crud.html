@@ -31,6 +31,22 @@
         #frm-name.success .frm-global-feedback {
             color: green;
         }
+
+        #frm-search-name, #frm-ordinator-name, #frm-paginator-numbers-name,
+        #frm-paginator-goto-name, #frm-list-container-name {
+            padding: 0.2em;
+            border: 1px solid black;
+        }
+
+        .frm-list-item {
+            margin: 0.2em;
+            background-color: rgb(223, 223, 223);
+            cursor: pointer;
+        }
+
+        [data-field] {
+            color: blue;
+        }
     </style>
 </head>
 <body>
@@ -184,10 +200,12 @@
     </form>
     
     <div id="frm-ordinator-name">
-        <span>Order by Text</span>
-        <span data-field="text"></span>
-        <span>Order by Extra</span>
-        <span data-field="extra"></span>
+        <span data-field="text">
+            Order by Text
+        </span>
+        <span data-field="extra">
+            Order by Extra
+        </span>
     </div>
     
     <div id="frm-list-container-name">
@@ -236,6 +254,8 @@
                 console.log('success', response);
             }
         });
+        form.set('checkbox[]', ['a', 'b']);
+        console.log(form.get());
     </script>
 </body>
 </html>
