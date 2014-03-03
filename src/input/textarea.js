@@ -6,14 +6,6 @@ var createInputTextarea = function (fig) {
         return 'textarea';
     };
 
-    self.get = function () {
-        return self.$().val();
-    };
-
-    self.set = my.buildSetter(function (newValue) {
-        this.$().text(newValue);
-    });
-
     self.$().keyup(function () {
         self.publish('change', self.get());
     });

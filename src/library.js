@@ -24,6 +24,14 @@ var partial = function (f) {
     }
 };
 
+var argumentsToArray = function (args) {
+    var array = [], i;
+    for(i = 0; i < args.length; i += 1) {
+        array.push(args[i]);
+    }
+    return array;
+};
+
 var isEmpty = function (object) {
     for(var i in object) {
         if(object.hasOwnProperty(i)) {
@@ -130,9 +138,9 @@ var pluck = function(collection, key) {
 };
 
 var call = function (collection, functionName, args, self) {
-    foreach(collection, function (object) {
-        // object[functionName]();
-        object[functionName].apply(object, args || []);
+    return map(collection, function (object, name) {
+        // console.log(functionName, name, object);
+        return object[functionName].apply(object, args || []);
     });
 };
 

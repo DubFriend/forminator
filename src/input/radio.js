@@ -7,7 +7,7 @@ var createInputRadio = function (fig) {
     };
 
     self.get = function () {
-        return self.$().filter(':checked').val();
+        return self.$().filter(':checked').val() || null;
     };
 
     self.set = my.buildSetter(function (newValue) {

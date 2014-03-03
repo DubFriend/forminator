@@ -89,19 +89,26 @@ var createForm = function (fig) {
         return {};
     };
 
+    var filterInputs = function () {
+        var filteredTypes = argumentsToArray(arguments);
+        return filter(inputs, function (input) {
+            return !inArray(filteredTypes, input.getType());
+        });
+    };
+
     self.get = function () {
-        return map(
-            filter(inputs, function (input) {
-                return !inArray(['file', 'button'], input.getType());
-            }),
-            function (input) {
-                return input.get();
-            }
-        );
+        return call(filterInputs('file', 'button'), 'get');
     };
 
     self.set = function (name, value) {
         inputs[name].set(value);
+    };
+
+    self.clear = function (options) {
+        options = options || {};
+        var notCleared = options.isClearHidden ?
+            ['button'] : ['button', 'hidden'];
+        call(filterInputs.apply(null, notCleared), 'clear');
     };
 
     ajax($self, {
@@ -145,6 +152,7 @@ var createForm = function (fig) {
             callIfFunction(partial(fig.error, response));
             self.setFeedback(response);
             self.publish('error', response);
+
             // }, 500);
         },
         complete: function () {

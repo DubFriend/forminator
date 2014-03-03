@@ -39,6 +39,10 @@ var createInput = function (fig, my) {
         }
     };
 
+    self.clear = function () {
+        self.set('');
+    };
+
     my.buildSetter = function (callback) {
         return function (newValue) {
             var oldValue = self.get();

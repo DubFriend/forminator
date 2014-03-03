@@ -18,6 +18,10 @@ var createInputCheckbox = function (fig) {
 
     self.set = function (newValues) {
         newValues = newValues || [];
+        if(!isArray(newValues)) {
+            newValues = [newValues];
+        }
+
         var oldValues = self.get(),
             isDifferent = false;
 

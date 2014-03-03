@@ -10,6 +10,10 @@ var createInputFile = function (fig) {
         return last(self.$().val().split('\\'));
     };
 
+    self.clear = function () {
+        $.fileAjax.clearFileInputs(self.$().parent());
+    };
+
     self.$().change(function () {
         self.publish('change', self.get());
     });

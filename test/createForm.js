@@ -17,11 +17,18 @@ module('createForm',{
 
         self.fileInputDisabled = null;
         self.fileFeedback = null;
+        self.fileClearCalled = false;
         self.buttonInputDisabled = null;
         self.buttonFeedback = null;
+        self.buttonClearCalled = false;
         self.textInputDisabled = null;
         self.textFeedback = null;
+        self.textClearCalled = false;
         self.textGetData = 'textInputData';
+        self.hiddenInputDisabled = null;
+        self.hiddenFeedback = null;
+        self.hiddenClearCalled = false;
+
         self.inputs = {
             fileInput: {
                 getType: function () { return 'file'; },
@@ -29,7 +36,8 @@ module('createForm',{
                 disable: function () { self.fileInputDisabled = true; },
                 enable: function () { self.fileInputDisabled = false; },
                 clearFeedback: function () { self.fileFeedback = false; },
-                setFeedback: function (message) { self.fileFeedback = message; }
+                setFeedback: function (message) { self.fileFeedback = message; },
+                clear: function () { self.fileClearCalled = true; }
             },
             buttonInput: {
                 getType: function () { return 'button'; },
@@ -39,7 +47,19 @@ module('createForm',{
                 clearFeedback: function () { self.buttonFeedback = false; },
                 setFeedback: function (message) {
                     self.buttonFeedback = message;
-                }
+                },
+                clear: function () { self.buttonClearCalled = true; }
+            },
+            hiddenInput: {
+                getType: function () { return 'hidden'; },
+                get: function () { return 'hiddenInputData'; },
+                disable: function () { self.hiddenInputDisabled = true; },
+                enable: function () { self.hiddenInputDisabled = false; },
+                clearFeedback: function () { self.hiddenFeedback = false; },
+                setFeedback: function (message) {
+                    self.hiddenFeedback = message;
+                },
+                clear: function () { self.hiddenClearCalled = true; }
             },
             text: {
                 $: self.$mock.find('input[name="text"]'),
@@ -48,7 +68,8 @@ module('createForm',{
                 disable: function () { self.textInputDisabled = true; },
                 enable: function () { self.textInputDisabled = false; },
                 clearFeedback: function () { self.textFeedback = false; },
-                setFeedback: function (message) { self.textFeedback = message; }
+                setFeedback: function (message) { self.textFeedback = message; },
+                clear: function () { self.textClearCalled = true; }
             }
         };
 
@@ -188,3 +209,25 @@ test('setFeedback called on error ajax response', function () {
     strictEqual(this.textFeedback, 'ajax error message', 'text feedback set');
 });
 
+test('get', function () {
+    deepEqual(this.form.get(), {
+        text: "textInputData",
+        hiddenInput: "hiddenInputData"
+    });
+});
+
+test('clear default', function () {
+    this.form.clear();
+    strictEqual(this.hiddenClearCalled, false, 'hidden not cleared');
+    strictEqual(this.fileClearCalled, true, 'file is cleared');
+    strictEqual(this.textClearCalled, true, 'text is cleared');
+    strictEqual(this.buttonClearCalled, false, 'button not cleared');
+});
+
+test('clear hidden option', function () {
+    this.form.clear({ isClearHidden: true });
+    strictEqual(this.hiddenClearCalled, true, 'hidden cleared');
+    strictEqual(this.fileClearCalled, true, 'file is cleared');
+    strictEqual(this.textClearCalled, true, 'text is cleared');
+    strictEqual(this.buttonClearCalled, false, 'button not cleared');
+});

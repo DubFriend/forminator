@@ -80,6 +80,7 @@
             },
             success: function (response) {
                 console.log('success', response);
+                form.clear();
             }
         });
         form.set('checkbox[]', ['a', 'b']);

@@ -5,6 +5,7 @@ var createFormGroup = function (fig) {
 
     self.get = input.get || function () {};
     self.set = input.set || function () {};
+    self.clear = input.clear || function () {};
     self.disable = input.disable;
     self.enable = input.enable;
     self.getType = input.getType;

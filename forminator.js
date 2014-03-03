@@ -523,8 +523,8 @@
     };
 
     fileAjax.clearFileInputs = clearFileInputs;
-
     $.fn.fileAjax = fileAjax;
+    $.fileAjax = fileAjax;
 
 }(jQuery));
 
@@ -552,6 +552,14 @@ var partial = function (f) {
             return f.apply(null, args.concat(remainingArgs));
         };
     }
+};
+
+var argumentsToArray = function (args) {
+    var array = [], i;
+    for(i = 0; i < args.length; i += 1) {
+        array.push(args[i]);
+    }
+    return array;
 };
 
 var isEmpty = function (object) {
@@ -660,9 +668,9 @@ var pluck = function(collection, key) {
 };
 
 var call = function (collection, functionName, args, self) {
-    foreach(collection, function (object) {
-        // object[functionName]();
-        object[functionName].apply(object, args || []);
+    return map(collection, function (object, name) {
+        // console.log(functionName, name, object);
+        return object[functionName].apply(object, args || []);
     });
 };
 
@@ -1038,6 +1046,10 @@ var createInput = function (fig, my) {
         }
     };
 
+    self.clear = function () {
+        self.set('');
+    };
+
     my.buildSetter = function (callback) {
         return function (newValue) {
             var oldValue = self.get();
@@ -1082,6 +1094,10 @@ var createInputCheckbox = function (fig) {
 
     self.set = function (newValues) {
         newValues = newValues || [];
+        if(!isArray(newValues)) {
+            newValues = [newValues];
+        }
+
         var oldValues = self.get(),
             isDifferent = false;
 
@@ -1127,6 +1143,10 @@ var createInputFile = function (fig) {
         return last(self.$().val().split('\\'));
     };
 
+    self.clear = function () {
+        $.fileAjax.clearFileInputs(self.$().parent());
+    };
+
     self.$().change(function () {
         self.publish('change', self.get());
     });
@@ -1143,7 +1163,7 @@ var createInputRadio = function (fig) {
     };
 
     self.get = function () {
-        return self.$().filter(':checked').val();
+        return self.$().filter(':checked').val() || null;
     };
 
     self.set = my.buildSetter(function (newValue) {
@@ -1194,14 +1214,6 @@ var createInputTextarea = function (fig) {
     self.getType = function () {
         return 'textarea';
     };
-
-    self.get = function () {
-        return self.$().val();
-    };
-
-    self.set = my.buildSetter(function (newValue) {
-        this.$().text(newValue);
-    });
 
     self.$().keyup(function () {
         self.publish('change', self.get());
@@ -1270,6 +1282,7 @@ var createFormGroup = function (fig) {
 
     self.get = input.get || function () {};
     self.set = input.set || function () {};
+    self.clear = input.clear || function () {};
     self.disable = input.disable;
     self.enable = input.enable;
     self.getType = input.getType;
@@ -1398,19 +1411,26 @@ var createForm = function (fig) {
         return {};
     };
 
+    var filterInputs = function () {
+        var filteredTypes = argumentsToArray(arguments);
+        return filter(inputs, function (input) {
+            return !inArray(filteredTypes, input.getType());
+        });
+    };
+
     self.get = function () {
-        return map(
-            filter(inputs, function (input) {
-                return !inArray(['file', 'button'], input.getType());
-            }),
-            function (input) {
-                return input.get();
-            }
-        );
+        return call(filterInputs('file', 'button'), 'get');
     };
 
     self.set = function (name, value) {
         inputs[name].set(value);
+    };
+
+    self.clear = function (options) {
+        options = options || {};
+        var notCleared = options.isClearHidden ?
+            ['button'] : ['button', 'hidden'];
+        call(filterInputs.apply(null, notCleared), 'clear');
     };
 
     ajax($self, {
@@ -1454,6 +1474,7 @@ var createForm = function (fig) {
             callIfFunction(partial(fig.error, response));
             self.setFeedback(response);
             self.publish('error', response);
+
             // }, 500);
         },
         complete: function () {

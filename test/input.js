@@ -18,6 +18,11 @@ var testSet = function() {
     deepEqual(this.$.val(), 'b', 'text input value is set');
 };
 
+var testClear = function () {
+    this.input.clear();
+    strictEqual(this.input.get(), '', 'input cleared');
+};
+
 var testPublishesOnSetChange = function() {
     expect(1);
     this.input.subscribe('change', function (data) {
@@ -70,6 +75,7 @@ module("createInputText", {
 
 test("textInput get", testGet);
 test("textInput set", testSet);
+test("textInput clear", testClear);
 test("textInput set publishes change if changed", testPublishesOnSetChange);
 test("textInput set no publish if data not different", testNotPublishesOnSetNotChange);
 test("textInput getType", testGetType('text'));
@@ -101,8 +107,11 @@ test("textareaInput get", function() {
 
 test("textareaInput set", function() {
     this.input.set('b');
-    deepEqual(this.$.html(), 'b', 'text input value is set');
+    deepEqual(this.$.val(), 'b', 'textarea input value is set');
 });
+
+
+test("textareaInput clear", testClear);
 
 test("textareaInput set publishes change if changed", testPublishesOnSetChange);
 test("textareaInput set no publish if data not different", testNotPublishesOnSetNotChange);
@@ -131,6 +140,11 @@ module("createInputSelect", {
 
 test("selectInput get", testGet);
 test("selectInput set", testSet);
+test("selectInput clear", function () {
+    this.input.clear();
+    strictEqual(this.input.get(), null, 'input cleared');
+});
+
 test("selectInput set publishes change if changed", testPublishesOnSetChange);
 test("selectInput set no publish if data not different", testNotPublishesOnSetNotChange);
 
@@ -164,6 +178,11 @@ test("radioInput set", function() {
     deepEqual(this.$.filter(':checked').val(), 'b', 'text input value is set');
 });
 
+test("radioInput clear", function () {
+    this.input.clear();
+    deepEqual(this.input.get(), null, 'input cleared');
+});
+
 test("radioInput set publishes change if changed", testPublishesOnSetChange);
 test("radioInput set no publish if data not different", testNotPublishesOnSetNotChange);
 
@@ -192,6 +211,11 @@ test("checkboxInput get", function() {
     deepEqual(this.input.get(), ['b'], 'gets current value');
 });
 
+test("checkboxInput clear", function () {
+    this.input.clear();
+    deepEqual(this.input.get(), [], 'input cleared');
+});
+
 test("checkboxInput set", function() {
     this.input.set(['b']);
     deepEqual(this.input.get(), ['b'], 'text input value is set');
@@ -208,7 +232,23 @@ test("checkboxInput set multiple", function() {
     deepEqual(this.input.get(), ['a','b'], 'text input value is set');
 });
 
-test("checkboxInput set publishes change if changed", testPublishesOnSetChange);
+test("checkboxInput set publishes change if changed", function() {
+    expect(1);
+    this.input.subscribe('change', function (data) {
+        deepEqual(data, ['b'], 'publishes changed data');
+    });
+    this.input.set(['b']);
+});
+
+test("checkboxInput set wraps with array if set value not an array", function() {
+    expect(2);
+    this.input.subscribe('change', function (data) {
+        deepEqual(data, ['b'], 'published data is wrapped');
+    });
+    this.input.set('b');
+    deepEqual(this.input.get(), ['b'], 'get data is wrapped');
+});
+
 test("checkboxInput set no publish if data not different", testNotPublishesOnSetNotChange);
 
 test("checkboxInput set publishes change on click", function () {
@@ -230,6 +270,7 @@ module("createInputFile", {
     })
 });
 
+test("fileInput clear", testClear);
 test("fileInput getType", testGetType('file'));
 test("fileInput disable", testDisabled);
 test("fileInput enable", testEnabled);
@@ -257,3 +298,4 @@ test("buttonInput disable", testDisabled);
 test("buttonInput enable", testEnabled);
 test("buttonInput get", testGet);
 test("buttonInput set", testSet);
+test("buttonInput clear", testClear);
