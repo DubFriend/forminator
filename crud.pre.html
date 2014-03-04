@@ -80,7 +80,7 @@
             },
             success: function (response) {
                 console.log('success', response);
-                form.clear();
+                form.clear({ isClearHidden: true });
             }
         });
         form.set('checkbox[]', ['a', 'b']);

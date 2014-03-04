@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 02-03-2014
+// (MIT) 04-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -669,7 +669,6 @@ var pluck = function(collection, key) {
 
 var call = function (collection, functionName, args, self) {
     return map(collection, function (object, name) {
-        // console.log(functionName, name, object);
         return object[functionName].apply(object, args || []);
     });
 };
@@ -747,8 +746,9 @@ var remove = function (collection, item) {
 
 // call the variable if it is a function.
 var callIfFunction = function (fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
     if(isFunction(fn)) {
-        return fn();
+        return fn.apply(null, args);
     }
 };
 
@@ -955,7 +955,10 @@ var createFactory = function (fig) {
 };
 
 var ajax = function ($form, fig) {
-    if($form.find('input[type="file"]').length) {
+    fig.type = fig.type || 'POST';
+    fig.dataType = fig.dataType || 'json';
+
+    if($form.find('input[type="file"]').length && fig.type === 'POST') {
         // form contains files. fileAjax enables cross browser ajax file uploads
         var getData = function () {
             return map(fig.getData() || {}, identity, function (key) {
@@ -972,7 +975,7 @@ var ajax = function ($form, fig) {
             if(fig.validate()) {
                 $.ajax({
                     url: fig.url,
-                    method: 'POST',
+                    type: fig.type,
                     data: callIfFunction(fig.getData),
                     dataType: fig.dataType,
                     beforeSend: fig.beforeSend,
@@ -981,12 +984,10 @@ var ajax = function ($form, fig) {
                             isObject(response) &&
                             (response.status < 200 || response.status >= 300)
                         ) {
-                            if(fig.error) {
-                                fig.error(response);
-                            }
+                            callIfFunction(fig.error, response);
                         }
                         else {
-                            fig.success(response);
+                            callIfFunction(fig.success, response);
                         }
                     },
                     error: function (jqXHR) {
@@ -1485,6 +1486,51 @@ var createForm = function (fig) {
             // }, 500);
         }
     });
+
+    return self;
+};
+
+var createRequest = function (fig) {
+    var self = mixinPubSub(),
+        ajax = fig.ajax,
+        url = fig.url,
+        data = {},
+        buildURL = function () {
+            return queryjs.set(url, filter(data, function (value) {
+                return value || value === 0;
+            }));
+        },
+        set = function (values) {
+            data = union(data, values);
+        };
+
+    self.setOrder = function (values) {
+        set(map(values, identity, function (key) {
+            return 'order_' + key;
+        }));
+    };
+
+    self.setFilter = function (values) {
+        set(map(values, identity, function (key) {
+            return 'filter_' + key;
+        }));
+    };
+
+    self.search = function () {
+        ajax({
+            type: 'GET',
+            url: buildURL(),
+            success: function (response) {
+                self.publish('success', response);
+            },
+            error: function (response) {
+                self.publish('error', response);
+            },
+            complete: function (response) {
+                self.publish('complete', response);
+            }
+        });
+    };
 
     return self;
 };

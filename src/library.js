@@ -139,7 +139,6 @@ var pluck = function(collection, key) {
 
 var call = function (collection, functionName, args, self) {
     return map(collection, function (object, name) {
-        // console.log(functionName, name, object);
         return object[functionName].apply(object, args || []);
     });
 };
@@ -217,8 +216,9 @@ var remove = function (collection, item) {
 
 // call the variable if it is a function.
 var callIfFunction = function (fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
     if(isFunction(fn)) {
-        return fn();
+        return fn.apply(null, args);
     }
 };
 

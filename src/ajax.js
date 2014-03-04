@@ -1,5 +1,8 @@
 var ajax = function ($form, fig) {
-    if($form.find('input[type="file"]').length) {
+    fig.type = fig.type || 'POST';
+    fig.dataType = fig.dataType || 'json';
+
+    if($form.find('input[type="file"]').length && fig.type === 'POST') {
         // form contains files. fileAjax enables cross browser ajax file uploads
         var getData = function () {
             return map(fig.getData() || {}, identity, function (key) {
@@ -16,7 +19,7 @@ var ajax = function ($form, fig) {
             if(fig.validate()) {
                 $.ajax({
                     url: fig.url,
-                    method: 'POST',
+                    type: fig.type,
                     data: callIfFunction(fig.getData),
                     dataType: fig.dataType,
                     beforeSend: fig.beforeSend,
@@ -25,12 +28,10 @@ var ajax = function ($form, fig) {
                             isObject(response) &&
                             (response.status < 200 || response.status >= 300)
                         ) {
-                            if(fig.error) {
-                                fig.error(response);
-                            }
+                            callIfFunction(fig.error, response);
                         }
                         else {
-                            fig.success(response);
+                            callIfFunction(fig.success, response);
                         }
                     },
                     error: function (jqXHR) {
