@@ -1,13 +1,11 @@
 module("request", {
     setup: function () {
         var self = this;
-        self.ajax = function (fig) {
-            self.ajaxFig = fig;
-        };
         self.request = createRequest({
             url: 'testURL',
-            // data: { test: 'testValue' },
-            ajax: self.ajax
+            ajax: function (fig) {
+                self.ajaxFig = fig;
+            }
         });
     }
 });
