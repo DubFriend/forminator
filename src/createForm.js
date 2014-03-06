@@ -23,10 +23,11 @@ var createForm = function (fig) {
             oldMessage = newMessage;
         };
 
-        self.clearGlobalFeedback = function () {
+        self.clearGlobalError = function () {
             if(isError) {
                 $self.removeClass('error');
             }
+
             if(oldMessage) {
                 $feedback.html('');
             }
@@ -62,6 +63,11 @@ var createForm = function (fig) {
             oldMessage = null;
         };
     }());
+
+    self.clearGlobalFeedback = function () {
+        self.clearGlobalError();
+        self.clearGlobalSuccess();
+    };
 
     self.setFeedback = function (feedback) {
         feedback = feedback || {};
@@ -100,8 +106,17 @@ var createForm = function (fig) {
         return call(filterInputs('file', 'button'), 'get');
     };
 
-    self.set = function (name, value) {
-        inputs[name].set(value);
+    self.set = function (nameOrObject, valueOrNothing) {
+        if(isObject(nameOrObject)) {
+            foreach(nameOrObject, function (value, name) {
+                self.set(name, value);
+            });
+        }
+        else {
+            if(inputs[nameOrObject]) {
+                inputs[nameOrObject].set(valueOrNothing);
+            }
+        }
     };
 
     self.clear = function (options) {
@@ -155,11 +170,11 @@ var createForm = function (fig) {
 
             // }, 500);
         },
-        complete: function () {
+        complete: function (response) {
             // setTimeout(function () {
-            callIfFunction(fig.complete);
+            callIfFunction(fig.complete, response);
             self.enable();
-            self.publish('complete');
+            self.publish('complete', response);
             // }, 500);
         }
     });

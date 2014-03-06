@@ -32,8 +32,8 @@
             color: green;
         }
 
-        #frm-search-name, #frm-ordinator-name, #frm-paginator-numbers-name,
-        #frm-paginator-goto-name, #frm-list-container-name {
+        #frm-search-name, #frm-ordinator-name, #frm-page-numbers-name,
+        #frm-goto-page-name, #frm-list-container-name {
             padding: 0.2em;
             border: 1px solid black;
         }
@@ -62,6 +62,7 @@
     <script>
         var form = forminator.init({
             $: $('#frm-name'),
+            url: 'crud.php',
             validate: function (data) {
                 var errors = {};
 
@@ -81,6 +82,7 @@
             success: function (response) {
                 console.log('success', response);
                 form.clear({ isClearHidden: true });
+                setTimeout(form.clearFeedback, 2000);
             }
         });
         form.set('checkbox[]', ['a', 'b']);

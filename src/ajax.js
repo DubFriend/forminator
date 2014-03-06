@@ -1,8 +1,9 @@
 var ajax = function ($form, fig) {
     fig.type = fig.type || 'POST';
-    fig.dataType = fig.dataType || 'json';
+    fig.dataType = fig.dataType.toLowerCase() || 'json';
 
-    if($form.find('input[type="file"]').length && fig.type === 'POST') {
+    if($form.find('input[type="file"]').length) {
+        console.log('$.fn.fileAjax');
         // form contains files. fileAjax enables cross browser ajax file uploads
         var getData = function () {
             return map(fig.getData() || {}, identity, function (key) {
@@ -12,9 +13,9 @@ var ajax = function ($form, fig) {
         $form.fileAjax(fig);
     }
     else {
+        console.log('$.ajax');
         // form has no files, use standard ajax.
         $form.submit(function (e) {
-            console.log('asdf', callIfFunction(fig.getData));
             e.preventDefault();
             if(fig.validate()) {
                 $.ajax({
@@ -35,16 +36,19 @@ var ajax = function ($form, fig) {
                         }
                     },
                     error: function (jqXHR) {
-                        console.log(jqXHR);
-                        if(fig.error) {
-                            var dataType = fig.dataType ?
-                                fig.dataType.toLowerCase() : null;
-                            fig.error(
-                                jqXHR.responseJSON
-                            );
-                        }
+                        callIfFunction(
+                            fig.error,
+                            fig.dataType === 'json' ?
+                                jqXHR.responseJSON : jqXHR.responseText
+                        );
                     },
-                    complete: fig.complete
+                    complete: function (jqXHR) {
+                        callIfFunction(
+                            fig.complete,
+                            fig.dataType === 'json' ?
+                                jqXHR.responseJSON : jqXHR.responseText
+                        );
+                    }
                 });
             }
         });

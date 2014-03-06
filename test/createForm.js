@@ -42,6 +42,9 @@ module('createForm',{
             buttonInput: {
                 getType: function () { return 'button'; },
                 get: function () { return 'buttonInputData'; },
+                set: function (value) {
+                    self.buttonInputSetParameters = value;
+                },
                 disable: function () { self.buttonInputDisabled = true; },
                 enable: function () { self.buttonInputDisabled = false; },
                 clearFeedback: function () { self.buttonFeedback = false; },
@@ -53,6 +56,9 @@ module('createForm',{
             hiddenInput: {
                 getType: function () { return 'hidden'; },
                 get: function () { return 'hiddenInputData'; },
+                set: function (value) {
+                    self.hiddenInputSetParameters = value;
+                },
                 disable: function () { self.hiddenInputDisabled = true; },
                 enable: function () { self.hiddenInputDisabled = false; },
                 clearFeedback: function () { self.hiddenFeedback = false; },
@@ -65,6 +71,9 @@ module('createForm',{
                 $: self.$mock.find('input[name="text"]'),
                 getType: function () { return 'text'; },
                 get: function () { return self.textGetData; },
+                set: function (value) {
+                    self.textInputSetParameters = value;
+                },
                 disable: function () { self.textInputDisabled = true; },
                 enable: function () { self.textInputDisabled = false; },
                 clearFeedback: function () { self.textFeedback = false; },
@@ -177,6 +186,29 @@ test('error cleared after success', function () {
     );
 });
 
+test('clearFeedback error', function () {
+    this.ajaxFig.error({ text: 'errorMessage', GLOBAL: 'globalErrorMessage' });
+    this.form.clearFeedback();
+    strictEqual(this.textFeedback, false, 'text feedback cleared');
+    strictEqual(
+        this.$mock.find('.frm-global-feedback').html(), '',
+        'globalFeedback message removed'
+    );
+    ok(!this.$mock.hasClass('error'), 'form error class removed');
+});
+
+test('clearFeedback success', function () {
+    this.ajaxFig.success({ text: 'errorMessage', GLOBAL: 'globalSuccessMessage' });
+    this.form.clearFeedback();
+    strictEqual(this.textFeedback, false, 'text feedback cleared');
+    strictEqual(
+        this.$mock.find('.frm-global-feedback').html(), '',
+        'globalFeedback message removed'
+    );
+    ok(!this.$mock.hasClass('success'), 'form error class removed');
+});
+
+
 test('trigger beforeSend', function () {
     this.ajaxFig.beforeSend();
     strictEqual(this.fileInputDisabled, true, 'fileInput disabled');
@@ -230,4 +262,17 @@ test('clear hidden option', function () {
     strictEqual(this.fileClearCalled, true, 'file is cleared');
     strictEqual(this.textClearCalled, true, 'text is cleared');
     strictEqual(this.buttonClearCalled, false, 'button not cleared');
+});
+
+test('set name and value parameters', function () {
+    this.form.set('text', 'newValue');
+    strictEqual(this.textInputSetParameters, 'newValue');
+});
+
+test('set object parameter', function () {
+    this.form.set({
+        text: 'foo', hiddenInput: 'bar'
+    });
+    strictEqual(this.textInputSetParameters, 'foo', 'text input is set');
+    strictEqual(this.hiddenInputSetParameters, 'bar', 'hidden input is set');
 });

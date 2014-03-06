@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 04-03-2014
+// (MIT) 06-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -956,9 +956,10 @@ var createFactory = function (fig) {
 
 var ajax = function ($form, fig) {
     fig.type = fig.type || 'POST';
-    fig.dataType = fig.dataType || 'json';
+    fig.dataType = fig.dataType.toLowerCase() || 'json';
 
-    if($form.find('input[type="file"]').length && fig.type === 'POST') {
+    if($form.find('input[type="file"]').length) {
+        console.log('$.fn.fileAjax');
         // form contains files. fileAjax enables cross browser ajax file uploads
         var getData = function () {
             return map(fig.getData() || {}, identity, function (key) {
@@ -968,9 +969,9 @@ var ajax = function ($form, fig) {
         $form.fileAjax(fig);
     }
     else {
+        console.log('$.ajax');
         // form has no files, use standard ajax.
         $form.submit(function (e) {
-            console.log('asdf', callIfFunction(fig.getData));
             e.preventDefault();
             if(fig.validate()) {
                 $.ajax({
@@ -991,16 +992,19 @@ var ajax = function ($form, fig) {
                         }
                     },
                     error: function (jqXHR) {
-                        console.log(jqXHR);
-                        if(fig.error) {
-                            var dataType = fig.dataType ?
-                                fig.dataType.toLowerCase() : null;
-                            fig.error(
-                                jqXHR.responseJSON
-                            );
-                        }
+                        callIfFunction(
+                            fig.error,
+                            fig.dataType === 'json' ?
+                                jqXHR.responseJSON : jqXHR.responseText
+                        );
                     },
-                    complete: fig.complete
+                    complete: function (jqXHR) {
+                        callIfFunction(
+                            fig.complete,
+                            fig.dataType === 'json' ?
+                                jqXHR.responseJSON : jqXHR.responseText
+                        );
+                    }
                 });
             }
         });
@@ -1346,10 +1350,11 @@ var createForm = function (fig) {
             oldMessage = newMessage;
         };
 
-        self.clearGlobalFeedback = function () {
+        self.clearGlobalError = function () {
             if(isError) {
                 $self.removeClass('error');
             }
+
             if(oldMessage) {
                 $feedback.html('');
             }
@@ -1385,6 +1390,11 @@ var createForm = function (fig) {
             oldMessage = null;
         };
     }());
+
+    self.clearGlobalFeedback = function () {
+        self.clearGlobalError();
+        self.clearGlobalSuccess();
+    };
 
     self.setFeedback = function (feedback) {
         feedback = feedback || {};
@@ -1423,8 +1433,17 @@ var createForm = function (fig) {
         return call(filterInputs('file', 'button'), 'get');
     };
 
-    self.set = function (name, value) {
-        inputs[name].set(value);
+    self.set = function (nameOrObject, valueOrNothing) {
+        if(isObject(nameOrObject)) {
+            foreach(nameOrObject, function (value, name) {
+                self.set(name, value);
+            });
+        }
+        else {
+            if(inputs[nameOrObject]) {
+                inputs[nameOrObject].set(valueOrNothing);
+            }
+        }
     };
 
     self.clear = function (options) {
@@ -1478,11 +1497,11 @@ var createForm = function (fig) {
 
             // }, 500);
         },
-        complete: function () {
+        complete: function (response) {
             // setTimeout(function () {
-            callIfFunction(fig.complete);
+            callIfFunction(fig.complete, response);
             self.enable();
-            self.publish('complete');
+            self.publish('complete', response);
             // }, 500);
         }
     });
@@ -1530,6 +1549,60 @@ var createRequest = function (fig) {
                 self.publish('complete', response);
             }
         });
+    };
+
+    return self;
+};
+var createList = function (fig) {
+    var self = {},
+        $self = fig.$self,
+
+        $itemTemplate = (function () {
+            var $el = $self.find('.frm-list-item:first-child').clone();
+            // use ListItems clear method to clean out the template.
+            var listItem = createListItem({
+                $self: $el
+            });
+            listItem.clear();
+            return $el;
+        }()),
+
+        items = (function () {
+            var items = [];
+            $self.find('.frm-list-item').each(function () {
+                items.push(createListItem({ $self: $(this) }));
+            });
+            return items;
+        }());
+
+    // erase old set, replace with given items
+    self.set = function (newItemsData) {
+        var newElems = [];
+        foreach(newItemsData, function(newItemData, index) {
+            var $new;
+            if(items[index]) {
+                items[index].hardSet(newItemData);
+            }
+            else {
+                $new = $itemTemplate.clone();
+                newElems.push($new);
+                items[index] = createListItem({
+                    $self: $new
+                });
+                items[index].set(newItemData);
+            }
+        });
+        $self.append(newElems);
+
+        if(items.length > newItemsData.length) {
+            call(
+                items.splice(
+                    newItemsData.length,
+                    items.length - newItemsData.length
+                ),
+                'destroy'
+            );
+        }
     };
 
     return self;

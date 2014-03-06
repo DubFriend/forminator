@@ -21,10 +21,6 @@ var createListItem = function (fig) {
     self.set = function (newValues) {
         var changedFields = filter(newValues, function (newValue, name) {
             if(typeof fields[name] === 'undefined') {
-                console.warn(
-                    'field of value ' + name +
-                    ' does not exist on this list item.'
-                );
                 return false;
             }
             else  {
@@ -33,6 +29,22 @@ var createListItem = function (fig) {
         });
         fields = union(fields, changedFields);
         render(changedFields);
+        return self;
+    };
+
+    // sets new values and clears any absent fields
+    self.hardSet = function (newValues) {
+        self.clear();
+        self.set(newValues);
+    };
+
+    self.clear = function () {
+        $self.find('[data-field]').html('');
+        return self;
+    };
+
+    self.destroy = function () {
+        $self.remove();
     };
 
     self.get = function () {
@@ -41,3 +53,4 @@ var createListItem = function (fig) {
 
     return self;
 };
+

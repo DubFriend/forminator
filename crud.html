@@ -32,8 +32,8 @@
             color: green;
         }
 
-        #frm-search-name, #frm-ordinator-name, #frm-paginator-numbers-name,
-        #frm-paginator-goto-name, #frm-list-container-name {
+        #frm-search-name, #frm-ordinator-name, #frm-page-numbers-name,
+        #frm-goto-page-name, #frm-list-container-name {
             padding: 0.2em;
             border: 1px solid black;
         }
@@ -188,13 +188,15 @@
     
         <div class="frm-global-feedback"></div>
     </form>
-    <ol id="frm-paginator-numbers-name">
+    <p># of pages: <span id="frm-number-of-pages-name"></span></p>
+    
+    <ol id="frm-page-numbers-name">
         <li class="frm-number-container">
             <a data-number="1">One</a>
         </li>
     </ol>
     
-    <form id="frm-paginator-goto-name" method="GET" action="respond.php">
+    <form id="frm-goto-page-name" method="GET" action="respond.php">
         <input type="text">
         <input type="submit" value="Goto Page"/>
     </form>
@@ -209,23 +211,37 @@
     </div>
     
     <div id="frm-list-container-name">
-        <div class="frm-list-item">
-            <span>Text</span>
-            <span data-field="text"></span>
-            <span>Textarea</span>
-            <span data-field="textarea">Default Value</span>
-            <span>Select</span>
-            <span data-field="select"></span>
-            <span>Radio</span>
-            <span data-field="radio"></span>
-            <span>Checkbox</span>
-            <span data-field="checkbox"></span>
-            <span>Hidden</span>
-            <span data-field="hidden"></span>
+        <ul class="frm-list-item">
+            <li>
+                <span>Text</span>
+                <span data-field="text"></span>
+            </li>
+            <li>
+                <span>Textarea</span>
+                <span data-field="textarea">Default Value</span>
+            </li>
+            <li>
+                <span>Select</span>
+                <span data-field="select"></span>
+            </li>
+            <li>
+                <span>Radio</span>
+                <span data-field="radio"></span>
+            </li>
+            <li>
+                <span>Checkbox</span>
+                <span data-field="checkbox"></span>
+            </li>
+            <li>
+                <span>Hidden</span>
+                <span data-field="hidden"></span>
+            </li>
             <!-- "extra" field not present in the form -->
-            <span>Extra</span>
-            <span data-field="extra"></span>
-        </div>
+            <li>
+                <span>Extra</span>
+                <span data-field="extra"></span>
+            </li>
+        </ul>
     </div>
     
 
@@ -234,6 +250,7 @@
     <script>
         var form = forminator.init({
             $: $('#frm-name'),
+            url: 'crud.php',
             validate: function (data) {
                 var errors = {};
 
@@ -253,6 +270,7 @@
             success: function (response) {
                 console.log('success', response);
                 form.clear({ isClearHidden: true });
+                setTimeout(form.clearFeedback, 2000);
             }
         });
         form.set('checkbox[]', ['a', 'b']);
