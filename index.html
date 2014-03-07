@@ -139,8 +139,8 @@
     <script src="lib/jquery-1.11.0"></script>
     <script src="forminator.js"></script>
     <script>
-        var form = forminator.init({
-            $: $('#frm-name'),
+        var nameForminator = forminator.init({
+            name: 'name',
             validate: function (data) {
                 var errors = {};
 
@@ -159,7 +159,7 @@
             },
             success: function (response) {
                 console.log('success', response);
-                form.clear();
+                nameForminator.form.clear();
             }
         });
     </script>

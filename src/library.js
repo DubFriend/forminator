@@ -379,8 +379,13 @@ var queryjs = (function () {
 
 }());
 
+var $getAnyForminatorModule = function (preSelector, name, moduleName) {
+    return $(
+        '#frm' +
+        (moduleName ? '-' + moduleName : '') +
+        (name ? '-' + name : '')
+    );
+};
 
-if (typeof console === "undefined"){
-    console={};
-    console.warn = function () {};
-}
+var $getForminatorModule = partial($getAnyForminatorModule, '#frm');
+var $getForminatorClass = partial($getAnyForminatorModule, '.frm');

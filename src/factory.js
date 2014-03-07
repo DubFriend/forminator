@@ -1,8 +1,17 @@
 var createFactory = function (fig) {
     var self = {},
         url = fig.url,
-        $self = fig.$;
+        name = fig.name,
+        $getModule = partial($getForminatorModule, name);
 
+    var buildModuleIfExists = function (fn, name) {
+        return function () {
+            var $module = $getModule(name);
+            if($module.length) {
+                return fn($module);
+            }
+        };
+    };
 
     self.input = {
         text: createInputText,
@@ -15,9 +24,9 @@ var createFactory = function (fig) {
         hidden: createInputHidden
     };
 
-    self.form = function () {
+    self.form = buildModuleIfExists(function ($module) {
         return createForm({
-            $: $self,
+            $: $module,
             ajax: ajax,
             validate: fig.validate,
             onprogress: fig.onprogress,
@@ -26,13 +35,17 @@ var createFactory = function (fig) {
             complete: fig.complete,
             url: url,
             inputs: map(
-                buildFormInputs({ $: $self, factory: self }),
+                buildFormInputs({ $: $module, factory: self }),
                 function (input) {
                     return createFormGroup({ input: input });
                 }
             )
         });
-    };
+    });
+
+    self.list = buildModuleIfExists(function ($module) {
+        return createList({ $: $module });
+    }, 'list');
 
     return self;
 };

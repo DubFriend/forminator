@@ -2,8 +2,8 @@ module("list", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
-        self.$self = $('#frm-list-container-name');
-        self.list = createList({ $self: self.$self });
+        self.$self = $('#frm-list-name');
+        self.list = createList({ $: self.$self });
     }
 });
 
@@ -31,4 +31,59 @@ test("set, removes excess elements", function () {
     var $items = this.$self.find('.frm-list-item');
     strictEqual($items.length, 1, 'only one item');
     deepEqual(getListItemsData($items), { text: 'foo' }, 'data is set');
+});
+
+test("publishes listItem when selected", function () {
+    expect(1);
+    this.list.subscribe('selected', function (listItem) {
+        deepEqual(
+            filter(listItem.get(), function (value) {
+                return value ? true : false;
+            }),
+            { textarea: 'Default Value' },
+            'passes list item (data is correct)'
+        );
+    });
+    this.$self.find('.frm-list-item:first-child').dblclick();
+});
+
+test("publishes listItem when selected (set item)", function () {
+    expect(1);
+    this.list.set([{text: 'bar' }, { text: 'fad'}]);
+    this.list.subscribe('selected', function (listItem) {
+        deepEqual(
+            filter(listItem.get(), function (value) {
+                return value ? true : false;
+            }),
+            { text: 'bar' },
+            'passes list item (data is correct)'
+        );
+    });
+    this.$self.find('.frm-list-item:first-child').dblclick();
+});
+
+test("publishes listItem when selected (created set item)", function () {
+    expect(1);
+    this.list.set([{text: 'bar' }, { text: 'fad'}]);
+    this.list.subscribe('selected', function (listItem) {
+        deepEqual(
+            filter(listItem.get(), function (value) {
+                return value ? true : false;
+            }),
+            { text: 'fad' },
+            'passes list item (data is correct)'
+        );
+    });
+    this.$self.find('.frm-list-item:last-child').dblclick();
+});
+
+test("addSelected class listItem when selected", function () {
+    this.list.set([{text: 'bar' }, { text: 'fad'}]);
+    var $firstListItem = this.$self.find('.frm-list-item:first-child');
+    var $secondListItem = this.$self.find('.frm-list-item:last-child');
+    $firstListItem.dblclick();
+    ok($firstListItem.hasClass('selected'), 'selected item has selected class');
+    $secondListItem.dblclick();
+    ok(!$firstListItem.hasClass('selected'), 'removes class from unselected items');
+    ok($secondListItem.hasClass('selected'), 'adds class to selected item');
 });

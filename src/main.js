@@ -2,9 +2,13 @@ var forminator = {};
 
 forminator.init = function (fig) {
     var factory = createFactory(fig),
-        form = factory.form();
+        form = factory.form(),
+        list = factory.list();
 
-    return form;
+    return {
+        form: form,
+        list: list
+    };
 };
 
 window.forminator = forminator;

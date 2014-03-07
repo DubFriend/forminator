@@ -2,7 +2,7 @@ module("listItem", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
-        self.$self = $('#frm-list-container-name .frm-list-item:first-child');
+        self.$self = $('#frm-list-name .frm-list-item:first-child');
         self.listItem = createListItem({ $self: self.$self });
         self.defaultFieldValues = {
             checkbox: '', extra: '', hidden: '',
@@ -52,3 +52,29 @@ test("destroy", function () {
         $('#frm-list-container-name .frm-list-item:first-child').length, 0
     );
 });
+
+test("setSelected", function () {
+    this.listItem.addSelectedClass();
+    ok(this.$self.hasClass('selected'), 'has class "selected"');
+});
+
+test("clearSelected", function () {
+    this.listItem.addSelectedClass();
+    this.listItem.removeSelectedClass();
+    ok(!this.$self.hasClass('selected'), 'does not have class "selected"');
+});
+
+test("double click publishes selected event", function () {
+    expect(2);
+    var self = this;
+    var isAddSelectedClassCalled = false;
+    this.listItem.addSelectedClass = function () {
+        isAddSelectedClassCalled = true;
+    };
+    this.listItem.subscribe('selected', function (listItem) {
+        deepEqual(listItem, self.listItem, 'passes in listItem object');
+        ok(!isAddSelectedClassCalled, 'set selected not called');
+    });
+    this.$self.dblclick();
+});
+

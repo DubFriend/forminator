@@ -1,6 +1,6 @@
 var createList = function (fig) {
-    var self = {},
-        $self = fig.$self,
+    var self = mixinPubSub(),
+        $self = fig.$,
 
         $itemTemplate = (function () {
             var $el = $self.find('.frm-list-item:first-child').clone();
@@ -12,13 +12,25 @@ var createList = function (fig) {
             return $el;
         }()),
 
+        subscribeListItem = function (listItem) {
+            listItem.subscribe('selected', function () {
+                call(items, 'removeSelectedClass');
+                listItem.addSelectedClass();
+                self.publish('selected', listItem);
+            });
+            return listItem;
+        },
+
         items = (function () {
             var items = [];
             $self.find('.frm-list-item').each(function () {
-                items.push(createListItem({ $self: $(this) }));
+                items.push(subscribeListItem(createListItem({
+                    $self: $(this)
+                })));
             });
             return items;
         }());
+
 
     // erase old set, replace with given items
     self.set = function (newItemsData) {
@@ -31,9 +43,9 @@ var createList = function (fig) {
             else {
                 $new = $itemTemplate.clone();
                 newElems.push($new);
-                items[index] = createListItem({
+                items[index] = subscribeListItem(createListItem({
                     $self: $new
-                });
+                }));
                 items[index].set(newItemData);
             }
         });

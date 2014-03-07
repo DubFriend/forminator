@@ -210,7 +210,7 @@
         </span>
     </div>
     
-    <div id="frm-list-container-name">
+    <div id="frm-list-name">
         <ul class="frm-list-item">
             <li>
                 <span>Text</span>
@@ -248,8 +248,8 @@
     <script src="lib/jquery-1.11.0"></script>
     <script src="forminator.js"></script>
     <script>
-        var form = forminator.init({
-            $: $('#frm-name'),
+        var nameForminator = forminator.init({
+            name: 'name',
             url: 'crud.php',
             validate: function (data) {
                 var errors = {};
@@ -269,12 +269,13 @@
             },
             success: function (response) {
                 console.log('success', response);
-                form.clear({ isClearHidden: true });
-                setTimeout(form.clearFeedback, 2000);
+                nameForminator.form.clear({ isClearHidden: true });
+                setTimeout(nameForminator.form.clearFeedback, 2000);
             }
         });
-        form.set('checkbox[]', ['a', 'b']);
-        console.log(form.get());
+        // nameForminator.list.set([{text: 'foo'}, {radio: 'basdf'}]);
+        nameForminator.form.set('checkbox[]', ['a', 'b']);
+        console.log(nameForminator.form.get());
     </script>
 </body>
 </html>

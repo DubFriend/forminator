@@ -33,6 +33,7 @@ module.exports = function (grunt) {
                     'src/createFormGroup.js',
                     'src/createForm.js',
                     'src/request.js',
+                    'src/listItem.js',
                     'src/list.js',
                     'src/main.js',
                     'src/outro.js'

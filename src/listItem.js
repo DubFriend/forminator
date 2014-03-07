@@ -1,5 +1,5 @@
 var createListItem = function (fig) {
-    var self = {},
+    var self = mixinPubSub(),
         $self = fig.$self,
 
         render = function (fields) {
@@ -40,6 +40,7 @@ var createListItem = function (fig) {
 
     self.clear = function () {
         $self.find('[data-field]').html('');
+        fields = map(fields, function () { return ''; });
         return self;
     };
 
@@ -50,6 +51,27 @@ var createListItem = function (fig) {
     self.get = function () {
         return copy(fields);
     };
+
+    (function () {
+        var hasSelectedClass = false;
+        self.addSelectedClass = function () {
+            if(!hasSelectedClass) {
+                $self.addClass('selected');
+            }
+            hasSelectedClass = true;
+        };
+
+        self.removeSelectedClass = function () {
+            if(hasSelectedClass) {
+                $self.removeClass('selected');
+            }
+            hasSelectedClass = false;
+        };
+    }());
+
+    $self.dblclick(function () {
+        self.publish('selected', self);
+    });
 
     return self;
 };

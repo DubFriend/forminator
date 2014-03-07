@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 06-03-2014
+// (MIT) 07-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -280,7 +280,7 @@
     var applyUserResponse = function (parsedResponse, success, error) {
         var response = parsedResponse.response;
         var metaData = parsedResponse.metaData;
-        var status = metaData && metaData.status || response.status;
+        var status = metaData && metaData.status || response && response.status || 200;
         if(!status || status >= 200 && status < 300) {
             applyUserFunction(success, response, metaData);
         }
@@ -909,17 +909,30 @@ var queryjs = (function () {
 
 }());
 
+var $getAnyForminatorModule = function (preSelector, name, moduleName) {
+    return $(
+        '#frm' +
+        (moduleName ? '-' + moduleName : '') +
+        (name ? '-' + name : '')
+    );
+};
 
-if (typeof console === "undefined"){
-    console={};
-    console.warn = function () {};
-}
-
+var $getForminatorModule = partial($getAnyForminatorModule, '#frm');
+var $getForminatorClass = partial($getAnyForminatorModule, '.frm');
 var createFactory = function (fig) {
     var self = {},
         url = fig.url,
-        $self = fig.$;
+        name = fig.name,
+        $getModule = partial($getForminatorModule, name);
 
+    var buildModuleIfExists = function (fn, name) {
+        return function () {
+            var $module = $getModule(name);
+            if($module.length) {
+                return fn($module);
+            }
+        };
+    };
 
     self.input = {
         text: createInputText,
@@ -932,9 +945,9 @@ var createFactory = function (fig) {
         hidden: createInputHidden
     };
 
-    self.form = function () {
+    self.form = buildModuleIfExists(function ($module) {
         return createForm({
-            $: $self,
+            $: $module,
             ajax: ajax,
             validate: fig.validate,
             onprogress: fig.onprogress,
@@ -943,13 +956,17 @@ var createFactory = function (fig) {
             complete: fig.complete,
             url: url,
             inputs: map(
-                buildFormInputs({ $: $self, factory: self }),
+                buildFormInputs({ $: $module, factory: self }),
                 function (input) {
                     return createFormGroup({ input: input });
                 }
             )
         });
-    };
+    });
+
+    self.list = buildModuleIfExists(function ($module) {
+        return createList({ $: $module });
+    }, 'list');
 
     return self;
 };
@@ -1553,9 +1570,88 @@ var createRequest = function (fig) {
 
     return self;
 };
-var createList = function (fig) {
-    var self = {},
+var createListItem = function (fig) {
+    var self = mixinPubSub(),
         $self = fig.$self,
+
+        render = function (fields) {
+            foreach(fields, function (value, name) {
+                $self.find('[data-field="' + name + '"]').html(value);
+            });
+        },
+
+        getFieldsFromHTML = function () {
+            var data = {};
+            $self.find('[data-field]').each(function () {
+                data[$(this).attr('data-field')] = $(this).html();
+            });
+            return data;
+        },
+
+        fields = getFieldsFromHTML();
+
+    self.set = function (newValues) {
+        var changedFields = filter(newValues, function (newValue, name) {
+            if(typeof fields[name] === 'undefined') {
+                return false;
+            }
+            else  {
+                return fields[name] !== newValue;
+            }
+        });
+        fields = union(fields, changedFields);
+        render(changedFields);
+        return self;
+    };
+
+    // sets new values and clears any absent fields
+    self.hardSet = function (newValues) {
+        self.clear();
+        self.set(newValues);
+    };
+
+    self.clear = function () {
+        $self.find('[data-field]').html('');
+        fields = map(fields, function () { return ''; });
+        return self;
+    };
+
+    self.destroy = function () {
+        $self.remove();
+    };
+
+    self.get = function () {
+        return copy(fields);
+    };
+
+    (function () {
+        var hasSelectedClass = false;
+        self.addSelectedClass = function () {
+            if(!hasSelectedClass) {
+                $self.addClass('selected');
+            }
+            hasSelectedClass = true;
+        };
+
+        self.removeSelectedClass = function () {
+            if(hasSelectedClass) {
+                $self.removeClass('selected');
+            }
+            hasSelectedClass = false;
+        };
+    }());
+
+    $self.dblclick(function () {
+        self.publish('selected', self);
+    });
+
+    return self;
+};
+
+
+var createList = function (fig) {
+    var self = mixinPubSub(),
+        $self = fig.$,
 
         $itemTemplate = (function () {
             var $el = $self.find('.frm-list-item:first-child').clone();
@@ -1567,13 +1663,25 @@ var createList = function (fig) {
             return $el;
         }()),
 
+        subscribeListItem = function (listItem) {
+            listItem.subscribe('selected', function () {
+                call(items, 'removeSelectedClass');
+                listItem.addSelectedClass();
+                self.publish('selected', listItem);
+            });
+            return listItem;
+        },
+
         items = (function () {
             var items = [];
             $self.find('.frm-list-item').each(function () {
-                items.push(createListItem({ $self: $(this) }));
+                items.push(subscribeListItem(createListItem({
+                    $self: $(this)
+                })));
             });
             return items;
         }());
+
 
     // erase old set, replace with given items
     self.set = function (newItemsData) {
@@ -1586,9 +1694,9 @@ var createList = function (fig) {
             else {
                 $new = $itemTemplate.clone();
                 newElems.push($new);
-                items[index] = createListItem({
+                items[index] = subscribeListItem(createListItem({
                     $self: $new
-                });
+                }));
                 items[index].set(newItemData);
             }
         });
@@ -1612,9 +1720,13 @@ var forminator = {};
 
 forminator.init = function (fig) {
     var factory = createFactory(fig),
-        form = factory.form();
+        form = factory.form(),
+        list = factory.list();
 
-    return form;
+    return {
+        form: form,
+        list: list
+    };
 };
 
 window.forminator = forminator;
