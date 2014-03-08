@@ -11,7 +11,12 @@ var createInputRadio = function (fig) {
     };
 
     self.set = my.buildSetter(function (newValue) {
-        self.$().filter('[value="' + newValue + '"]').prop('checked', true);
+        if(!newValue) {
+            self.$().prop('checked', false);
+        }
+        else {
+            self.$().filter('[value="' + newValue + '"]').prop('checked', true);
+        }
     });
 
     self.$().change(function () {

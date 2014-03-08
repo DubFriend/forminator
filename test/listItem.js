@@ -5,8 +5,8 @@ module("listItem", {
         self.$self = $('#frm-list-name .frm-list-item:first-child');
         self.listItem = createListItem({ $self: self.$self });
         self.defaultFieldValues = {
-            checkbox: '', extra: '', hidden: '',
-            radio: '', select: '', text: '',
+            'checkbox[]': '', extra: '', hidden: '',
+            'radio': '', select: '', text: '',
             textarea: 'Default Value'
         };
     }
@@ -17,10 +17,10 @@ test("populates initial data from html", function () {
 });
 
 test("set then get", function () {
-    this.listItem.set({ checkbox: 'foo' });
+    this.listItem.set({ 'checkbox[]': 'foo' });
     deepEqual(
         this.listItem.get(),
-        union(this.defaultFieldValues, { checkbox: 'foo' })
+        union(this.defaultFieldValues, { 'checkbox[]': 'foo' })
     );
 });
 
@@ -30,8 +30,8 @@ test("hard set", function () {
 });
 
 test("set renders new values", function () {
-    this.listItem.set({ checkbox: 'foo' });
-    strictEqual(this.$self.find('[data-field="checkbox"]').html(), 'foo');
+    this.listItem.set({ 'checkbox[]': 'foo' });
+    strictEqual(this.$self.find('[data-field="checkbox[]"]').html(), 'foo');
 });
 
 test("set non existant field does not set value", function () {

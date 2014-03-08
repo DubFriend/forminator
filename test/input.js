@@ -175,7 +175,13 @@ test("radioInput get", function() {
 
 test("radioInput set", function() {
     this.input.set('b');
-    deepEqual(this.$.filter(':checked').val(), 'b', 'text input value is set');
+    strictEqual(this.$.filter(':checked').val(), 'b', 'radio input value is set');
+});
+
+test("radioInput set to empty string", function () {
+    this.input.set('b');
+    this.input.set('');
+    strictEqual(this.$.filter(':checked').length, 0, 'radio input value is cleared');
 });
 
 test("radioInput clear", function () {
@@ -216,9 +222,15 @@ test("checkboxInput clear", function () {
     deepEqual(this.input.get(), [], 'input cleared');
 });
 
-test("checkboxInput set", function() {
+test("checkboxInput set", function () {
     this.input.set(['b']);
     deepEqual(this.input.get(), ['b'], 'text input value is set');
+});
+
+test("checkboxInput set empty string", function () {
+    this.$.prop('checked', true);
+    this.input.set('');
+    deepEqual(this.input.get(), [], 'checkbox is cleared');
 });
 
 test("checkboxInput set erases previously set", function() {
