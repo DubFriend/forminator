@@ -1,22 +1,22 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 
 function uploadFile ($file) {
-    if ($file["error"][0]) {
-        return array('error' => $file['error'][0]);
+    if ($file["error"]) {
+        return array('error' => $file['error']);
     }
     else {
         move_uploaded_file(
-            $file["tmp_name"][0],
-            "uploads/" . $file["name"][0]
+            $file["tmp_name"],
+            "uploads/" . $file["name"]
         );
 
         return array(
-            'name' => $file['name'][0],
-            'type' => $file['type'][0],
-            'size' => $file['size'][0],
-            'tmp_name' => $file['tmp_name'][0]
+            'name' => $file['name'],
+            'type' => $file['type'],
+            'size' => $file['size'],
+            'tmp_name' => $file['tmp_name']
         );
     }
 }
@@ -26,9 +26,12 @@ foreach($_FILES ?: array() as $file) {
     $fileResults[] = uploadFile($file);
 }
 
-if($_REQUEST['text'] === 'w') {
-    http_response_code(409);
+// var_dump($_REQUEST);
+
+if(isset($_POST['text']) && $_POST['text'] === 'w') {
+    // http_response_code(409);
     echo json_encode(array(
+        'status' => 409,
         'text' => 'server doesnt like w',
         'GLOBAL' => 'server error occurred'
     ));

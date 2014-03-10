@@ -126,58 +126,113 @@ var createForm = function (fig) {
         call(filterInputs.apply(null, notCleared), 'clear');
     };
 
-    ajax($self, {
+    ajax($self, function() {
+        return {
 
-        url: url,
+            url: url,
 
-        dataType: 'json',
+            dataType: 'json',
 
-        getData: self.get,
+            data: self.get(),
 
-        validate: function () {
-            var errors = self.validate(self.get());
-            if(isEmpty(errors)) {
-                return true;
+            validate: function () {
+                var errors = self.validate(self.get());
+                if(isEmpty(errors)) {
+                    return true;
+                }
+                else {
+                    self.setFeedback(errors);
+                    self.publish('error', errors);
+                    return false;
+                }
+            },
+
+            onprogress: function (e) {
+                callIfFunction(partial(fig.onprogress, e));
+                console.log(e.loaded, e.total);
+            },
+
+            beforeSend: function () {
+                callIfFunction(fig.beforeSend);
+                self.disable();
+                self.publish('beforeSend');
+            },
+            success: function (response) {
+                callIfFunction(partial(fig.success, response));
+                response = response || {};
+                self.setGlobalSuccess(response.successMessage);
+                self.publish('success', response);
+            },
+            error: function (response) {
+                // setTimeout(function () {
+                callIfFunction(partial(fig.error, response));
+                self.setFeedback(response);
+                self.publish('error', response);
+
+                // }, 500);
+            },
+            complete: function (response) {
+                // setTimeout(function () {
+                callIfFunction(fig.complete, response);
+                self.enable();
+                self.publish('complete', response);
+                // }, 500);
             }
-            else {
-                self.setFeedback(errors);
-                self.publish('error', errors);
-                return false;
-            }
-        },
-
-        onprogress: function (e) {
-            callIfFunction(partial(fig.onprogress, e));
-            console.log(e.loaded, e.total);
-        },
-
-        beforeSend: function () {
-            callIfFunction(fig.beforeSend);
-            self.disable();
-            self.publish('beforeSend');
-        },
-        success: function (response) {
-            callIfFunction(partial(fig.success, response));
-            response = response || {};
-            self.setGlobalSuccess(response.successMessage);
-            self.publish('success', response);
-        },
-        error: function (response) {
-            // setTimeout(function () {
-            callIfFunction(partial(fig.error, response));
-            self.setFeedback(response);
-            self.publish('error', response);
-
-            // }, 500);
-        },
-        complete: function (response) {
-            // setTimeout(function () {
-            callIfFunction(fig.complete, response);
-            self.enable();
-            self.publish('complete', response);
-            // }, 500);
-        }
+        };
     });
+
+    // ajax($self, {
+
+    //     url: url,
+
+    //     dataType: 'json',
+
+    //     getData: self.get,
+
+    //     validate: function () {
+    //         var errors = self.validate(self.get());
+    //         if(isEmpty(errors)) {
+    //             return true;
+    //         }
+    //         else {
+    //             self.setFeedback(errors);
+    //             self.publish('error', errors);
+    //             return false;
+    //         }
+    //     },
+
+    //     onprogress: function (e) {
+    //         callIfFunction(partial(fig.onprogress, e));
+    //         console.log(e.loaded, e.total);
+    //     },
+
+    //     beforeSend: function () {
+    //         callIfFunction(fig.beforeSend);
+    //         self.disable();
+    //         self.publish('beforeSend');
+    //     },
+    //     success: function (response) {
+    //         callIfFunction(partial(fig.success, response));
+    //         response = response || {};
+    //         self.setGlobalSuccess(response.successMessage);
+    //         self.publish('success', response);
+    //     },
+    //     error: function (response) {
+    //         // setTimeout(function () {
+    //         callIfFunction(partial(fig.error, response));
+    //         self.setFeedback(response);
+    //         self.publish('error', response);
+
+    //         // }, 500);
+    //     },
+    //     complete: function (response) {
+    //         // setTimeout(function () {
+    //         callIfFunction(fig.complete, response);
+    //         self.enable();
+    //         self.publish('complete', response);
+    //         // }, 500);
+    //     }
+    // });
 
     return self;
 };

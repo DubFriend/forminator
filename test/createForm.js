@@ -90,10 +90,10 @@ module('createForm',{
             return createForm(union({
                 $: self.$mock,
                 inputs: self.inputs,
-                ajax: function ($form, fig) {
+                ajax: function ($form, figFN) {
                     self.ajaxCalled = true;
                     self.$form = $form;
-                    self.ajaxFig = fig;
+                    self.ajaxFig = figFN();
                 },
                 validate: function (data) {
                     if(data.text === 'wrong') {
