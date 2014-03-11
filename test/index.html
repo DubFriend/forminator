@@ -68,6 +68,7 @@
         
         <div id="frm-list-name">
             <ul class="frm-list-item">
+                <span data-field="id" style="display:none;"></span>
                 <li>
                     <span>Text</span>
                     <span data-field="text"></span>
@@ -101,6 +102,9 @@
         </div>
         
         <form id="frm-name" method="POST" enctype="multipart/form-data" action="respond.php">
+        
+            <input type="hidden" name="id"/>
+        
             <div class="frm-group">
                 <label>Text</label>
                 <input type="text" name="text"/>
@@ -218,6 +222,7 @@
     <script src="../src/input/hidden.js"></script>
     <script src="../src/buildFormInputs.js"></script>
     <script src="../src/createFormGroup.js"></script>
+    <script src="../src/formBase.js"></script>
     <script src="../src/createForm.js"></script>
     <script src="../src/request.js"></script>
     <script src="../src/list.js"></script>

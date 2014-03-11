@@ -6,6 +6,7 @@ forminator.init = function (fig) {
         list = factory.list(),
         fieldMap = fig.fieldMap || {};
 
+    form.setAction('create');
 
     if(list && form) {
         list.subscribe('selected', function (listItem) {
@@ -13,6 +14,7 @@ forminator.init = function (fig) {
                 console.log(value, fieldName);
                 return callIfFunction(fieldMap[fieldName], value) || value;
             }));
+            form.setAction('update');
         });
     }
 

@@ -52,6 +52,7 @@
 <body>
 
     <!-- @include html/form.html -->
+    <!-- @include html/new.html -->
     <!-- @include html/search.html -->
     <!-- @include html/paginator.html -->
     <!-- @include html/ordinator.html -->
@@ -81,11 +82,13 @@
             },
             success: function (response) {
                 console.log('success', response);
-                nameForminator.form.clear({ isClearHidden: true });
+            },
+            complete: function (response) {
+                nameForminator.form.clear();
                 setTimeout(nameForminator.form.clearFeedback, 2000);
             }
         });
-        // nameForminator.list.set([{text: 'foo'}, {radio: 'basdf'}]);
+        nameForminator.list.set([{id: 5000, text: 'foo'}, {id: 4999, textarea: 'basdf'}]);
         // nameForminator.form.set('checkbox[]', ['a', 'b']);
         console.log(nameForminator.form.get());
     </script>

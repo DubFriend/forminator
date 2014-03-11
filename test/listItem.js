@@ -5,7 +5,7 @@ module("listItem", {
         self.$self = $('#frm-list-name .frm-list-item:first-child');
         self.listItem = createListItem({ $self: self.$self });
         self.defaultFieldValues = {
-            'checkbox[]': '', extra: '', hidden: '',
+            'checkbox[]': '', extra: '', hidden: '', id: '',
             'radio': '', select: '', text: '',
             textarea: 'Default Value'
         };

@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 09-03-2014
+// (MIT) 10-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -1008,7 +1008,6 @@ var ajax = function ($form, figFN) {
                     url: fig.url,
                     type: fig.type,
                     data: fig.data,
-                    // data: callIfFunction(fig.getData),
                     dataType: fig.dataType,
                     beforeSend: fig.beforeSend,
                     success: function (response) {
@@ -1042,62 +1041,6 @@ var ajax = function ($form, figFN) {
     }
 };
 
-// var ajax = function ($form, fig) {
-//     fig.type = fig.type || 'POST';
-//     fig.dataType = fig.dataType.toLowerCase() || 'json';
-
-//     if($form.find('input[type="file"]').length) {
-//         console.log('$.fn.fileAjax');
-//         // form contains files. fileAjax enables cross browser ajax file uploads
-//         var getData = function () {
-//             return map(fig.getData() || {}, identity, function (key) {
-//                 return key.replace(/\[\]$/, '');
-//             });
-//         };
-//         $form.fileAjax(fig);
-//     }
-//     else {
-//         console.log('$.ajax');
-//         // form has no files, use standard ajax.
-//         $form.submit(function (e) {
-//             e.preventDefault();
-//             if(fig.validate()) {
-//                 $.ajax({
-//                     url: fig.url,
-//                     type: fig.type,
-//                     data: callIfFunction(fig.getData),
-//                     dataType: fig.dataType,
-//                     beforeSend: fig.beforeSend,
-//                     success: function (response) {
-//                         if(
-//                             isObject(response) &&
-//                             (response.status < 200 || response.status >= 300)
-//                         ) {
-//                             callIfFunction(fig.error, response);
-//                         }
-//                         else {
-//                             callIfFunction(fig.success, response);
-//                         }
-//                     },
-//                     error: function (jqXHR) {
-//                         callIfFunction(
-//                             fig.error,
-//                             fig.dataType === 'json' ?
-//                                 jqXHR.responseJSON : jqXHR.responseText
-//                         );
-//                     },
-//                     complete: function (jqXHR) {
-//                         callIfFunction(
-//                             fig.complete,
-//                             fig.dataType === 'json' ?
-//                                 jqXHR.responseJSON : jqXHR.responseText
-//                         );
-//                     }
-//                 });
-//             }
-//         });
-//     }
-// };
 var createBaseInput = function (fig, my) {
     var self = mixinPubSub(),
         $self = fig.$;
@@ -1418,12 +1361,10 @@ var createFormGroup = function (fig) {
     return self;
 };
 
-var createForm = function (fig) {
+var createFormBase = function (fig) {
     var self = mixinPubSub(),
         $self = fig.$,
         $feedback = $self.find('.frm-global-feedback'),
-        ajax = fig.ajax,
-        url = fig.url || $self.attr('action'),
         inputs = fig.inputs;
 
     //minimize dom manipulation
@@ -1546,7 +1487,19 @@ var createForm = function (fig) {
         call(filterInputs.apply(null, notCleared), 'clear');
     };
 
-    ajax($self, function() {
+    return self;
+};
+
+var createForm = function (fig) {
+    var self = createFormBase(fig),
+        ajax = fig.ajax,
+        url = fig.url || fig.$.attr('action');
+
+    self.setAction = function (action) {
+        url = queryjs.set(url, { action: action });
+    };
+
+    ajax(fig.$, function() {
         return {
 
             url: url,
@@ -1588,7 +1541,6 @@ var createForm = function (fig) {
                 callIfFunction(partial(fig.error, response));
                 self.setFeedback(response);
                 self.publish('error', response);
-
                 // }, 500);
             },
             complete: function (response) {
@@ -1601,58 +1553,6 @@ var createForm = function (fig) {
         };
     });
 
-    // ajax($self, {
-
-    //     url: url,
-
-    //     dataType: 'json',
-
-    //     getData: self.get,
-
-    //     validate: function () {
-    //         var errors = self.validate(self.get());
-    //         if(isEmpty(errors)) {
-    //             return true;
-    //         }
-    //         else {
-    //             self.setFeedback(errors);
-    //             self.publish('error', errors);
-    //             return false;
-    //         }
-    //     },
-
-    //     onprogress: function (e) {
-    //         callIfFunction(partial(fig.onprogress, e));
-    //         console.log(e.loaded, e.total);
-    //     },
-
-    //     beforeSend: function () {
-    //         callIfFunction(fig.beforeSend);
-    //         self.disable();
-    //         self.publish('beforeSend');
-    //     },
-    //     success: function (response) {
-    //         callIfFunction(partial(fig.success, response));
-    //         response = response || {};
-    //         self.setGlobalSuccess(response.successMessage);
-    //         self.publish('success', response);
-    //     },
-    //     error: function (response) {
-    //         // setTimeout(function () {
-    //         callIfFunction(partial(fig.error, response));
-    //         self.setFeedback(response);
-    //         self.publish('error', response);
-
-    //         // }, 500);
-    //     },
-    //     complete: function (response) {
-    //         // setTimeout(function () {
-    //         callIfFunction(fig.complete, response);
-    //         self.enable();
-    //         self.publish('complete', response);
-    //         // }, 500);
-    //     }
-    // });
 
     return self;
 };
@@ -1855,6 +1755,7 @@ forminator.init = function (fig) {
         list = factory.list(),
         fieldMap = fig.fieldMap || {};
 
+    form.setAction('create');
 
     if(list && form) {
         list.subscribe('selected', function (listItem) {
@@ -1862,6 +1763,7 @@ forminator.init = function (fig) {
                 console.log(value, fieldName);
                 return callIfFunction(fieldMap[fieldName], value) || value;
             }));
+            form.setAction('update');
         });
     }
 

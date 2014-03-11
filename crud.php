@@ -40,6 +40,18 @@ function getFilters() {
     return stripLeadingKey(getWhereStartsWith($_GET, 'filter_'), 'filter_');
 }
 
+function preparePOST() {
+    $imploded = array_map(function ($value) {
+        return is_array($value) ? implode(',', $value) : $value;
+    }, $_POST);
+
+    $wrapped = array();
+    foreach($imploded as $key => $value) {
+        $wrapped['`' . $key . '`'] = $value;
+    }
+    return $wrapped;
+}
+
 $response = null;
 switch($_SERVER['REQUEST_METHOD']) {
     case 'GET':
@@ -74,16 +86,44 @@ switch($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         switch(strtolower($_GET['action'])) {
             case 'create':
-                $id = $sql->insert('forminator', $_POST);
-                $response = array('id' => $id, 'status' => 200);
+                $id = $sql->insert('forminator', preparePOST());
+                $response = array(
+                    'status' => 200,
+                    'fields' => array('id' => $id),
+                    'successMessage' => 'New item (id:' . $id . ') Created!');
                 break;
             case 'update':
-                $sql->update('forminator', $_POST);
-                $response = array('status' => 200);
+                if(isset($_POST['id'])) {
+                    $sql->update('forminator', array_filter(preparePOST(), function ($value) {
+                        return $value !== 'id';
+                    }), array('id' => $_POST['id']));
+                    $response = array(
+                        'status' => 200,
+                        'successMessage' => 'Updated!'
+                    );
+                }
+                else {
+                    $response = array(
+                        'status' => 409,
+                        'GLOBAL' => 'Update must have an id field.'
+                    );
+                }
                 break;
             case 'delete':
-                $sql->delete('forminator', $_GET['id']);
-                $response = array('status' => 200);
+                if(isset($_GET['id'])) {
+                    $sql->delete('forminator', $_GET['id']);
+                    $response = array(
+                        'status' => 200,
+                        'GLOBAL' => 'Item id:' . $_GET['id'] . ' deleted.'
+                    );
+                }
+                else {
+                    $response = array(
+                        'status' => 409,
+                        'GLOBAL' => 'Delete must have id query parameter'
+                    );
+                }
+
                 break;
             default:
                 throw new Exception('invalid action : ' . $_GET['action']);
