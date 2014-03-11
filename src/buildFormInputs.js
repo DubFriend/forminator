@@ -1,12 +1,17 @@
 var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
+        fieldMap = fig.fieldMap || {},
         inputs = {};
 
     var addInputsBasic = function (type, selector, group) {
         group = group || inputs;
         $self.find(selector).each(function () {
-            group[$(this).attr('name')] = factory.input[type]({ $: $(this) });
+            var name = $(this).attr('name');
+            group[name] = factory.input[type]({
+                $: $(this),
+                fieldMap: fieldMap[name]
+            });
         });
     };
 
@@ -26,7 +31,8 @@ var buildFormInputs = function (fig) {
         });
         foreach(names, function (name) {
             inputs[name] = factory.input[type]({
-                $: $self.find('input[name="' + name + '"]')
+                $: $self.find('input[name="' + name + '"]'),
+                fieldMap: fieldMap[name]
             });
         });
     };

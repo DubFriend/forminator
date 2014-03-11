@@ -927,7 +927,20 @@ var createFactory = function (fig) {
     var self = {},
         url = fig.url,
         name = fig.name,
+        fieldMap = fig.fieldMap || {},
         $getModule = partial($getForminatorModule, name);
+
+    var getMapToHTML = function () {
+        return map(fieldMap, function (object) {
+            return object && object.toHTML;
+        });
+    };
+
+    var getMapFromHTML = function () {
+        return map(fieldMap, function (object) {
+            return object && object.fromHTML;
+        });
+    };
 
     var buildModuleIfExists = function (fn, name) {
         return function () {
@@ -935,7 +948,6 @@ var createFactory = function (fig) {
             var $module = $getModule(name);
             if($module.length) {
                 return fn.apply(null, [$module].concat(args));
-                // return fn($module);
             }
         };
     };
@@ -962,7 +974,10 @@ var createFactory = function (fig) {
             complete: fig.complete,
             url: url,
             inputs: map(
-                buildFormInputs({ $: $module, factory: self }),
+                buildFormInputs({
+                    $: $module,
+                    factory: union(self, { fieldMap: getMapFromHTML() })
+                }),
                 function (input) {
                     return createFormGroup({ input: input });
                 }
@@ -971,7 +986,10 @@ var createFactory = function (fig) {
     });
 
     self.list = buildModuleIfExists(function ($module) {
-        return createList({ $: $module });
+        return createList({
+            $: $module,
+            fieldMap: getMapToHTML()
+        });
     }, 'list');
 
     self.request = function () {
@@ -988,7 +1006,10 @@ var createFactory = function (fig) {
             $: $module,
             request: request,
             inputs: map(
-                buildFormInputs({ $: $module, factory: self }),
+                buildFormInputs({
+                    $: $module,
+                    factory: union(self, { fieldMap: getMapFromHTML() })
+                }),
                 function (input) {
                     return createFormGroup({ input: input });
                 }
@@ -1092,17 +1113,19 @@ var createBaseInput = function (fig, my) {
 
 
 var createInput = function (fig, my) {
-    var self = createBaseInput(fig, my);
+    var self = createBaseInput(fig, my),
+        fieldMap = fig.fieldMap || identity;
 
     self.get = function () {
         return self.$().val();
     };
 
     self.set = function (newValue) {
+        var newMappedValue = fieldMap(newValue);
         var oldValue = self.get();
-        if(oldValue !== newValue) {
-            self.$().val(newValue);
-            self.publish('change', newValue);
+        if(oldValue !== newMappedValue) {
+            self.$().val(newMappedValue);
+            self.publish('change', newMappedValue);
         }
     };
 
@@ -1112,10 +1135,11 @@ var createInput = function (fig, my) {
 
     my.buildSetter = function (callback) {
         return function (newValue) {
+            var newMappedValue = fieldMap(newValue);
             var oldValue = self.get();
-            if(oldValue !== newValue) {
-                callback.call(self, newValue);
-                self.publish('change', newValue);
+            if(oldValue !== newMappedValue) {
+                callback.call(self, newMappedValue);
+                self.publish('change', newMappedValue);
             }
         };
     };
@@ -1136,7 +1160,13 @@ var createInputButton = function (fig) {
 
 var createInputCheckbox = function (fig) {
     var my = {},
-        self = createInput(fig, my);
+        self = createInput(fig, my),
+        fieldMap = fig.fieldMap || function (value) {
+            return isArray(value) ? value : map(value.split(','), function (token) {
+                // String.trim() not available in ie8 and earlier.
+                return token.replace(/^\s*/, '').replace(/\s*$/, '');
+            });
+        };
 
     self.getType = function () {
         return 'checkbox';
@@ -1153,17 +1183,14 @@ var createInputCheckbox = function (fig) {
     };
 
     self.set = function (newValues) {
-        newValues = newValues || [];
-        if(!isArray(newValues)) {
-            newValues = [newValues];
-        }
+        var newMappedValues = fieldMap(newValues);
 
         var oldValues = self.get(),
             isDifferent = false;
 
-        if(oldValues.length === newValues.length) {
+        if(oldValues.length === newMappedValues.length) {
             foreach(oldValues, function (value) {
-                if(indexOf(newValues, value) === -1) {
+                if(indexOf(newMappedValues, value) === -1) {
                     isDifferent = true;
                 }
             });
@@ -1176,11 +1203,11 @@ var createInputCheckbox = function (fig) {
             self.$().each(function () {
                 $(this).prop('checked', false);
             });
-            foreach(newValues, function (value) {
+            foreach(newMappedValues, function (value) {
                 self.$().filter('[value="' + value + '"]')
                     .prop('checked', true);
             });
-            self.publish('change', newValues);
+            self.publish('change', newMappedValues);
         }
     };
 
@@ -1304,12 +1331,17 @@ var createInputHidden = function (fig) {
 var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
+        fieldMap = fig.fieldMap || {},
         inputs = {};
 
     var addInputsBasic = function (type, selector, group) {
         group = group || inputs;
         $self.find(selector).each(function () {
-            group[$(this).attr('name')] = factory.input[type]({ $: $(this) });
+            var name = $(this).attr('name');
+            group[name] = factory.input[type]({
+                $: $(this),
+                fieldMap: fieldMap[name]
+            });
         });
     };
 
@@ -1329,7 +1361,8 @@ var buildFormInputs = function (fig) {
         });
         foreach(names, function (name) {
             inputs[name] = factory.input[type]({
-                $: $self.find('input[name="' + name + '"]')
+                $: $self.find('input[name="' + name + '"]'),
+                fieldMap: fieldMap[name]
             });
         });
     };
@@ -1601,11 +1634,14 @@ var createRequest = function (fig) {
         url = fig.url,
         data = {},
         buildURL = function () {
+            // remove any leading square brackets from the field name.
             var strippedData = map(data || {}, identity, function (key) {
                 return key.replace(/\[\]$/, '');
             });
+            // return url with query string parameters.
             return queryjs.set(url, filter(strippedData, function (value) {
-                return value || value === 0;
+                // only return non empty arrays and non falsey values (except 0)
+                return isArray(value) ? value.length : value || value === 0;
             }));
         },
         set = function (values) {
@@ -1635,7 +1671,6 @@ var createRequest = function (fig) {
                 self.publish('error', jqXHR.responseJSON);
             },
             complete: function (jqXHR) {
-                console.log('complete', jqXHR.responseJSON);
                 self.publish('complete', jqXHR.responseJSON);
             }
         });
@@ -1796,17 +1831,18 @@ forminator.init = function (fig) {
         form = factory.form(),
         list = factory.list(),
         request = factory.request(),
-        search = factory.search(request),
-        fieldMap = fig.fieldMap || {};
+        search = factory.search(request);
+        // fieldMap = fig.fieldMap || {};
 
     form.setAction('create');
 
     if(list && form) {
         list.subscribe('selected', function (listItem) {
-            form.set(map(listItem.get(), function (value, fieldName) {
-                console.log(value, fieldName);
-                return callIfFunction(fieldMap[fieldName], value) || value;
-            }));
+            form.set(listItem.get());
+            // form.set(map(listItem.get(), function (value, fieldName) {
+            //     console.log(value, fieldName);
+            //     return callIfFunction(fieldMap[fieldName], value) || value;
+            // }));
             form.setAction('update');
         });
     }

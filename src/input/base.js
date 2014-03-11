@@ -25,17 +25,19 @@ var createBaseInput = function (fig, my) {
 
 
 var createInput = function (fig, my) {
-    var self = createBaseInput(fig, my);
+    var self = createBaseInput(fig, my),
+        fieldMap = fig.fieldMap || identity;
 
     self.get = function () {
         return self.$().val();
     };
 
     self.set = function (newValue) {
+        var newMappedValue = fieldMap(newValue);
         var oldValue = self.get();
-        if(oldValue !== newValue) {
-            self.$().val(newValue);
-            self.publish('change', newValue);
+        if(oldValue !== newMappedValue) {
+            self.$().val(newMappedValue);
+            self.publish('change', newMappedValue);
         }
     };
 
@@ -45,10 +47,11 @@ var createInput = function (fig, my) {
 
     my.buildSetter = function (callback) {
         return function (newValue) {
+            var newMappedValue = fieldMap(newValue);
             var oldValue = self.get();
-            if(oldValue !== newValue) {
-                callback.call(self, newValue);
-                self.publish('change', newValue);
+            if(oldValue !== newMappedValue) {
+                callback.call(self, newMappedValue);
+                self.publish('change', newMappedValue);
             }
         };
     };

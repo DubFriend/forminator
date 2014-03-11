@@ -4,11 +4,14 @@ var createRequest = function (fig) {
         url = fig.url,
         data = {},
         buildURL = function () {
+            // remove any leading square brackets from the field name.
             var strippedData = map(data || {}, identity, function (key) {
                 return key.replace(/\[\]$/, '');
             });
+            // return url with query string parameters.
             return queryjs.set(url, filter(strippedData, function (value) {
-                return value || value === 0;
+                // only return non empty arrays and non falsey values (except 0)
+                return isArray(value) ? value.length : value || value === 0;
             }));
         },
         set = function (values) {
@@ -38,7 +41,6 @@ var createRequest = function (fig) {
                 self.publish('error', jqXHR.responseJSON);
             },
             complete: function (jqXHR) {
-                console.log('complete', jqXHR.responseJSON);
                 self.publish('complete', jqXHR.responseJSON);
             }
         });

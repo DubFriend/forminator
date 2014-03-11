@@ -2,7 +2,20 @@ var createFactory = function (fig) {
     var self = {},
         url = fig.url,
         name = fig.name,
+        fieldMap = fig.fieldMap || {},
         $getModule = partial($getForminatorModule, name);
+
+    var getMapToHTML = function () {
+        return map(fieldMap, function (object) {
+            return object && object.toHTML;
+        });
+    };
+
+    var getMapFromHTML = function () {
+        return map(fieldMap, function (object) {
+            return object && object.fromHTML;
+        });
+    };
 
     var buildModuleIfExists = function (fn, name) {
         return function () {
@@ -10,7 +23,6 @@ var createFactory = function (fig) {
             var $module = $getModule(name);
             if($module.length) {
                 return fn.apply(null, [$module].concat(args));
-                // return fn($module);
             }
         };
     };
@@ -37,7 +49,10 @@ var createFactory = function (fig) {
             complete: fig.complete,
             url: url,
             inputs: map(
-                buildFormInputs({ $: $module, factory: self }),
+                buildFormInputs({
+                    $: $module,
+                    factory: union(self, { fieldMap: getMapFromHTML() })
+                }),
                 function (input) {
                     return createFormGroup({ input: input });
                 }
@@ -46,7 +61,10 @@ var createFactory = function (fig) {
     });
 
     self.list = buildModuleIfExists(function ($module) {
-        return createList({ $: $module });
+        return createList({
+            $: $module,
+            fieldMap: getMapToHTML()
+        });
     }, 'list');
 
     self.request = function () {
@@ -63,7 +81,10 @@ var createFactory = function (fig) {
             $: $module,
             request: request,
             inputs: map(
-                buildFormInputs({ $: $module, factory: self }),
+                buildFormInputs({
+                    $: $module,
+                    factory: union(self, { fieldMap: getMapFromHTML() })
+                }),
                 function (input) {
                     return createFormGroup({ input: input });
                 }

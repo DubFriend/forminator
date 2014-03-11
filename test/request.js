@@ -47,6 +47,7 @@ test("setFilter doesnt include falsey values except for 0", function () {
     this.request.setFilter({
         test: '',
         emptySting: '',
+        emptyArray: [],
         'undefined': undefined,
         'null': null,
         zero: 0
@@ -55,11 +56,13 @@ test("setFilter doesnt include falsey values except for 0", function () {
     strictEqual(this.ajaxFig.url, 'testURL?filter_zero=0');
 });
 
+
 test("setOrder doesnt include falsey values except for 0", function () {
     this.request.setOrder({ test: 'foo' });
     this.request.setOrder({
         test: '',
         emptySting: '',
+        emptyArray: [],
         'undefined': undefined,
         'null': null,
         zero: 0
@@ -68,14 +71,14 @@ test("setOrder doesnt include falsey values except for 0", function () {
     strictEqual(this.ajaxFig.url, 'testURL?order_zero=0');
 });
 
-var buildTestPublishes = function (self, subscriptionName, functionName, publishOverride) {
+var buildTestPublishes = function (self, subscriptionName, functionName, publishOverrideData) {
     functionName = functionName || subscriptionName;
     expect(1);
     self.request.subscribe(subscriptionName, function (response) {
         strictEqual('testData', response);
     });
     self.request.search();
-    self.ajaxFig[functionName](publishOverride || { responseJSON: 'testData' });
+    self.ajaxFig[functionName](publishOverrideData || { responseJSON: 'testData' });
 };
 
 test('publishes on success', function () {

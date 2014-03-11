@@ -1,6 +1,12 @@
 var createInputCheckbox = function (fig) {
     var my = {},
-        self = createInput(fig, my);
+        self = createInput(fig, my),
+        fieldMap = fig.fieldMap || function (value) {
+            return isArray(value) ? value : map(value.split(','), function (token) {
+                // String.trim() not available in ie8 and earlier.
+                return token.replace(/^\s*/, '').replace(/\s*$/, '');
+            });
+        };
 
     self.getType = function () {
         return 'checkbox';
@@ -17,17 +23,14 @@ var createInputCheckbox = function (fig) {
     };
 
     self.set = function (newValues) {
-        newValues = newValues || [];
-        if(!isArray(newValues)) {
-            newValues = [newValues];
-        }
+        var newMappedValues = fieldMap(newValues);
 
         var oldValues = self.get(),
             isDifferent = false;
 
-        if(oldValues.length === newValues.length) {
+        if(oldValues.length === newMappedValues.length) {
             foreach(oldValues, function (value) {
-                if(indexOf(newValues, value) === -1) {
+                if(indexOf(newMappedValues, value) === -1) {
                     isDifferent = true;
                 }
             });
@@ -40,11 +43,11 @@ var createInputCheckbox = function (fig) {
             self.$().each(function () {
                 $(this).prop('checked', false);
             });
-            foreach(newValues, function (value) {
+            foreach(newMappedValues, function (value) {
                 self.$().filter('[value="' + value + '"]')
                     .prop('checked', true);
             });
-            self.publish('change', newValues);
+            self.publish('change', newMappedValues);
         }
     };
 
