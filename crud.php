@@ -40,10 +40,17 @@ function getFilters() {
     return stripLeadingKey(getWhereStartsWith($_GET, 'filter_'), 'filter_');
 }
 
-function preparePOST() {
-    $imploded = array_map(function ($value) {
+function implodeArray(array $array) {
+    return array_map(function ($value) {
         return is_array($value) ? implode(',', $value) : $value;
-    }, $_POST);
+    }, $array);
+}
+
+function preparePOST() {
+    $imploded = implodeArray($_POST);
+    // $imploded = array_map(function ($value) {
+    //     return is_array($value) ? implode(',', $value) : $value;
+    // }, $_POST);
 
     $wrapped = array();
     foreach($imploded as $key => $value) {
@@ -59,6 +66,7 @@ switch($_SERVER['REQUEST_METHOD']) {
             return $key . ' = ?';
         }, array_keys(getFilters())));
 
+
         $orderArray = array();
         foreach(getOrders() as $key => $value) {
             $orderArray[] = $key . ' ' . $value;
@@ -67,17 +75,24 @@ switch($_SERVER['REQUEST_METHOD']) {
 
         $pageNumber = (isset($_GET['page']) ? $_GET['page'] : 1) - 1;
 
+        $query = 'SELECT * FROM forminator ' .
+                ($where ? ' WHERE ' . $where : '') .
+                ($order ? ' ORDER BY ' . $order : '') .
+                ' LIMIT ' . (RESULTS_PER_PAGE * $pageNumber) . ', ' . RESULTS_PER_PAGE;
+
+
+        print_r($query);
+        print_r(array_values(implodeArray(getFilters())));
         $results = array_map(
             function ($row) {
                 $row['checkbox'] = explode(',', $row['checkbox']);
                 $row['checkbox2'] = explode(',', $row['checkbox2']);
                 return $row;
             },
+
             $sql->query(
-                'SELECT * FROM forminator ' .
-                ($where ? ' WHERE ' . $where : '') .
-                ($order ? ' ORDER BY ' . $order : '') .
-                ' LIMIT ' . (RESULTS_PER_PAGE * $pageNumber) . ', ' . RESULTS_PER_PAGE
+                $query,
+                array_values(implodeArray(getFilters()))
             )->toArray()
         );
 

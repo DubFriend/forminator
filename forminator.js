@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 10-03-2014
+// (MIT) 11-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -931,9 +931,11 @@ var createFactory = function (fig) {
 
     var buildModuleIfExists = function (fn, name) {
         return function () {
+            var args = argumentsToArray(arguments);
             var $module = $getModule(name);
             if($module.length) {
-                return fn($module);
+                return fn.apply(null, [$module].concat(args));
+                // return fn($module);
             }
         };
     };
@@ -971,6 +973,28 @@ var createFactory = function (fig) {
     self.list = buildModuleIfExists(function ($module) {
         return createList({ $: $module });
     }, 'list');
+
+    self.request = function () {
+        return createRequest({
+            ajax: function (fig) {
+                $.ajax(fig);
+            },
+            url: url
+        });
+    };
+
+    self.search = buildModuleIfExists(function ($module, request) {
+        return createSearch({
+            $: $module,
+            request: request,
+            inputs: map(
+                buildFormInputs({ $: $module, factory: self }),
+                function (input) {
+                    return createFormGroup({ input: input });
+                }
+            )
+        });
+    }, 'search');
 
     return self;
 };
@@ -1557,13 +1581,30 @@ var createForm = function (fig) {
     return self;
 };
 
+var createSearch = function (fig) {
+    var self = createFormBase(fig),
+        $self = fig.$,
+        request = fig.request;
+
+    $self.submit(function (e) {
+        // console.log('search', self.get());
+        e.preventDefault();
+        request.setFilter(self.get());
+        request.search();
+    });
+
+    return self;
+};
 var createRequest = function (fig) {
     var self = mixinPubSub(),
         ajax = fig.ajax,
         url = fig.url,
         data = {},
         buildURL = function () {
-            return queryjs.set(url, filter(data, function (value) {
+            var strippedData = map(data || {}, identity, function (key) {
+                return key.replace(/\[\]$/, '');
+            });
+            return queryjs.set(url, filter(strippedData, function (value) {
                 return value || value === 0;
             }));
         },
@@ -1590,11 +1631,12 @@ var createRequest = function (fig) {
             success: function (response) {
                 self.publish('success', response);
             },
-            error: function (response) {
-                self.publish('error', response);
+            error: function (jqXHR) {
+                self.publish('error', jqXHR.responseJSON);
             },
-            complete: function (response) {
-                self.publish('complete', response);
+            complete: function (jqXHR) {
+                console.log('complete', jqXHR.responseJSON);
+                self.publish('complete', jqXHR.responseJSON);
             }
         });
     };
@@ -1753,6 +1795,8 @@ forminator.init = function (fig) {
     var factory = createFactory(fig),
         form = factory.form(),
         list = factory.list(),
+        request = factory.request(),
+        search = factory.search(request),
         fieldMap = fig.fieldMap || {};
 
     form.setAction('create');

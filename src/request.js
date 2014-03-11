@@ -4,7 +4,10 @@ var createRequest = function (fig) {
         url = fig.url,
         data = {},
         buildURL = function () {
-            return queryjs.set(url, filter(data, function (value) {
+            var strippedData = map(data || {}, identity, function (key) {
+                return key.replace(/\[\]$/, '');
+            });
+            return queryjs.set(url, filter(strippedData, function (value) {
                 return value || value === 0;
             }));
         },
@@ -31,11 +34,12 @@ var createRequest = function (fig) {
             success: function (response) {
                 self.publish('success', response);
             },
-            error: function (response) {
-                self.publish('error', response);
+            error: function (jqXHR) {
+                self.publish('error', jqXHR.responseJSON);
             },
-            complete: function (response) {
-                self.publish('complete', response);
+            complete: function (jqXHR) {
+                console.log('complete', jqXHR.responseJSON);
+                self.publish('complete', jqXHR.responseJSON);
             }
         });
     };

@@ -68,18 +68,18 @@ test("setOrder doesnt include falsey values except for 0", function () {
     strictEqual(this.ajaxFig.url, 'testURL?order_zero=0');
 });
 
-var buildTestPublishes = function (self, subscriptionName, functionName) {
+var buildTestPublishes = function (self, subscriptionName, functionName, publishOverride) {
     functionName = functionName || subscriptionName;
     expect(1);
     self.request.subscribe(subscriptionName, function (response) {
         strictEqual('testData', response);
     });
     self.request.search();
-    self.ajaxFig[functionName]('testData');
+    self.ajaxFig[functionName](publishOverride || { responseJSON: 'testData' });
 };
 
 test('publishes on success', function () {
-    buildTestPublishes(this, 'success');
+    buildTestPublishes(this, 'success', 'success', 'testData');
 });
 
 test('publishes on error', function () {

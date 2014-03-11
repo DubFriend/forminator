@@ -6,9 +6,11 @@ var createFactory = function (fig) {
 
     var buildModuleIfExists = function (fn, name) {
         return function () {
+            var args = argumentsToArray(arguments);
             var $module = $getModule(name);
             if($module.length) {
-                return fn($module);
+                return fn.apply(null, [$module].concat(args));
+                // return fn($module);
             }
         };
     };
@@ -46,6 +48,28 @@ var createFactory = function (fig) {
     self.list = buildModuleIfExists(function ($module) {
         return createList({ $: $module });
     }, 'list');
+
+    self.request = function () {
+        return createRequest({
+            ajax: function (fig) {
+                $.ajax(fig);
+            },
+            url: url
+        });
+    };
+
+    self.search = buildModuleIfExists(function ($module, request) {
+        return createSearch({
+            $: $module,
+            request: request,
+            inputs: map(
+                buildFormInputs({ $: $module, factory: self }),
+                function (input) {
+                    return createFormGroup({ input: input });
+                }
+            )
+        });
+    }, 'search');
 
     return self;
 };

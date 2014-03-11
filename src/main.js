@@ -4,6 +4,8 @@ forminator.init = function (fig) {
     var factory = createFactory(fig),
         form = factory.form(),
         list = factory.list(),
+        request = factory.request(),
+        search = factory.search(request),
         fieldMap = fig.fieldMap || {};
 
     form.setAction('create');
