@@ -222,6 +222,7 @@ var callIfFunction = function (fn) {
     }
 };
 
+
 //execute callback immediately and at most one time on the minimumInterval,
 //ignore block attempts
 var throttle = function (minimumInterval, callback) {
@@ -381,7 +382,7 @@ var queryjs = (function () {
 
 var $getAnyForminatorModule = function (preSelector, name, moduleName) {
     return $(
-        '#frm' +
+        preSelector +
         (moduleName ? '-' + moduleName : '') +
         (name ? '-' + name : '')
     );

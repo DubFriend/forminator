@@ -13,8 +13,6 @@ module('createForm',{
         self.submitCalled = false;
         self.callback = null;
         self.$mock = $('#frm-name');
-        // self.$mock.submit = function (callback) {
-
         self.fileInputDisabled = null;
         self.fileFeedback = null;
         self.fileClearCalled = false;
@@ -241,6 +239,19 @@ test('setFeedback called on error ajax response', function () {
     strictEqual(this.textFeedback, 'ajax error message', 'text feedback set');
 });
 
+test('set name and value parameters', function () {
+    this.form.set('text', 'newValue');
+    strictEqual(this.textInputSetParameters, 'newValue');
+});
+
+test('set object parameter', function () {
+    this.form.set({
+        text: 'foo', hiddenInput: 'bar'
+    });
+    strictEqual(this.textInputSetParameters, 'foo', 'text input is set');
+    strictEqual(this.hiddenInputSetParameters, 'bar', 'hidden input is set');
+});
+
 test('get', function () {
     deepEqual(this.form.get(), {
         text: "textInputData",
@@ -264,15 +275,21 @@ test('clear hidden option', function () {
     strictEqual(this.buttonClearCalled, false, 'button not cleared');
 });
 
-test('set name and value parameters', function () {
-    this.form.set('text', 'newValue');
-    strictEqual(this.textInputSetParameters, 'newValue');
+test('reset resets data to default values', function () {
+    this.form.reset();
+    strictEqual(
+        this.textInputSetParameters, 'textInputData',
+        'text input set to default value'
+    );
+    strictEqual(
+        this.hiddenInputSetParameters, 'hiddenInputData',
+        'hidden input set to default value'
+    );
 });
 
-test('set object parameter', function () {
-    this.form.set({
-        text: 'foo', hiddenInput: 'bar'
-    });
-    strictEqual(this.textInputSetParameters, 'foo', 'text input is set');
-    strictEqual(this.hiddenInputSetParameters, 'bar', 'hidden input is set');
+test('reset clears file inputs', function () {
+    this.form.reset();
+    ok(this.fileClearCalled);
 });
+
+

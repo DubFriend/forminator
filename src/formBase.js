@@ -100,6 +100,13 @@ var createFormBase = function (fig) {
         });
     };
 
+    var onlyInputs = function () {
+        var filteredTypes = argumentsToArray(arguments);
+        return filter(inputs, function (input) {
+            return inArray(filteredTypes, input.getType());
+        });
+    };
+
     self.get = function () {
         return call(filterInputs('file', 'button'), 'get');
     };
@@ -123,6 +130,14 @@ var createFormBase = function (fig) {
             ['button'] : ['button', 'hidden'];
         call(filterInputs.apply(null, notCleared), 'clear');
     };
+
+    (function () {
+        var defaultData = self.get();
+        self.reset = function () {
+            call(onlyInputs('file'), 'clear');
+            self.set(copy(defaultData));
+        };
+    }());
 
     return self;
 };

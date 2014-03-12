@@ -67,6 +67,13 @@ var createFactory = function (fig) {
         });
     }, 'list');
 
+    self.newItemButton = function () {
+        var $self = $getForminatorClass(name, 'new');
+        if($self.length) {
+            return createNewItemButton({ $: $self });
+        }
+    };
+
     self.request = function () {
         return createRequest({
             ajax: function (fig) {

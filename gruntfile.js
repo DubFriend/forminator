@@ -37,6 +37,7 @@ module.exports = function (grunt) {
                     'src/request.js',
                     'src/listItem.js',
                     'src/list.js',
+                    'src/newItemButton.js',
                     'src/main.js',
                     'src/outro.js'
                 ],

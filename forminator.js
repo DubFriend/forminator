@@ -756,6 +756,7 @@ var callIfFunction = function (fn) {
     }
 };
 
+
 //execute callback immediately and at most one time on the minimumInterval,
 //ignore block attempts
 var throttle = function (minimumInterval, callback) {
@@ -915,7 +916,7 @@ var queryjs = (function () {
 
 var $getAnyForminatorModule = function (preSelector, name, moduleName) {
     return $(
-        '#frm' +
+        preSelector +
         (moduleName ? '-' + moduleName : '') +
         (name ? '-' + name : '')
     );
@@ -991,6 +992,13 @@ var createFactory = function (fig) {
             fieldMap: getMapToHTML()
         });
     }, 'list');
+
+    self.newItemButton = function () {
+        var $self = $getForminatorClass(name, 'new');
+        if($self.length) {
+            return createNewItemButton({ $: $self });
+        }
+    };
 
     self.request = function () {
         return createRequest({
@@ -1524,6 +1532,13 @@ var createFormBase = function (fig) {
         });
     };
 
+    var onlyInputs = function () {
+        var filteredTypes = argumentsToArray(arguments);
+        return filter(inputs, function (input) {
+            return inArray(filteredTypes, input.getType());
+        });
+    };
+
     self.get = function () {
         return call(filterInputs('file', 'button'), 'get');
     };
@@ -1547,6 +1562,14 @@ var createFormBase = function (fig) {
             ['button'] : ['button', 'hidden'];
         call(filterInputs.apply(null, notCleared), 'clear');
     };
+
+    (function () {
+        var defaultData = self.get();
+        self.reset = function () {
+            call(onlyInputs('file'), 'clear');
+            self.set(copy(defaultData));
+        };
+    }());
 
     return self;
 };
@@ -1840,29 +1863,42 @@ var createList = function (fig) {
     return self;
 };
 
+var createNewItemButton = function (fig) {
+    var self = mixinPubSub(),
+        $self = fig.$;
+
+    $self.click(function () {
+        self.publish('click');
+    });
+
+    return self;
+};
+
 var forminator = {};
 
 forminator.init = function (fig) {
     var factory = createFactory(fig),
         form = factory.form(),
         list = factory.list(),
+        newItemButton = factory.newItemButton(),
         request = factory.request(),
         search = factory.search(request);
-        // fieldMap = fig.fieldMap || {};
 
     form.setAction('create');
 
     if(list && form) {
         list.subscribe('selected', function (listItem) {
             form.set(listItem.get());
-            // form.set(map(listItem.get(), function (value, fieldName) {
-            //     console.log(value, fieldName);
-            //     return callIfFunction(fieldMap[fieldName], value) || value;
-            // }));
             form.setAction('update');
         });
-    }
 
+        if(newItemButton) {
+            newItemButton.subscribe('click', function () {
+                form.reset();
+                form.clearFeedback();
+            });
+        }
+    }
 
     return {
         form: form,

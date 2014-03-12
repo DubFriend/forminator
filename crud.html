@@ -276,13 +276,13 @@
                 console.log('success', response);
             },
             complete: function (response) {
-                nameForminator.form.clear();
+                nameForminator.form.reset();
                 setTimeout(nameForminator.form.clearFeedback, 2000);
             }
         });
-        nameForminator.list.set([{id: 5000, text: 'foo'}, {id: 4999, textarea: 'basdf'}]);
+        // nameForminator.list.set([{id: 5000, text: 'foo'}, {id: 4999, textarea: 'basdf'}]);
         // nameForminator.form.set('checkbox[]', ['a', 'b']);
-        console.log(nameForminator.form.get());
+        // console.log(nameForminator.form.get());
     </script>
 </body>
 </html>
