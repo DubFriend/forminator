@@ -63,6 +63,19 @@ test("hardSet fieldMap", function () {
     );
 });
 
+test("default fieldMap joins array (set)", function () {
+    this.listItem.set({ 'text': ['a', 'b'] });
+    deepEqual(
+        getListItemsData(this.$self),
+        { text: 'a, b', textarea: 'Default Value' }
+    );
+});
+
+test("default fieldMap joins array (hardSet)", function () {
+    this.listItem.hardSet({ 'text': ['a', 'b'] });
+    deepEqual(getListItemsData(this.$self), { text: 'a, b' });
+});
+
 test("set renders new values", function () {
     this.listItem.set({ 'checkbox[]': 'foo' });
     strictEqual(this.$self.find('[data-field="checkbox[]"]').html(), 'foo');

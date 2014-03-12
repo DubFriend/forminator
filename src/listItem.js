@@ -1,6 +1,9 @@
 var createListItem = function (fig) {
     var self = mixinPubSub(),
         fieldMap = fig.fieldMap || {},
+        defaultMap = function (value) {
+            return isArray(value) ? value.join(', ') : value;
+        },
         $self = fig.$self,
 
         render = function (fields) {
@@ -21,7 +24,7 @@ var createListItem = function (fig) {
 
     self.set = function (newValues) {
         var mappedNewValues = map(newValues, function (value, name) {
-            return fieldMap[name] ? fieldMap[name](value) : value;
+            return fieldMap[name] ? fieldMap[name](value) : defaultMap(value);
         });
 
         var changedFields = filter(mappedNewValues, function (newValue, name) {
