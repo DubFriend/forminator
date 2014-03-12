@@ -2,12 +2,25 @@ module("search", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
-        self.$self = $('#frm-search-name');
-        // self.listItem = createListItem({ $self: self.$self });
-        // self.defaultFieldValues = {
-        //     'checkbox[]': '', extra: '', hidden: '', id: '',
-        //     'radio': '', select: '', text: '',
-        //     textarea: 'Default Value'
-        // };
+        this.$ = $('#frm-search-name');
+        this.search = createSearch({
+            $: this.$, request: {
+                setFilter: function (data) {
+                    self.setFilterParameters = data;
+                },
+                search: function () {
+                    self.searchIsCalled = true;
+                }
+            }
+        });
     }
+});
+
+test('submit triggers seach', function () {
+    this.$.submit();
+    deepEqual(
+        this.setFilterParameters, { select: 'a' },
+        'request parameters set'
+    );
+    ok(this.searchIsCalled, 'request search is called');
 });

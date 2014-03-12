@@ -20,13 +20,13 @@ var createRequest = function (fig) {
 
     self.setOrder = function (values) {
         set(map(values, identity, function (key) {
-            return 'order_' + key;
+            return 'order_' + (isArray(key) ? key.join(',') : key);
         }));
     };
 
     self.setFilter = function (values) {
         set(map(values, identity, function (key) {
-            return 'filter_' + key;
+            return 'filter_' + (isArray(key) ? key.join(',') : key);
         }));
     };
 
@@ -34,6 +34,7 @@ var createRequest = function (fig) {
         ajax({
             type: 'GET',
             url: buildURL(),
+            dataType: 'json',
             success: function (response) {
                 self.publish('success', response);
             },

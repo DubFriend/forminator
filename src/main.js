@@ -24,6 +24,13 @@ forminator.init = function (fig) {
         }
     }
 
+    if(list) {
+        request.subscribe('success', function (response) {
+            console.log('request:success', response);
+            list.set(response ? response.results : []);
+        });
+    }
+
     return {
         form: form,
         list: list

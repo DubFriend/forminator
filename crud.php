@@ -5,6 +5,7 @@ error_reporting(E_STRICT|E_ALL);
 require 'sequel.php';
 
 define('RESULTS_PER_PAGE', 3);
+// $_GET = array();
 
 $sql = new Sequel(new PDO(
     'mysql:dbname=forminator_demo;host=localhost',
@@ -25,19 +26,27 @@ function getWhereStartsWith(array $collection, $startOfKey) {
 function stripLeadingKey(array $collection, $startOfKey) {
     $stripped = array();
     foreach($collection as $key => $value) {
-        $strippedKey = '';
-        preg_replace('/^' . $startOfKey . '/', $strippedKey, $key);
+        // $strippedKey = '';
+        $strippedKey = preg_replace('/^' . $startOfKey . '/','', $key);
         $stripped[$strippedKey] = $value;
     }
     return $stripped;
 }
 
+function wrapKeysWithBackticks(array $array) {
+    $ticked = array();
+    foreach($array as $key => $value) {
+        $ticked['`' . $key . '`'] = $value;
+    }
+    return $ticked;
+}
+
 function getOrders() {
-    return stripLeadingKey(getWhereStartsWith($_GET, 'order_'), 'order_');
+    return wrapKeysWithBackticks(stripLeadingKey(getWhereStartsWith($_GET, 'order_'), 'order_'));
 }
 
 function getFilters() {
-    return stripLeadingKey(getWhereStartsWith($_GET, 'filter_'), 'filter_');
+    return wrapKeysWithBackticks(stripLeadingKey(getWhereStartsWith($_GET, 'filter_'), 'filter_'));
 }
 
 function implodeArray(array $array) {
@@ -80,9 +89,9 @@ switch($_SERVER['REQUEST_METHOD']) {
                 ($order ? ' ORDER BY ' . $order : '') .
                 ' LIMIT ' . (RESULTS_PER_PAGE * $pageNumber) . ', ' . RESULTS_PER_PAGE;
 
-
-        print_r($query);
-        print_r(array_values(implodeArray(getFilters())));
+        // print_r(getFilters());
+        // print_r($query);
+        // print_r(array_values(implodeArray(getFilters())));
         $results = array_map(
             function ($row) {
                 $row['checkbox'] = explode(',', $row['checkbox']);
@@ -95,6 +104,11 @@ switch($_SERVER['REQUEST_METHOD']) {
                 array_values(implodeArray(getFilters()))
             )->toArray()
         );
+
+        // print_r($sql->query(
+        //     $query,
+        //     array_values(implodeArray(getFilters()))
+        // )->toArray());
 
         $response = array('results' => $results, 'status' => 200);
         break;

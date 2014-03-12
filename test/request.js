@@ -20,6 +20,11 @@ test("url default", function () {
     strictEqual(this.ajaxFig.url, 'testURL');
 });
 
+test("dataType is json", function () {
+    this.request.search();
+    strictEqual(this.ajaxFig.dataType, 'json');
+});
+
 test("url setOrder", function () {
     this.request.setOrder({ foo: 'bar' });
     this.request.search();
@@ -40,6 +45,12 @@ test("url setMultiple", function () {
         this.ajaxFig.url,
         'testURL?filter_foo=bar&filter_baz=bat&order_bla=fad'
     );
+});
+
+test("url set array", function () {
+    this.request.setFilter({ foo: ['a', 'b'] });
+    this.request.search();
+    strictEqual(this.ajaxFig.url, 'testURL?filter_foo=a,b');
 });
 
 test("setFilter doesnt include falsey values except for 0", function () {
