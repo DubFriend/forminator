@@ -1,12 +1,14 @@
 var createList = function (fig) {
     var self = mixinPubSub(),
+        fieldMap = fig.fieldMap || {},
         $self = fig.$,
 
         $itemTemplate = (function () {
             var $el = $self.find('.frm-list-item:first-child').clone();
             // use ListItems clear method to clean out the template.
             var listItem = createListItem({
-                $self: $el
+                $self: $el,
+                fieldMap: fieldMap
             });
             listItem.clear();
             return $el;
@@ -25,7 +27,8 @@ var createList = function (fig) {
             var items = [];
             $self.find('.frm-list-item').each(function () {
                 items.push(subscribeListItem(createListItem({
-                    $self: $(this)
+                    $self: $(this),
+                    fieldMap: fieldMap
                 })));
             });
             return items;
@@ -44,7 +47,8 @@ var createList = function (fig) {
                 $new = $itemTemplate.clone();
                 newElems.push($new);
                 items[index] = subscribeListItem(createListItem({
-                    $self: $new
+                    $self: $new,
+                    fieldMap: fieldMap
                 }));
                 items[index].set(newItemData);
             }

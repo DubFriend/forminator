@@ -1,11 +1,15 @@
 var createInputCheckbox = function (fig) {
     var my = {},
         self = createInput(fig, my),
+        // default field map splits on ',' characters and trims whitespace.
+        // (if value is allready an array then default fieldMap simply returns
+        // the value)
         fieldMap = fig.fieldMap || function (value) {
-            return isArray(value) ? value : map(value.split(','), function (token) {
-                // String.trim() not available in ie8 and earlier.
-                return token.replace(/^\s*/, '').replace(/\s*$/, '');
-            });
+            return isArray(value) ?
+                value : map(value.split(','), function (token) {
+                    // String.trim() not available in ie8 and earlier.
+                    return token.replace(/^\s*/, '').replace(/\s*$/, '');
+                });
         };
 
     self.getType = function () {

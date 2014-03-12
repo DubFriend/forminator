@@ -1161,11 +1161,15 @@ var createInputButton = function (fig) {
 var createInputCheckbox = function (fig) {
     var my = {},
         self = createInput(fig, my),
+        // default field map splits on ',' characters and trims whitespace.
+        // (if value is allready an array then default fieldMap simply returns
+        // the value)
         fieldMap = fig.fieldMap || function (value) {
-            return isArray(value) ? value : map(value.split(','), function (token) {
-                // String.trim() not available in ie8 and earlier.
-                return token.replace(/^\s*/, '').replace(/\s*$/, '');
-            });
+            return isArray(value) ?
+                value : map(value.split(','), function (token) {
+                    // String.trim() not available in ie8 and earlier.
+                    return token.replace(/^\s*/, '').replace(/\s*$/, '');
+                });
         };
 
     self.getType = function () {
@@ -1680,6 +1684,7 @@ var createRequest = function (fig) {
 };
 var createListItem = function (fig) {
     var self = mixinPubSub(),
+        fieldMap = fig.fieldMap || {},
         $self = fig.$self,
 
         render = function (fields) {
@@ -1699,7 +1704,11 @@ var createListItem = function (fig) {
         fields = getFieldsFromHTML();
 
     self.set = function (newValues) {
-        var changedFields = filter(newValues, function (newValue, name) {
+        var mappedNewValues = map(newValues, function (value, name) {
+            return fieldMap[name] ? fieldMap[name](value) : value;
+        });
+
+        var changedFields = filter(mappedNewValues, function (newValue, name) {
             if(typeof fields[name] === 'undefined') {
                 return false;
             }
@@ -1759,13 +1768,15 @@ var createListItem = function (fig) {
 
 var createList = function (fig) {
     var self = mixinPubSub(),
+        fieldMap = fig.fieldMap || {},
         $self = fig.$,
 
         $itemTemplate = (function () {
             var $el = $self.find('.frm-list-item:first-child').clone();
             // use ListItems clear method to clean out the template.
             var listItem = createListItem({
-                $self: $el
+                $self: $el,
+                fieldMap: fieldMap
             });
             listItem.clear();
             return $el;
@@ -1784,7 +1795,8 @@ var createList = function (fig) {
             var items = [];
             $self.find('.frm-list-item').each(function () {
                 items.push(subscribeListItem(createListItem({
-                    $self: $(this)
+                    $self: $(this),
+                    fieldMap: fieldMap
                 })));
             });
             return items;
@@ -1803,7 +1815,8 @@ var createList = function (fig) {
                 $new = $itemTemplate.clone();
                 newElems.push($new);
                 items[index] = subscribeListItem(createListItem({
-                    $self: $new
+                    $self: $new,
+                    fieldMap: fieldMap
                 }));
                 items[index].set(newItemData);
             }

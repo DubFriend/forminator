@@ -3,7 +3,9 @@ module("listItem", {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
         self.$self = $('#frm-list-name .frm-list-item:first-child');
-        self.listItem = createListItem({ $self: self.$self });
+        self.listItem = createListItem({
+            $self: self.$self
+        });
         self.defaultFieldValues = {
             'checkbox[]': '', extra: '', hidden: '', id: '',
             'radio': '', select: '', text: '',
@@ -27,6 +29,38 @@ test("set then get", function () {
 test("hard set", function () {
     this.listItem.hardSet({ text: 'foo' });
     deepEqual(getListItemsData(this.$self), { text: 'foo' }, 'old fields are erased');
+});
+
+test("set fieldMap", function () {
+    var listItem = createListItem({
+        $self: this.$self, fieldMap: {
+            text: function (value) {
+                return value.toUpperCase();
+            }
+        }
+    });
+    listItem.set({ text: 'foo', textarea: 'bar' });
+    deepEqual(
+        getListItemsData(this.$self),
+        { text: 'FOO', textarea: 'bar' },
+        'field is mapped on set'
+    );
+});
+
+test("hardSet fieldMap", function () {
+    var listItem = createListItem({
+        $self: this.$self, fieldMap: {
+            text: function (value) {
+                return value.toUpperCase();
+            }
+        }
+    });
+    listItem.hardSet({ text: 'foo', textarea: 'bar' });
+    deepEqual(
+        getListItemsData(this.$self),
+        { text: 'FOO', textarea: 'bar' },
+        'field is mapped on set'
+    );
 });
 
 test("set renders new values", function () {

@@ -79,6 +79,7 @@ var testFieldMap = function (fieldMap, setValue, expectedValue) {
     };
 };
 
+
 module("createInputText", {
     setup: buildSetup({
         selector: 'input[name="text"]',
@@ -147,6 +148,7 @@ test("textareaInput disable", testDisabled);
 test("textareaInput enable", testEnabled);
 test("textareaInput fieldMap", testFieldMap());
 
+
 module("createInputSelect", {
     setup: buildSetup({
         selector: '[name="select"]',
@@ -179,6 +181,7 @@ test("selectInput enable", testEnabled);
 test("selectInput fieldMap", testFieldMap(function (value) {
     return value.toLowerCase();
 }, 'A', 'a'));
+
 
 module("createInputRadio", {
     setup: buildSetup({
@@ -227,6 +230,7 @@ test("radioInput enable", testEnabled);
 test("radioInput fieldMap", testFieldMap(function (value) {
     return value.toLowerCase();
 }, 'A', 'a'));
+
 
 module("createInputCheckbox", {
     setup: buildSetup({
@@ -313,6 +317,7 @@ test("checkboxInput fieldMap", testFieldMap(function (values) {
         return value.toLowerCase();
     });
 }, ['A'], ['a']));
+
 
 module("createInputFile", {
     setup: buildSetup({
