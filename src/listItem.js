@@ -8,26 +8,38 @@ var createListItem = function (fig) {
 
         render = function (fields) {
             foreach(fields, function (value, name) {
-                $self.find('[data-field="' + name + '"]').html(value);
+                $self.find('[data-field="' + name + '"]')
+                    .html(fieldMap[name] ? fieldMap[name](value) : defaultMap(value));
             });
         },
 
-        getFieldsFromHTML = function () {
+        getFieldsFromDataValueAttribute = function () {
+            var parseDataValue = function (value) {
+                // does begin and end with brackets (denotes array of data) ?
+                return (/^\[.*\]$/).test(value) ?
+                    map(
+                        // strip trailing and leading brackets and split on comma
+                        value.replace(/^\[/, '').replace(/\]$/, '').split(','),
+                        function (token) {
+                            // String.trim() not available in ie8 and earlier.
+                            return token.replace(/^\s*/, '').replace(/\s*$/, '');
+                        }
+                    ) : value;
+            };
             var data = {};
             $self.find('[data-field]').each(function () {
-                data[$(this).attr('data-field')] = $(this).html();
+                data[$(this).data('field')] = parseDataValue($(this).data('value')) || '';
             });
             return data;
         },
 
-        fields = getFieldsFromHTML();
+        fields = getFieldsFromDataValueAttribute();
+
+    render(fields);
+
 
     self.set = function (newValues) {
-        var mappedNewValues = map(newValues, function (value, name) {
-            return fieldMap[name] ? fieldMap[name](value) : defaultMap(value);
-        });
-
-        var changedFields = filter(mappedNewValues, function (newValue, name) {
+        var changedFields = filter(newValues, function (newValue, name) {
             if(typeof fields[name] === 'undefined') {
                 return false;
             }
@@ -48,6 +60,7 @@ var createListItem = function (fig) {
 
     self.clear = function () {
         $self.find('[data-field]').html('');
+        $self.find('[data-value]').attr('data-value', '');
         fields = map(fields, function () { return ''; });
         return self;
     };

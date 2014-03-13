@@ -7,13 +7,14 @@ module("list", {
     }
 });
 
-test("initially leaves dom unchanged", function () {
+// test("initially leaves dom unchanged", function () {
+test("initially renders data-value attributes into form", function () {
     var $items = this.$self.find('.frm-list-item');
     strictEqual($items.length, 1, 'one item');
     deepEqual(
         getListItemsData($items),
-        { textarea: 'Default Value' },
-        'value unchanged'
+        { textarea: 'Default Value', 'checkbox[]': 'a, b', radio: 'a'},
+        'checkbox rendered into form'
     );
 });
 
@@ -40,7 +41,7 @@ test("publishes listItem when selected", function () {
             filter(listItem.get(), function (value) {
                 return value ? true : false;
             }),
-            { textarea: 'Default Value' },
+            { 'checkbox[]': ['a', 'b'], radio: 'a', textarea: 'Default Value' },
             'passes list item (data is correct)'
         );
     });
