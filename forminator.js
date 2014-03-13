@@ -1654,6 +1654,15 @@ var createSearch = function (fig) {
 
     return self;
 };
+var createOrdinator = function (fig) {
+    var self = mixinPubSub(),
+        $self = fig.$;
+
+
+
+    return self;
+};
+
 var createRequest = function (fig) {
     var self = mixinPubSub(),
         ajax = fig.ajax,

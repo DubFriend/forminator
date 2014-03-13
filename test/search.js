@@ -11,6 +11,12 @@ module("search", {
                 search: function () {
                     self.searchIsCalled = true;
                 }
+            },
+            inputs: {
+                text: {
+                    get: function () { return 'foo'; },
+                    getType: function () { return 'text'; }
+                }
             }
         });
     }
@@ -19,8 +25,8 @@ module("search", {
 test('submit triggers seach', function () {
     this.$.submit();
     deepEqual(
-        this.setFilterParameters, { select: 'a' },
-        'request parameters set'
+        this.setFilterParameters, { text: 'foo' },
+        'request parameters set to current input get'
     );
     ok(this.searchIsCalled, 'request search is called');
 });

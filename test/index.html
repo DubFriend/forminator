@@ -18,7 +18,7 @@
             <div class="frm-group">
                 <label>Select</label>
                 <select name="select">
-                    <option value="a">A</option>
+                    <option value="a" selected>A</option>
                     <option value="b">B</option>
                 </select>
                 <div class="frm-feedback"></div>
@@ -58,11 +58,13 @@
         </form>
         
         <div id="frm-ordinator-name">
-            <span data-field="text">
-                Order by Text
-            </span>
+            Order by Text
+            <!-- data inline -->
+            <span data-field="text" data-order="neutral">&#8597;</span>
+            <!-- or data nested -->
             <span data-field="extra">
                 Order by Extra
+                <span data-order="ascending">&#8593;</span>
             </span>
         </div>
         
@@ -226,6 +228,8 @@
     <script src="../src/createFormGroup.js"></script>
     <script src="../src/formBase.js"></script>
     <script src="../src/createForm.js"></script>
+    <script src="../src/search.js"></script>
+    <script src="../src/ordinator.js"></script>
     <script src="../src/request.js"></script>
     <script src="../src/list.js"></script>
     <script src="../src/listItem.js"></script>
@@ -235,6 +239,8 @@
     <script src="buildFormInputs.js"></script>
     <script src="createForm.js"></script>
     <script src="createFormGroup.js"></script>
+    <script src="search.js"></script>
+    <script src="ordinator.js"></script>
     <script src="request.js"></script>
     <script src="listItem.js"></script>
     <script src="list.js"></script>

@@ -38,14 +38,16 @@
             border: 1px solid black;
         }
 
+
         .frm-list-item {
             margin: 0.2em;
             background-color: rgb(223, 223, 223);
-            cursor: pointer;
+            /*cursor: pointer;*/
         }
 
         [data-field] {
             color: blue;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -166,7 +168,7 @@
         <div class="frm-group">
             <label>Select</label>
             <select name="select">
-                <option value="a">A</option>
+                <option value="a" selected>A</option>
                 <option value="b">B</option>
             </select>
             <div class="frm-feedback"></div>
@@ -206,11 +208,13 @@
     </form>
     
     <div id="frm-ordinator-name">
-        <span data-field="text">
-            Order by Text
-        </span>
+        Order by Text
+        <!-- data inline -->
+        <span data-field="text" data-order="neutral">&#8597;</span>
+        <!-- or data nested -->
         <span data-field="extra">
             Order by Extra
+            <span data-order="ascending">&#8593;</span>
         </span>
     </div>
     
