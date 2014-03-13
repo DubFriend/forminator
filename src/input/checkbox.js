@@ -1,16 +1,6 @@
 var createInputCheckbox = function (fig) {
     var my = {},
-        self = createInput(fig, my),
-        // default field map splits on ',' characters and trims whitespace.
-        // (if value is allready an array then default fieldMap simply returns
-        // the value)
-        fieldMap = fig.fieldMap || function (value) {
-            return isArray(value) ?
-                value : map(value.split(','), function (token) {
-                    // String.trim() not available in ie8 and earlier.
-                    return token.replace(/^\s*/, '').replace(/\s*$/, '');
-                });
-        };
+        self = createInput(fig, my);
 
     self.getType = function () {
         return 'checkbox';
@@ -27,14 +17,15 @@ var createInputCheckbox = function (fig) {
     };
 
     self.set = function (newValues) {
-        var newMappedValues = fieldMap(newValues);
+
+        newValues = isArray(newValues) ? newValues : [newValues];
 
         var oldValues = self.get(),
             isDifferent = false;
 
-        if(oldValues.length === newMappedValues.length) {
+        if(oldValues.length === newValues.length) {
             foreach(oldValues, function (value) {
-                if(indexOf(newMappedValues, value) === -1) {
+                if(indexOf(newValues, value) === -1) {
                     isDifferent = true;
                 }
             });
@@ -47,11 +38,11 @@ var createInputCheckbox = function (fig) {
             self.$().each(function () {
                 $(this).prop('checked', false);
             });
-            foreach(newMappedValues, function (value) {
+            foreach(newValues, function (value) {
                 self.$().filter('[value="' + value + '"]')
                     .prop('checked', true);
             });
-            self.publish('change', newMappedValues);
+            self.publish('change', newValues);
         }
     };
 

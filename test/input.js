@@ -66,19 +66,6 @@ var testEnabled = function () {
     deepEqual(this.$.prop('disabled'), false, 'disabled property not set');
 };
 
-var testFieldMap = function (fieldMap, setValue, expectedValue) {
-    return function () {
-        fieldMap = fieldMap || function (value) {
-            return value.toUpperCase();
-        };
-        setValue = setValue || 'foo';
-        expectedValue = expectedValue || 'FOO';
-        var input = this.createInput({ $: this.$, fieldMap: fieldMap });
-        input.set(setValue);
-        deepEqual(input.get(), expectedValue, 'mapped value on set');
-    };
-};
-
 
 module("createInputText", {
     setup: buildSetup({
@@ -95,7 +82,6 @@ test("textInput set no publish if data not different", testNotPublishesOnSetNotC
 test("textInput getType", testGetType('text'));
 test("textInput disable", testDisabled);
 test("textInput enable", testEnabled);
-test("textInput fieldMap", testFieldMap());
 
 test("textInput set publishes change on keyup", function () {
     expect(1);
@@ -146,7 +132,6 @@ test("textareaInput set publishes change on keyup", function () {
 test("textareaInput getType", testGetType('textarea'));
 test("textareaInput disable", testDisabled);
 test("textareaInput enable", testEnabled);
-test("textareaInput fieldMap", testFieldMap());
 
 
 module("createInputSelect", {
@@ -178,9 +163,6 @@ test("selectInput set publishes change on change", function () {
 test("selectInput getType", testGetType('select'));
 test("selectInput disable", testDisabled);
 test("selectInput enable", testEnabled);
-test("selectInput fieldMap", testFieldMap(function (value) {
-    return value.toLowerCase();
-}, 'A', 'a'));
 
 
 module("createInputRadio", {
@@ -226,10 +208,6 @@ test("radioInput set publishes change on change", function () {
 test("radioInput getType", testGetType('radio'));
 test("radioInput disable", testDisabled);
 test("radioInput enable", testEnabled);
-
-test("radioInput fieldMap", testFieldMap(function (value) {
-    return value.toLowerCase();
-}, 'A', 'a'));
 
 
 module("createInputCheckbox", {
@@ -302,21 +280,6 @@ test("checkboxInput getType", testGetType('checkbox'));
 test("checkboxInput disable", testDisabled);
 test("checkboxInput enable", testEnabled);
 
-test("checkboxInput fieldMap default", function () {
-    this.input.set('a,b');
-    deepEqual(this.input.get(), ['a', 'b'], 'splits comma delimited string to array');
-});
-
-test("checkboxInput fieldMap default excess whitespace removed", function () {
-    this.input.set(' a ,  b  ');
-    deepEqual(this.input.get(), ['a', 'b'], 'splits comma delimited string to array');
-});
-
-test("checkboxInput fieldMap", testFieldMap(function (values) {
-    return map(values, function (value) {
-        return value.toLowerCase();
-    });
-}, ['A'], ['a']));
 
 
 module("createInputFile", {
@@ -355,4 +318,3 @@ test("buttonInput enable", testEnabled);
 test("buttonInput get", testGet);
 test("buttonInput set", testSet);
 test("buttonInput clear", testClear);
-test("buttonInput fieldMap", testFieldMap());
