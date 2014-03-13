@@ -2,7 +2,7 @@ module("listItem", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
-        self.$self = $('#frm-list-name .frm-list-item:first-child');
+        self.$self = $('.frm-list-name .frm-list-item:first-child');
         self.listItem = createListItem({
             $self: self.$self
         });

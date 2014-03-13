@@ -7,7 +7,7 @@
 </head>
 <body>
     <script id="forminator" type="text/template">
-        <form id="frm-search-name" method="POST" action="respond.php">
+        <form class="frm-search-name" method="POST" action="respond.php">
             <legend>Search</legend>
             <div class="frm-group">
                 <label>Search Text</label>
@@ -44,20 +44,20 @@
         
             <div class="frm-global-feedback"></div>
         </form>
-        <p># of pages: <span id="frm-number-of-pages-name"></span></p>
+        <p># of pages: <span class="frm-number-of-pages-name"></span></p>
         
-        <ol id="frm-page-numbers-name">
+        <ol class="frm-page-numbers-name">
             <li class="frm-number-container">
                 <a data-number="1">One</a>
             </li>
         </ol>
         
-        <form id="frm-goto-page-name" method="GET" action="respond.php">
+        <form class="frm-goto-page-name" method="GET" action="respond.php">
             <input type="text">
             <input type="submit" value="Goto Page"/>
         </form>
         
-        <div id="frm-ordinator-name">
+        <div class="frm-ordinator-name">
             Order by Text
             <!-- data inline -->
             <span data-field="text" data-order="neutral">&#8597;</span>
@@ -68,7 +68,7 @@
             </span>
         </div>
         
-        <div id="frm-list-name">
+        <div class="frm-list-name">
             <ul class="frm-list-item">
                 <span data-field="id" style="display:none;"></span>
                 <li>
@@ -103,7 +103,7 @@
             </ul>
         </div>
         
-        <form id="frm-name" method="POST" enctype="multipart/form-data" action="respond.php">
+        <form class="frm-name" method="POST" enctype="multipart/form-data" action="respond.php">
         
             <input type="hidden" name="id"/>
         

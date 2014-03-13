@@ -19,7 +19,7 @@ module('buildFormInputs',{
     setup: function () {
         $fixture.html($('#forminator').html());
         this.inputs = buildFormInputs({
-            $: $('#frm-name'),
+            $: $('.frm-name'),
             factory: createMockFactory(),
             fieldMap: {
                 text: 'text',

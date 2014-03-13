@@ -3,7 +3,7 @@ var createFactory = function (fig) {
         url = fig.url,
         name = fig.name,
         fieldMap = fig.fieldMap || {},
-        $getModule = partial($getForminatorModule, name);
+        $getModuleByClass = partial($getForminatorByClass, name);
 
     var getMapToHTML = function () {
         return map(fieldMap, function (object) {
@@ -17,10 +17,9 @@ var createFactory = function (fig) {
         });
     };
 
-    var buildModuleIfExists = function (fn, name) {
+    var buildModuleIfExists = function (fn, $module) {
         return function () {
             var args = argumentsToArray(arguments);
-            var $module = $getModule(name);
             if($module.length) {
                 return fn.apply(null, [$module].concat(args));
             }
@@ -58,21 +57,18 @@ var createFactory = function (fig) {
                 }
             )
         });
-    });
+    }, $getModuleByClass(''));
 
     self.list = buildModuleIfExists(function ($module) {
         return createList({
             $: $module,
             fieldMap: getMapToHTML()
         });
-    }, 'list');
+    }, $getModuleByClass('list'));
 
-    self.newItemButton = function () {
-        var $self = $getForminatorClass(name, 'new');
-        if($self.length) {
-            return createNewItemButton({ $: $self });
-        }
-    };
+    self.newItemButton = buildModuleIfExists(function ($module) {
+        return createNewItemButton({ $: $module });
+    }, $getModuleByClass('new'));
 
     self.request = function () {
         return createRequest({
@@ -97,7 +93,7 @@ var createFactory = function (fig) {
                 }
             )
         });
-    }, 'search');
+    }, $getModuleByClass('search'));
 
     return self;
 };

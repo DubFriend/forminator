@@ -388,5 +388,4 @@ var $getAnyForminatorModule = function (preSelector, name, moduleName) {
     );
 };
 
-var $getForminatorModule = partial($getAnyForminatorModule, '#frm');
-var $getForminatorClass = partial($getAnyForminatorModule, '.frm');
+var $getForminatorByClass = partial($getAnyForminatorModule, '.frm');

@@ -3,7 +3,7 @@ var $fixture = $('#qunit-fixture');
 var buildSetup = function (fig) {
     return function() {
         $fixture.html($('#forminator').html());
-        this.$ = $fixture.find('#frm-name ' + fig.selector);
+        this.$ = $fixture.find('.frm-name ' + fig.selector);
         this.createInput = fig.createInput;
         this.input = this.createInput({ $: this.$ });
     };

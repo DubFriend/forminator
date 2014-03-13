@@ -11,31 +11,31 @@
             color: rgb(41, 41, 41);
         }
 
-        #frm-name {
+        .frm-name {
             border: 1px solid white;
             padding: 0.2em;
         }
 
-        #frm-name.error {
+        .frm-name.error {
             border: 1px solid rgb(232, 37, 37);
         }
 
-        #frm-name.success {
+        .frm-name.success {
             border: 1px solid green;
         }
 
-        #frm-name.error .frm-global-feedback, .frm-group.error * {
+        .frm-name.error .frm-global-feedback, .frm-group.error * {
             color: rgb(232, 37, 37);
         }
 
-        #frm-name.success .frm-global-feedback {
+        .frm-name.success .frm-global-feedback {
             color: green;
         }
     </style>
 </head>
 <body>
 
-    <form id="frm-name" method="POST" enctype="multipart/form-data" action="respond.php">
+    <form class="frm-name" method="POST" enctype="multipart/form-data" action="respond.php">
     
         <input type="hidden" name="id"/>
     

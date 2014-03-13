@@ -2,7 +2,7 @@ module("search", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
-        this.$ = $('#frm-search-name');
+        this.$ = $('.frm-search-name');
         this.search = createSearch({
             $: this.$, request: {
                 setFilter: function (data) {

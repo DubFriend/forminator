@@ -2,7 +2,7 @@ module("ordinator", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
-        this.$ = $('#frm-ordinator-name');
+        this.$ = $('.frm-ordinator-name');
         this.ordinator = createOrdinator({
             $: this.$, request: {
                 setOrder: function (data) {
@@ -32,12 +32,12 @@ module("ordinator", {
 });
 
 
-test("click text toggle cycle", function () {
-    var $orderable = this.getOrderable('text');
-    var $field = this.getOrderableField('text');
-    $orderable.click();
-    strictEqual($orderable.data('order'), 'ascending', 'neutral to ascending');
-});
+// test("click text toggle cycle", function () {
+//     var $orderable = this.getOrderable('text');
+//     var $field = this.getOrderableField('text');
+//     $orderable.click();
+//     strictEqual($orderable.data('order'), 'ascending', 'neutral to ascending');
+// });
 
 // test('submit triggers seach', function () {
 //     this.$.submit();

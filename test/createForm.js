@@ -12,7 +12,7 @@ module('createForm',{
 
         self.submitCalled = false;
         self.callback = null;
-        self.$mock = $('#frm-name');
+        self.$mock = $('.frm-name');
         self.fileInputDisabled = null;
         self.fileFeedback = null;
         self.fileClearCalled = false;
