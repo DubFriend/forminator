@@ -281,7 +281,6 @@ test("checkboxInput disable", testDisabled);
 test("checkboxInput enable", testEnabled);
 
 
-
 module("createInputFile", {
     setup: buildSetup({
         selector: '[name="file"]',

@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 12-03-2014
+// (MIT) 13-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -930,18 +930,6 @@ var createFactory = function (fig) {
         fieldMap = fig.fieldMap || {},
         $getModuleByClass = partial($getForminatorByClass, name);
 
-    var getMapToHTML = function () {
-        return map(fieldMap, function (object) {
-            return object && object.toHTML;
-        });
-    };
-
-    var getMapFromHTML = function () {
-        return map(fieldMap, function (object) {
-            return object && object.fromHTML;
-        });
-    };
-
     var buildModuleIfExists = function (fn, $module) {
         return function () {
             var args = argumentsToArray(arguments);
@@ -975,7 +963,7 @@ var createFactory = function (fig) {
             inputs: map(
                 buildFormInputs({
                     $: $module,
-                    factory: union(self, { fieldMap: getMapFromHTML() })
+                    factory: union(self)
                 }),
                 function (input) {
                     return createFormGroup({ input: input });
@@ -987,7 +975,7 @@ var createFactory = function (fig) {
     self.list = buildModuleIfExists(function ($module) {
         return createList({
             $: $module,
-            fieldMap: getMapToHTML()
+            fieldMap: fieldMap
         });
     }, $getModuleByClass('list'));
 
@@ -1011,7 +999,7 @@ var createFactory = function (fig) {
             inputs: map(
                 buildFormInputs({
                     $: $module,
-                    factory: union(self, { fieldMap: getMapFromHTML() })
+                    factory: union(self)
                 }),
                 function (input) {
                     return createFormGroup({ input: input });
@@ -1123,7 +1111,6 @@ var createInput = function (fig, my) {
     };
 
     self.set = function (newValue) {
-        // var newMappedValue = fieldMap(newValue);
         var oldValue = self.get();
         if(oldValue !== newValue) {
             self.$().val(newValue);
@@ -1137,7 +1124,6 @@ var createInput = function (fig, my) {
 
     my.buildSetter = function (callback) {
         return function (newValue) {
-            // var newMappedValue = fieldMap(newValue);
             var oldValue = self.get();
             if(oldValue !== newValue) {
                 callback.call(self, newValue);
@@ -1328,7 +1314,6 @@ var createInputHidden = function (fig) {
 var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
-        fieldMap = fig.fieldMap || {},
         inputs = {};
 
     var addInputsBasic = function (type, selector, group) {
@@ -1336,8 +1321,7 @@ var buildFormInputs = function (fig) {
         $self.find(selector).each(function () {
             var name = $(this).attr('name');
             group[name] = factory.input[type]({
-                $: $(this),
-                fieldMap: fieldMap[name]
+                $: $(this)
             });
         });
     };
@@ -1358,8 +1342,7 @@ var buildFormInputs = function (fig) {
         });
         foreach(names, function (name) {
             inputs[name] = factory.input[type]({
-                $: $self.find('input[name="' + name + '"]'),
-                fieldMap: fieldMap[name]
+                $: $self.find('input[name="' + name + '"]')
             });
         });
     };

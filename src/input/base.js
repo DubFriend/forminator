@@ -32,7 +32,6 @@ var createInput = function (fig, my) {
     };
 
     self.set = function (newValue) {
-        // var newMappedValue = fieldMap(newValue);
         var oldValue = self.get();
         if(oldValue !== newValue) {
             self.$().val(newValue);
@@ -46,7 +45,6 @@ var createInput = function (fig, my) {
 
     my.buildSetter = function (callback) {
         return function (newValue) {
-            // var newMappedValue = fieldMap(newValue);
             var oldValue = self.get();
             if(oldValue !== newValue) {
                 callback.call(self, newValue);

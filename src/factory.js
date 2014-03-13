@@ -5,18 +5,6 @@ var createFactory = function (fig) {
         fieldMap = fig.fieldMap || {},
         $getModuleByClass = partial($getForminatorByClass, name);
 
-    var getMapToHTML = function () {
-        return map(fieldMap, function (object) {
-            return object && object.toHTML;
-        });
-    };
-
-    var getMapFromHTML = function () {
-        return map(fieldMap, function (object) {
-            return object && object.fromHTML;
-        });
-    };
-
     var buildModuleIfExists = function (fn, $module) {
         return function () {
             var args = argumentsToArray(arguments);
@@ -50,7 +38,7 @@ var createFactory = function (fig) {
             inputs: map(
                 buildFormInputs({
                     $: $module,
-                    factory: union(self, { fieldMap: getMapFromHTML() })
+                    factory: union(self)
                 }),
                 function (input) {
                     return createFormGroup({ input: input });
@@ -62,7 +50,7 @@ var createFactory = function (fig) {
     self.list = buildModuleIfExists(function ($module) {
         return createList({
             $: $module,
-            fieldMap: getMapToHTML()
+            fieldMap: fieldMap
         });
     }, $getModuleByClass('list'));
 
@@ -86,7 +74,7 @@ var createFactory = function (fig) {
             inputs: map(
                 buildFormInputs({
                     $: $module,
-                    factory: union(self, { fieldMap: getMapFromHTML() })
+                    factory: union(self)
                 }),
                 function (input) {
                     return createFormGroup({ input: input });

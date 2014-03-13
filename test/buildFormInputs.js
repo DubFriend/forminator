@@ -20,16 +20,12 @@ module('buildFormInputs',{
         $fixture.html($('#forminator').html());
         this.inputs = buildFormInputs({
             $: $('.frm-name'),
-            factory: createMockFactory(),
-            fieldMap: {
-                text: 'text',
-                'checkbox[]': 'checkbox[]'
-            }
+            factory: createMockFactory()
         });
     }
 });
 
-var buildTest = function (name, length, isGivenFieldMap) {
+var buildTest = function (name, length) {
     test(name + ' length', function () {
         deepEqual(this.inputs[name].$.length, length, length + ' html element(s)');
     });
@@ -40,23 +36,15 @@ var buildTest = function (name, length, isGivenFieldMap) {
         });
     });
 
-    test(name + ' is' + (isGivenFieldMap ? ' ' : ' not ') + 'given field map', function () {
-        if(isGivenFieldMap) {
-            strictEqual(this.inputs[name].fieldMap, name, 'given field map');
-        }
-        else {
-            strictEqual(this.inputs[name].fieldMap, undefined, 'not given field map');
-        }
-    });
 };
 
-buildTest('text', 1, true);
+buildTest('text', 1);
 buildTest('text2', 1);
 buildTest('textarea', 1);
 buildTest('textarea2', 1);
 buildTest('radio', 2);
 buildTest('radio2', 2);
-buildTest('checkbox[]', 2, true);
+buildTest('checkbox[]', 2);
 buildTest('checkbox2[]', 2);
 buildTest('select', 1);
 buildTest('select2', 1);
