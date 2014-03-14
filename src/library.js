@@ -137,7 +137,7 @@ var pluck = function(collection, key) {
     });
 };
 
-var call = function (collection, functionName, args, self) {
+var call = function (collection, functionName, args) {
     return map(collection, function (object, name) {
         return object[functionName].apply(object, args || []);
     });

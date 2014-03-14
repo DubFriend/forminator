@@ -83,5 +83,13 @@ var createFactory = function (fig) {
         });
     }, $getModuleByClass('search'));
 
+    self.ordinator = buildModuleIfExists(function ($module, request) {
+        return createOrdinator({
+            $: $module,
+            request: request,
+            orderIcons: fig.orderIcons
+        });
+    }, $getModuleByClass('ordinator'));
+
     return self;
 };

@@ -42,11 +42,15 @@ function wrapKeysWithBackticks(array $array) {
 }
 
 function getOrders() {
-    return wrapKeysWithBackticks(stripLeadingKey(getWhereStartsWith($_GET, 'order_'), 'order_'));
+    return wrapKeysWithBackticks(
+        stripLeadingKey(getWhereStartsWith($_GET, 'order_'), 'order_')
+    );
 }
 
 function getFilters() {
-    return wrapKeysWithBackticks(stripLeadingKey(getWhereStartsWith($_GET, 'filter_'), 'filter_'));
+    return wrapKeysWithBackticks(
+        stripLeadingKey(getWhereStartsWith($_GET, 'filter_'), 'filter_')
+    );
 }
 
 function implodeArray(array $array) {
@@ -57,15 +61,20 @@ function implodeArray(array $array) {
 
 function preparePOST() {
     $imploded = implodeArray($_POST);
-    // $imploded = array_map(function ($value) {
-    //     return is_array($value) ? implode(',', $value) : $value;
-    // }, $_POST);
 
     $wrapped = array();
     foreach($imploded as $key => $value) {
         $wrapped['`' . $key . '`'] = $value;
     }
     return $wrapped;
+}
+
+function mapOrderValue($value) {
+    $map = array(
+        'ascending' => 'ASC',
+        'descending' => 'DESC'
+    );
+    return $map[$value];
 }
 
 $response = null;
@@ -78,7 +87,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 
         $orderArray = array();
         foreach(getOrders() as $key => $value) {
-            $orderArray[] = $key . ' ' . $value;
+            $orderArray[] = $key . ' ' . mapOrderValue($value);
         }
         $order = implode(', ', $orderArray);
 

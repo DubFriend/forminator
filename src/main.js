@@ -6,7 +6,8 @@ forminator.init = function (fig) {
         list = factory.list(),
         newItemButton = factory.newItemButton(),
         request = factory.request(),
-        search = factory.search(request);
+        search = factory.search(request),
+        ordinator = factory.ordinator(request);
 
     form.setAction('create');
 
