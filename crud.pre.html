@@ -38,11 +38,23 @@
             border: 1px solid black;
         }
 
-
         .frm-list-item {
             margin: 0.2em;
             background-color: rgb(223, 223, 223);
-            /*cursor: pointer;*/
+        }
+
+        .frm-list-item.selected {
+            background-color: rgb(192, 231, 120);
+        }
+
+        .frm-number-container {
+            background-color: blue;
+            margin: 0.2em;
+            cursor: pointer;
+        }
+
+        .frm-number-container.selected {
+            background-color: green;
         }
 
         [data-field] {

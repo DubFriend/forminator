@@ -5,7 +5,6 @@ error_reporting(E_STRICT|E_ALL);
 require 'sequel.php';
 
 define('RESULTS_PER_PAGE', 3);
-// $_GET = array();
 
 $sql = new Sequel(new PDO(
     'mysql:dbname=forminator_demo;host=localhost',
@@ -26,7 +25,6 @@ function getWhereStartsWith(array $collection, $startOfKey) {
 function stripLeadingKey(array $collection, $startOfKey) {
     $stripped = array();
     foreach($collection as $key => $value) {
-        // $strippedKey = '';
         $strippedKey = preg_replace('/^' . $startOfKey . '/','', $key);
         $stripped[$strippedKey] = $value;
     }
@@ -107,20 +105,28 @@ switch($_SERVER['REQUEST_METHOD']) {
         // print_r(getFilters());
         // print_r($query);
         // print_r(array_values(implodeArray(getFilters())));
+        $resultsObject =  $sql->query(
+            $query,
+            array_values(implodeArray(getFilters()))
+        );
+
         $results = array_map(
             function ($row) {
                 $row['checkbox'] = explode(',', $row['checkbox']);
                 $row['checkbox2'] = explode(',', $row['checkbox2']);
                 return $row;
             },
-
-            $sql->query(
-                $query,
-                array_values(implodeArray(getFilters()))
-            )->toArray()
+            $resultsObject->toArray()
         );
 
-        $response = array('results' => $results, 'status' => 200);
+        $count = $resultsObject->count();
+
+        $response = array(
+            'status' => 200,
+            'results' => $results,
+            'numberOfResults' => $count,
+            'numberOfPages' => ceil($count / RESULTS_PER_PAGE)
+        );
         break;
     case 'POST':
         switch(strtolower($_GET['action'])) {
@@ -162,7 +168,6 @@ switch($_SERVER['REQUEST_METHOD']) {
                         'GLOBAL' => 'Delete must have id query parameter'
                     );
                 }
-
                 break;
             default:
                 throw new Exception('invalid action : ' . $_GET['action']);

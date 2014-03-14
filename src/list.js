@@ -34,7 +34,6 @@ var createList = function (fig) {
             return items;
         }());
 
-
     // erase old set, replace with given items
     self.set = function (newItemsData) {
         var newElems = [];

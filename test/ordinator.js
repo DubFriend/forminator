@@ -6,7 +6,6 @@ module("ordinator", {
         this.ordinator = createOrdinator({
             $: this.$, request: {
                 setOrder: function (data) {
-                    // console.log('set order', data);
                     self.setOrderParameters = data;
                 },
                 search: function () {
