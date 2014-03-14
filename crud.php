@@ -77,6 +77,12 @@ function mapOrderValue($value) {
     return $map[$value];
 }
 
+function mapResults(array $results) {
+    return array_map(function ($row) {
+        return $row;
+    }, $results);
+}
+
 $response = null;
 switch($_SERVER['REQUEST_METHOD']) {
     case 'GET':
@@ -113,11 +119,6 @@ switch($_SERVER['REQUEST_METHOD']) {
                 array_values(implodeArray(getFilters()))
             )->toArray()
         );
-
-        // print_r($sql->query(
-        //     $query,
-        //     array_values(implodeArray(getFilters()))
-        // )->toArray());
 
         $response = array('results' => $results, 'status' => 200);
         break;

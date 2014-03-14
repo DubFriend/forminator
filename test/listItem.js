@@ -63,14 +63,6 @@ test("hardSet fieldMap", function () {
     );
 });
 
-// test("default fieldMap joins array (set)", function () {
-//     this.listItem.set({ 'text': ['a', 'b'] });
-//     deepEqual(
-//         getListItemsData(this.$self),
-//         { text: 'a, b', textarea: 'Default Value' }
-//     );
-// });
-
 test("default fieldMap joins array (hardSet)", function () {
     this.listItem.hardSet({ 'text': ['a', 'b'] });
     deepEqual(getListItemsData(this.$self), { text: 'a, b' });
@@ -81,10 +73,17 @@ test("set renders new values", function () {
     strictEqual(this.$self.find('[data-field="checkbox[]"]').html(), 'foo');
 });
 
+test("set corrects unbracketed name that should be bracketed", function () {
+    this.listItem.set({ checkbox: ['a', 'b']});
+    strictEqual(this.$self.find('[data-field="checkbox[]"]').html(), 'a, b');
+});
+
 test("set non existant field does not set value", function () {
     this.listItem.set({ wrong: 'foo' });
     deepEqual(this.listItem.get(), this.defaultFieldValues);
 });
+
+
 
 test("clear", function () {
     this.listItem.clear();
@@ -124,4 +123,3 @@ test("double click publishes selected event", function () {
     });
     this.$self.dblclick();
 });
-

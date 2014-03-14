@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 13-03-2014
+// (MIT) 14-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -1694,12 +1694,7 @@ var createRequest = function (fig) {
         url = fig.url,
         data = {},
         buildURL = function () {
-            // remove any leading square brackets from the field name.
-            var strippedData = map(data || {}, identity, function (key) {
-                return key.replace(/\[\]$/, '');
-            });
-            // return url with query string parameters.
-            return queryjs.set(url, filter(strippedData, function (value) {
+            return queryjs.set(url, filter(data || {}, function (value) {
                 // only return non empty arrays and non falsey values (except 0)
                 return isArray(value) ? value.length : value || value === 0;
             }));
@@ -1780,7 +1775,13 @@ var createListItem = function (fig) {
 
 
     self.set = function (newValues) {
-        var changedFields = filter(newValues, function (newValue, name) {
+
+        var bracketedKeys = map(newValues, identity, function (unbracketedName) {
+            return inArray(keys(fields), unbracketedName + '[]') ?
+                unbracketedName + '[]' : unbracketedName;
+        });
+
+        var changedFields = filter(bracketedKeys, function (newValue, name) {
             if(typeof fields[name] === 'undefined') {
                 return false;
             }
@@ -1788,6 +1789,7 @@ var createListItem = function (fig) {
                 return fields[name] !== newValue;
             }
         });
+
         fields = union(fields, changedFields);
         render(changedFields);
         return self;

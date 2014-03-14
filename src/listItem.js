@@ -39,7 +39,13 @@ var createListItem = function (fig) {
 
 
     self.set = function (newValues) {
-        var changedFields = filter(newValues, function (newValue, name) {
+
+        var bracketedKeys = map(newValues, identity, function (unbracketedName) {
+            return inArray(keys(fields), unbracketedName + '[]') ?
+                unbracketedName + '[]' : unbracketedName;
+        });
+
+        var changedFields = filter(bracketedKeys, function (newValue, name) {
             if(typeof fields[name] === 'undefined') {
                 return false;
             }
@@ -47,6 +53,7 @@ var createListItem = function (fig) {
                 return fields[name] !== newValue;
             }
         });
+
         fields = union(fields, changedFields);
         render(changedFields);
         return self;

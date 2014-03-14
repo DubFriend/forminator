@@ -4,12 +4,7 @@ var createRequest = function (fig) {
         url = fig.url,
         data = {},
         buildURL = function () {
-            // remove any leading square brackets from the field name.
-            var strippedData = map(data || {}, identity, function (key) {
-                return key.replace(/\[\]$/, '');
-            });
-            // return url with query string parameters.
-            return queryjs.set(url, filter(strippedData, function (value) {
+            return queryjs.set(url, filter(data || {}, function (value) {
                 // only return non empty arrays and non falsey values (except 0)
                 return isArray(value) ? value.length : value || value === 0;
             }));
