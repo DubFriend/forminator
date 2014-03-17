@@ -1705,32 +1705,32 @@ var createOrdinator = function (fig) {
 
 var createGotoPage = function (fig) {
     var self = createFormBase(fig),
-        errorMessages = union({
-            noPage: "Must enter a page number.",
-            notAnInteger: "Must enter valid page number.",
-            nonPositiveNumber: "Page number must be positive.",
-            pageNumberOutOfBounds: "Page number cannot exceed " +
-                                   "the total number of pages."
-        }, fig.errorMessages || {}),
+        // errorMessages = union({
+        //     noPage: "Must enter a page number.",
+        //     notAnInteger: "Must enter valid page number.",
+        //     nonPositiveNumber: "Page number must be positive.",
+        //     pageNumberOutOfBounds: "Page number cannot exceed " +
+        //                            "the total number of pages."
+        // }, fig.errorMessages || {}),
         $self = fig.$;
 
-    self.validate = function (data, maxPageNumber) {
-        var errors = {};
-        var pageNumber = toInt(data.page);
-        if(!data.page) {
-            errors.page = errorMessages.noPage;
-        }
-        else if(isNaN(pageNumber)) {
-            errors.page = errorMessages.notAnInteger;
-        }
-        else if(pageNumber <= 0) {
-            errors.page = errorMessages.nonPositiveNumber;
-        }
-        else if(pageNumber > maxPageNumber) {
-            errors.page = errorMessages.pageNumberOutOfBounds;
-        }
-        return errors;
-    };
+    // self.validate = function (data, maxPageNumber) {
+    //     var errors = {};
+    //     var pageNumber = toInt(data.page);
+    //     if(!data.page) {
+    //         errors.page = errorMessages.noPage;
+    //     }
+    //     else if(isNaN(pageNumber)) {
+    //         errors.page = errorMessages.notAnInteger;
+    //     }
+    //     else if(pageNumber <= 0) {
+    //         errors.page = errorMessages.nonPositiveNumber;
+    //     }
+    //     else if(pageNumber > maxPageNumber) {
+    //         errors.page = errorMessages.pageNumberOutOfBounds;
+    //     }
+    //     return errors;
+    // };
 
     $self.submit(function (e) {
         e.preventDefault();
@@ -1744,6 +1744,14 @@ var createPaginator = function (fig) {
         name = fig.name,
         request = fig.request,
         gotoPage = fig.gotoPage,
+
+        errorMessages = union({
+            noPage: "Must enter a page number.",
+            notAnInteger: "Must enter valid page number.",
+            nonPositiveNumber: "Page number must be positive.",
+            pageNumberOutOfBounds: "Page number cannot exceed " +
+                                   "the total number of pages."
+        }, fig.errorMessages || {}),
 
         $numberOfPages = $('.frm-number-of-pages-' + name ),
         $numberOfResults = $('.frm-number-of-results-' + name),
@@ -1898,6 +1906,24 @@ var createPaginator = function (fig) {
             setSelectedPage();
         };
 
+    self.validate = function (data, maxPageNumber) {
+        var errors = {};
+        var pageNumber = toInt(data.page);
+        if(!data.page) {
+            errors.page = errorMessages.noPage;
+        }
+        else if(isNaN(pageNumber)) {
+            errors.page = errorMessages.notAnInteger;
+        }
+        else if(pageNumber <= 0) {
+            errors.page = errorMessages.nonPositiveNumber;
+        }
+        else if(pageNumber > maxPageNumber) {
+            errors.page = errorMessages.pageNumberOutOfBounds;
+        }
+        return errors;
+    };
+
     request.subscribe('success', function (response) {
         if(toInt(response.numberOfPages) === 0 || response.numberOfPages) {
             setNumberOfPages(response.numberOfPages);
@@ -1910,7 +1936,7 @@ var createPaginator = function (fig) {
 
     if(gotoPage) {
         gotoPage.subscribe('submit', function (data) {
-            var error = gotoPage.validate(data, numberOfPages);
+            var error = self.validate(data, numberOfPages);
             if(isEmpty(error)) {
                 gotoPage.clearFeedback();
                 gotoPage.reset();
@@ -1921,7 +1947,6 @@ var createPaginator = function (fig) {
             }
         });
     }
-
 
     return self;
 };

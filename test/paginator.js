@@ -19,6 +19,11 @@ module("paginator", {
             }
         });
 
+        this.errorMessages = {
+            noPage: "noPage message",
+            notAnInteger: "notAnInteger message",
+            nonPositiveNumber: "nonPositiveNumber message"
+        };
 
         this.gotoPage = mixinPubSub({
             validateReturnValue: {},
@@ -42,7 +47,8 @@ module("paginator", {
         this.paginator = createPaginator({
             name: 'name',
             request: this.request,
-            gotoPage: this.gotoPage
+            gotoPage: this.gotoPage,
+            errorMessages: this.errorMessages
         });
     }
 });
@@ -100,28 +106,57 @@ test('subscribes to response: 0 pages', function () {
 });
 
 test('subscribes to gotoPage submit event success', function () {
-    this.gotoPage.publish('submit', { page: '3'});
-    deepEqual(this.gotoPage.validateParameters, {
-        data: { page: '3' }, maxPageNumber: 1
-    }, 'validate called with published page');
+    this.gotoPage.publish('submit', { page: '1'});
     ok(this.gotoPage.clearFeedbackCalled, 'form feedback is cleared');
     ok(this.gotoPage.resetCalled, 'form reset');
-    strictEqual(this.request.setPageParameters, 3, 'request.setPage');
+    strictEqual(this.request.setPageParameters, 1, 'request.setPage');
     ok(this.request.searchIsCalled, 'request.search');
 });
 
 test('subscribes to gotoPage submit event error', function () {
     this.gotoPage.validateReturnValue = { page: 'error message' };
     this.gotoPage.publish('submit', { page: '3'});
-    deepEqual(this.gotoPage.validateParameters, {
-        data: { page: '3' }, maxPageNumber: 1
-    }, 'validate called with published page');
     ok(!this.gotoPage.clearFeedbackCalled, 'form feedback is not cleared');
     ok(!this.gotoPage.resetCalled, 'form not reset');
     strictEqual(this.request.setPageParameters, undefined, 'request.setPage not called');
     ok(!this.request.searchIsCalled, 'request.search not called');
     deepEqual(
-        this.gotoPage.setFeedbackParameters, { page: 'error message' },
+        this.gotoPage.setFeedbackParameters, {
+            page: "Page number cannot exceed " +
+                  "the total number of pages."
+        },
         'set feedback called'
     );
+});
+
+test('validate success, max page same as page', function () {
+    deepEqual(this.paginator.validate({ page: '5' }, 5), {});
+});
+
+test('validate success, max page greater than page', function () {
+    deepEqual(this.paginator.validate({ page: '5' }, 6), {});
+});
+
+test('validate fail, page greater than max page', function () {
+    deepEqual(this.paginator.validate({ page: '5'}, 4), {
+        page: "Page number cannot exceed the total number of pages."
+    });
+});
+
+test('validate fail, page nonPositiveNumber', function () {
+    deepEqual(this.paginator.validate({ page: '0'}, 4), {
+        page: this.errorMessages.nonPositiveNumber
+    });
+});
+
+test('validate fail, page notAnInteger', function () {
+    deepEqual(this.paginator.validate({ page: 'a'}, 4), {
+        page: this.errorMessages.notAnInteger
+    });
+});
+
+test('validate fail, page noPage', function () {
+    deepEqual(this.paginator.validate({}, 4), {
+        page: this.errorMessages.noPage
+    });
 });
