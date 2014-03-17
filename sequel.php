@@ -1,60 +1,7 @@
 <?php
 //Wrapper to abstract the method of database access
 //(implented with PDO)
-
 class Sequel_Exception extends Exception {}
-
-class Sequel_Table {
-    private $table, $Sql;
-    function __construct($table, $Sql) {
-        $this->table = $table;
-        $this->Sql = $Sql;
-    }
-
-    function query($query, array $values = array()) {
-        switch($this->Sql->queryType($query)) {
-            case "SELECT":
-                return $this->Sql->query($this->adaptSelect($query), $values);
-                break;
-            case "INSERT":
-                return $this->Sql->query($this->adaptInsert($query), $values);
-                break;
-            case "UPDATE":
-                return $this->Sql->query($this->adaptUpdate($query), $values);
-                break;
-            case "DELETE":
-                return $this->Sql->query($this->adaptDelete($query), $values);
-                break;
-            default:
-        }
-    }
-
-    private function adaptSelect($query) {
-        $parts = $this->splitOnWhere($query);
-        return $parts['start'] . " FROM " . $this->table . $parts['end'];
-    }
-
-    private function splitOnWhere($query) {
-        $parts = preg_split("/ WHERE /i", $query);
-        return array(
-            "start" => $parts[0],
-            "end" => " WHERE " . $parts[1]
-        );
-    }
-
-    private function adaptInsert($query) {
-        return "INSERT INTO " . $this->table . substr($query, 6);
-    }
-    private function adaptUpdate($query) {
-        return "UPDATE " . $this->table . substr($query, 6);
-    }
-
-    private function adaptDelete($query) {
-        return "DELETE FROM " . $this->table . substr($query, 6);
-    }
-}
-
-
 
 class Sequel {
     private $Connection;
@@ -108,7 +55,25 @@ class Sequel {
         return $this->query($query, $values)->next();
     }
 
+    private function wrapKeysBackTicks(array $values) {
+        $wrapped = array();
+        foreach($values as $key => $value) {
+            if($this->doesHaveBackTicks($key)) {
+                $wrapped[$key] = $value;
+            }
+            else {
+                $wrapped['`' . $key . '`'] = $value;
+            }
+        }
+        return $wrapped;
+    }
+
+    private function doesHaveBackTicks($value) {
+        return preg_match('/^`.*`$/', $value);
+    }
+
     function select($table, array $where = array()) {
+        $where = $this->wrapKeysBackTicks($where);
         $query = "SELECT * FROM $table";
         if(!empty($where)) {
             $query .= " WHERE " . $this->whereSql(array_keys($where));
@@ -129,6 +94,7 @@ class Sequel {
     }
 
     function insert($table, array $values = array()) {
+        $values = $this->wrapKeysBackTicks($values);
         return $this->query(
             "INSERT INTO $table (" . implode(", ", array_keys($values)) . ") " .
             "VALUES (" . $this->questionMarks(count($values)) . ")",
@@ -137,6 +103,8 @@ class Sequel {
     }
 
     function update($table, array $values = array(), array $where = array()) {
+        $values = $this->wrapKeysBackTicks($values);
+        $where = $this->wrapKeysBackTicks($where);
         $setArray = array();
         foreach(array_keys($values) as $key) {
             $setArray[] = "$key = ?";
@@ -149,6 +117,7 @@ class Sequel {
     }
 
     function delete($table, array $where = array()) {
+        $where = $this->wrapKeysBackTicks($where);
         return $this->query(
             "DELETE FROM $table WHERE " . $this->whereSql(array_keys($where)),
             array_values($where)
@@ -260,7 +229,7 @@ class Sequel_Counter {
     function count() {
         if($this->count === null) {
             $statement = $this->Connection->prepare(
-                "SELECT count(*) " . $this->predicate()
+                "SELECT COUNT(*) " . $this->predicate()
             );
             $statement->execute($this->values);
             $rows = $statement->fetch(\PDO::FETCH_NUM);
@@ -269,9 +238,11 @@ class Sequel_Counter {
         return $this->count;
     }
 
-    //returns everything after the "FROM" in a select statement.
+    // removes the "SELECT" and "LIMIT" portions of the query.
     private function predicate() {
-        return substr($this->query, strpos(strtoupper($this->query), " FROM "));
+        $predicate = preg_replace('/.* FROM /i', '', $this->query);
+        $predicate = preg_replace('/ LIMIT .*/i', '', $predicate);
+        return  ' FROM ' . $predicate;
     }
 }
 ?>

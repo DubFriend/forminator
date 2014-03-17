@@ -25,6 +25,18 @@ var createFactory = function (fig) {
         hidden: createInputHidden
     };
 
+    var getMappedFormInputs = function ($form) {
+        return map(
+            buildFormInputs({
+                $: $form,
+                factory: self
+            }),
+            function (input) {
+                return createFormGroup({ input: input });
+            }
+        );
+    };
+
     self.form = buildModuleIfExists(function ($module) {
         return createForm({
             $: $module,
@@ -35,15 +47,7 @@ var createFactory = function (fig) {
             error: fig.error,
             complete: fig.complete,
             url: url,
-            inputs: map(
-                buildFormInputs({
-                    $: $module,
-                    factory: union(self)
-                }),
-                function (input) {
-                    return createFormGroup({ input: input });
-                }
-            )
+            inputs: getMappedFormInputs($module)
         });
     }, $getModuleByClass(''));
 
@@ -71,15 +75,7 @@ var createFactory = function (fig) {
         return createSearch({
             $: $module,
             request: request,
-            inputs: map(
-                buildFormInputs({
-                    $: $module,
-                    factory: union(self)
-                }),
-                function (input) {
-                    return createFormGroup({ input: input });
-                }
-            )
+            inputs: getMappedFormInputs($module)
         });
     }, $getModuleByClass('search'));
 
@@ -90,6 +86,21 @@ var createFactory = function (fig) {
             orderIcons: fig.orderIcons
         });
     }, $getModuleByClass('ordinator'));
+
+    self.paginator = function (request) {
+        return createPaginator({
+            name: name,
+            request: request,
+            gotoPage: self.gotoPage()
+        });
+    };
+
+    self.gotoPage = buildModuleIfExists(function ($module) {
+        return createGotoPage({
+            $: $module,
+            inputs: getMappedFormInputs($module)
+        });
+    }, $getModuleByClass('goto-page'));
 
     return self;
 };

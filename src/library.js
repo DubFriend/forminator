@@ -14,6 +14,10 @@ var isFunction = function (value) {
     return value instanceof Function;
 };
 
+var toInt = function (value) {
+    return parseInt(value, 10);
+};
+
 var partial = function (f) {
     var args = Array.prototype.slice.call(arguments, 1);
     if(isFunction(f)) {

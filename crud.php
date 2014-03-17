@@ -75,11 +75,11 @@ function mapOrderValue($value) {
     return $map[$value];
 }
 
-function mapResults(array $results) {
-    return array_map(function ($row) {
-        return $row;
-    }, $results);
-}
+// function mapResults(array $results) {
+//     return array_map(function ($row) {
+//         return $row;
+//     }, $results);
+// }
 
 $response = null;
 switch($_SERVER['REQUEST_METHOD']) {

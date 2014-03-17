@@ -1,16 +1,19 @@
 <p># of pages: <span class="frm-number-of-pages-name"></span></p>
 <p># of results: <span class="frm-number-of-results-name"></span></p>
 
+<span class="frm-previous-name">Previous</span>
 <ol class="frm-page-numbers-name">
-    <!-- .frm-previous and .frm-next can also be outside .frm-page-numbers -->
-    <li class="frm-previous-name">Previous</li>
     <li class="frm-number-container selected">
         <span data-number="1">1</span>
     </li>
-    <li class="frm-next-name">Next</li>
 </ol>
+<span class="frm-next-name">Next</span>
 
 <form class="frm-goto-page-name" method="GET" action="respond.php">
-    <input type="text">
+    <div class="frm-group">
+        <label>Page</label>
+        <input type="text" name="page"/>
+        <div class="frm-feedback"></div>
+    </div>
     <input type="submit" value="Goto Page"/>
 </form>

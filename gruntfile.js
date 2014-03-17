@@ -35,6 +35,7 @@ module.exports = function (grunt) {
                     'src/createForm.js',
                     'src/search.js',
                     'src/ordinator.js',
+                    'src/gotoPage.js',
                     'src/paginator.js',
                     'src/request.js',
                     'src/listItem.js',

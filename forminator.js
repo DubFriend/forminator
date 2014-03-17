@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 14-03-2014
+// (MIT) 16-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -548,6 +548,10 @@ var isFunction = function (value) {
     return value instanceof Function;
 };
 
+var toInt = function (value) {
+    return parseInt(value, 10);
+};
+
 var partial = function (f) {
     var args = Array.prototype.slice.call(arguments, 1);
     if(isFunction(f)) {
@@ -950,6 +954,18 @@ var createFactory = function (fig) {
         hidden: createInputHidden
     };
 
+    var getMappedFormInputs = function ($form) {
+        return map(
+            buildFormInputs({
+                $: $form,
+                factory: self
+            }),
+            function (input) {
+                return createFormGroup({ input: input });
+            }
+        );
+    };
+
     self.form = buildModuleIfExists(function ($module) {
         return createForm({
             $: $module,
@@ -960,15 +976,7 @@ var createFactory = function (fig) {
             error: fig.error,
             complete: fig.complete,
             url: url,
-            inputs: map(
-                buildFormInputs({
-                    $: $module,
-                    factory: union(self)
-                }),
-                function (input) {
-                    return createFormGroup({ input: input });
-                }
-            )
+            inputs: getMappedFormInputs($module)
         });
     }, $getModuleByClass(''));
 
@@ -996,15 +1004,7 @@ var createFactory = function (fig) {
         return createSearch({
             $: $module,
             request: request,
-            inputs: map(
-                buildFormInputs({
-                    $: $module,
-                    factory: union(self)
-                }),
-                function (input) {
-                    return createFormGroup({ input: input });
-                }
-            )
+            inputs: getMappedFormInputs($module)
         });
     }, $getModuleByClass('search'));
 
@@ -1015,6 +1015,21 @@ var createFactory = function (fig) {
             orderIcons: fig.orderIcons
         });
     }, $getModuleByClass('ordinator'));
+
+    self.paginator = function (request) {
+        return createPaginator({
+            name: name,
+            request: request,
+            gotoPage: self.gotoPage()
+        });
+    };
+
+    self.gotoPage = buildModuleIfExists(function ($module) {
+        return createGotoPage({
+            $: $module,
+            inputs: getMappedFormInputs($module)
+        });
+    }, $getModuleByClass('goto-page'));
 
     return self;
 };
@@ -1688,6 +1703,42 @@ var createOrdinator = function (fig) {
     return self;
 };
 
+var createGotoPage = function (fig) {
+    var self = createFormBase(fig),
+        errorMessages = union({
+            noPage: "Must enter a page number.",
+            notAnInteger: "Must enter valid page number.",
+            nonPositiveNumber: "Page number must be positive.",
+            pageNumberOutOfBounds: "Page number cannot exceed " +
+                                   "the total number of pages."
+        }, fig.errorMessages || {}),
+        $self = fig.$;
+
+    self.validate = function (data, maxPageNumber) {
+        var errors = {};
+        var pageNumber = toInt(data.page);
+        if(!data.page) {
+            errors.page = errorMessages.noPage;
+        }
+        else if(isNaN(pageNumber)) {
+            errors.page = errorMessages.notAnInteger;
+        }
+        else if(pageNumber <= 0) {
+            errors.page = errorMessages.nonPositiveNumber;
+        }
+        else if(pageNumber > maxPageNumber) {
+            errors.page = errorMessages.pageNumberOutOfBounds;
+        }
+        return errors;
+    };
+
+    $self.submit(function (e) {
+        e.preventDefault();
+        self.publish('submit', self.get());
+    });
+
+    return self;
+};
 var createPaginator = function (fig) {
     var self = {},
         name = fig.name,
@@ -1700,21 +1751,15 @@ var createPaginator = function (fig) {
         $previous = $('.frm-previous-' + name),
         $next = $('.frm-next-' + name),
 
-        visiblePages = (function () {
-            pages = [];
-            $pageNumbers.find('[data-number]').each(function () {
-                pages.push(Number($(this).data('number')));
-            });
-            return pages;
-        }()),
-
         getDataNumber = function ($el) {
             return $el.is('data-number') ? $el : $el.find('data-number');
         },
 
-        currentPage = Number(getDataNumber(
+        page = toInt(getDataNumber(
             $pageNumbers.find('.frm-number-container.selected'
-        )).data('number')),
+        )).data('number')) || 1,
+        numberOfPages = toInt($numberOfPages.html()) || page,
+        numberOfResults = toInt($numberOfResults.html()) || null,
 
         // note: $itemTemplate should be initialized after visiblePages and
         // currentPage are initialized.
@@ -1724,7 +1769,139 @@ var createPaginator = function (fig) {
             $el.removeClass('selected');
             getDataNumber($el).html('').data('number', '');
             return $el;
-        }());
+        }()),
+
+        setNumberOfPages = function (newNumberOfPages) {
+            newNumberOfPages = toInt(newNumberOfPages);
+            if(newNumberOfPages !== numberOfPages) {
+                $numberOfPages.html(newNumberOfPages);
+                numberOfPages = newNumberOfPages;
+            }
+        },
+
+        setNumberOfResults = function (newNumberOfResults) {
+            newNumberOfResults = toInt(newNumberOfResults);
+            if(newNumberOfResults !== numberOfResults) {
+                $numberOfResults.html(newNumberOfResults);
+                numberOfResults = newNumberOfResults;
+            }
+        },
+
+        calculatePagesToRender = function () {
+            var pages = range(page - 3, page + 3);
+
+            var rollOver = function (array) {
+                array.shift();
+                array.push(last(array) + 1);
+                return array;
+            };
+
+            while(pages[0] < 1) {
+                pages = rollOver(pages);
+            }
+
+            while(!isEmpty(pages) && last(pages) > numberOfPages) {
+                pages.pop();
+            }
+
+            return pages;
+        },
+
+        createPageItem = function (fig) {
+            var self = {},
+                $self = fig.$,
+                $number = $self.find('[data-number]'),
+                pageNumber = fig.pageNumber || toInt($number.data('number'));
+
+            self.set = function (newPageNumber) {
+                newPageNumber = toInt(newPageNumber);
+                if(pageNumber !== newPageNumber) {
+                    $number.html(newPageNumber);
+                    pageNumber = newPageNumber;
+                }
+            };
+
+            self.get = function () {
+                return pageNumber;
+            };
+
+            self.setSelected = function () {
+                $self.addClass('selected');
+            };
+
+            self.clearSelected = function () {
+                $self.removeClass('selected');
+            };
+
+            self.destroy = function () {
+                $self.remove();
+            };
+
+            $number.html(pageNumber);
+
+            $self.click(function () {
+                page = pageNumber;
+                request.setPage(pageNumber);
+                request.search();
+            });
+
+            return self;
+        },
+
+        pages = (function () {
+            pages = [];
+            $pageNumbers.find('.frm-number-container').each(function () {
+                pages.push(createPageItem({
+                    $: $(this)
+                }));
+            });
+            return pages;
+        }()),
+
+        getPageObjectWithPageNumber = function (pageNumber) {
+            var itemsArray = filter(pages, function (pageObject) {
+                return pageObject.get() === pageNumber;
+            });
+            return isEmpty(itemsArray) ? null : itemsArray[0];
+        },
+
+        updatePages = function () {
+            var i = 0;
+            foreach(calculatePagesToRender(), function (pageNumber) {
+                if(pages[i]) {
+                    pages[i].set(pageNumber);
+                }
+                else {
+                    var $item = $itemTemplate.clone();
+                    $pageNumbers.append($item);
+                    pages[i] = createPageItem({
+                        pageNumber: pageNumber,
+                        $: $item
+                    });
+                }
+                i += 1;
+            });
+            // remove excess pages
+            while(pages[i]) {
+                pages[i].destroy();
+                pages.splice(i, 1);
+            }
+        };
+
+    request.subscribe('success', function (response) {
+        if(toInt(response.numberOfPages) === 0 || response.numberOfPages) {
+            setNumberOfPages(response.numberOfPages);
+        }
+        if(response.numberOfResults) {
+            setNumberOfResults(response.numberOfResults);
+        }
+        updatePages();
+        call(pages, 'clearSelected');
+        var selectedPage = getPageObjectWithPageNumber(page);
+        if(selectedPage) {
+            selectedPage.setSelected();
+        }
+    });
 
     return self;
 };
@@ -1754,6 +1931,10 @@ var createRequest = function (fig) {
         set(map(values, identity, function (key) {
             return 'filter_' + (isArray(key) ? key.join(',') : key);
         }));
+    };
+
+    self.setPage = function (pageNumber) {
+        set({ page: pageNumber });
     };
 
     self.search = function () {
@@ -1972,7 +2153,8 @@ forminator.init = function (fig) {
         newItemButton = factory.newItemButton(),
         request = factory.request(),
         search = factory.search(request),
-        ordinator = factory.ordinator(request);
+        ordinator = factory.ordinator(request),
+        paginator = factory.paginator(request);
 
     form.setAction('create');
 
@@ -1997,10 +2179,7 @@ forminator.init = function (fig) {
         });
     }
 
-    return {
-        form: form,
-        list: list
-    };
+    return { form: form, list: list };
 };
 
 window.forminator = forminator;

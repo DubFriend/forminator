@@ -25,6 +25,10 @@ var createRequest = function (fig) {
         }));
     };
 
+    self.setPage = function (pageNumber) {
+        set({ page: pageNumber });
+    };
+
     self.search = function () {
         ajax({
             type: 'GET',

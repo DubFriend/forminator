@@ -7,7 +7,8 @@ forminator.init = function (fig) {
         newItemButton = factory.newItemButton(),
         request = factory.request(),
         search = factory.search(request),
-        ordinator = factory.ordinator(request);
+        ordinator = factory.ordinator(request),
+        paginator = factory.paginator(request);
 
     form.setAction('create');
 
@@ -32,10 +33,7 @@ forminator.init = function (fig) {
         });
     }
 
-    return {
-        form: form,
-        list: list
-    };
+    return { form: form, list: list };
 };
 
 window.forminator = forminator;
