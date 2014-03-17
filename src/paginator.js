@@ -20,12 +20,12 @@ var createPaginator = function (fig) {
         $next = $('.frm-next-' + name),
 
         getDataNumber = function ($el) {
-            return $el.is('data-number') ? $el : $el.find('data-number');
+            return $el.is('data-number') ? $el : $el.find('[data-number]');
         },
 
         page = toInt(getDataNumber(
-            $pageNumbers.find('.frm-number-container.selected'
-        )).data('number')) || 1,
+            $pageNumbers.find('.frm-number-container.selected')
+        ).data('number')) || 1,
         numberOfPages = toInt($numberOfPages.html()) || page,
         numberOfResults = toInt($numberOfResults.html()) || null,
 
@@ -206,6 +206,18 @@ var createPaginator = function (fig) {
             }
         });
     }
+
+    $previous.click(function () {
+        if(isEmpty(self.validate({ page: page - 1 }, numberOfPages))) {
+            setPage(page - 1);
+        }
+    });
+
+    $next.click(function () {
+        if(isEmpty(self.validate({ page: page + 1 }, numberOfPages))) {
+            setPage(page + 1);
+        }
+    });
 
     return self;
 };

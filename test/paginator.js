@@ -95,7 +95,7 @@ test('subscribes to response: updates pages restricted to 7 pages max', function
 
 test('click page calls request', function () {
     this.$pageNumbers.find('.frm-number-container:first-child').click();
-    strictEqual(this.request.setPageParameters, 1, 'setPage called with pageNumber');
+    strictEqual(this.request.setPageParameters, 2, 'setPage called with pageNumber');
     ok(this.request.searchIsCalled, 'search is called');
 });
 
@@ -115,7 +115,7 @@ test('subscribes to gotoPage submit event success', function () {
 
 test('subscribes to gotoPage submit event error', function () {
     this.gotoPage.validateReturnValue = { page: 'error message' };
-    this.gotoPage.publish('submit', { page: '3'});
+    this.gotoPage.publish('submit', { page: '4'});
     ok(!this.gotoPage.clearFeedbackCalled, 'form feedback is not cleared');
     ok(!this.gotoPage.resetCalled, 'form not reset');
     strictEqual(this.request.setPageParameters, undefined, 'request.setPage not called');
@@ -159,4 +159,24 @@ test('validate fail, page noPage', function () {
     deepEqual(this.paginator.validate({}, 4), {
         page: this.errorMessages.noPage
     });
+});
+
+test('previous click success', function () {
+    this.$previous.click();
+    strictEqual(this.request.setPageParameters, 1);
+});
+
+test('previous click doesnt go below 1', function () {
+    this.$previous.click().click();
+    strictEqual(this.request.setPageParameters, 1);
+});
+
+test('next click success', function () {
+    this.$next.click();
+    strictEqual(this.request.setPageParameters, 3);
+});
+
+test('next click doesnt go above max page number', function () {
+    this.$next.click().click();
+    strictEqual(this.request.setPageParameters, 3);
 });
