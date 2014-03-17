@@ -3,7 +3,6 @@ module("gotoPage", {
         $('#qunit-fixture').html($('#forminator').html());
         var self = this;
         this.$gotoPage = $('.frm-goto-page-name');
-
         this.errorMessages = {
             noPage: "noPage message",
             notAnInteger: "notAnInteger message",
@@ -58,6 +57,16 @@ test('validate fail, page noPage', function () {
         page: this.errorMessages.noPage
     });
 });
+
+// test('validate fail, sets form error feedback', function () {
+//     this.gotoPage.validate({}, 4);
+//     ok(this.$gotoPage.hasClass('error'), 'form has error class');
+//     strictEqual(
+//         this.$gotoPage.find('.frm-feedback').html(),
+//         this.errorMessages.noPage,
+//         'form feedback message set'
+//     );
+// });
 
 test('submit publishes submit with forms data', function () {
     expect(1);

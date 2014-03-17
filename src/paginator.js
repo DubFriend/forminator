@@ -2,6 +2,7 @@ var createPaginator = function (fig) {
     var self = {},
         name = fig.name,
         request = fig.request,
+        gotoPage = fig.gotoPage,
 
         $numberOfPages = $('.frm-number-of-pages-' + name ),
         $numberOfResults = $('.frm-number-of-results-' + name),
@@ -49,14 +50,9 @@ var createPaginator = function (fig) {
         calculatePagesToRender = function () {
             var pages = range(page - 3, page + 3);
 
-            var rollOver = function (array) {
-                array.shift();
-                array.push(last(array) + 1);
-                return array;
-            };
-
             while(pages[0] < 1) {
-                pages = rollOver(pages);
+                pages.shift();
+                pages.push(last(pages) + 1);
             }
 
             while(!isEmpty(pages) && last(pages) > numberOfPages) {
@@ -64,6 +60,12 @@ var createPaginator = function (fig) {
             }
 
             return pages;
+        },
+
+        setPage = function (pageNumber) {
+            page = pageNumber;
+            request.setPage(pageNumber);
+            request.search();
         },
 
         createPageItem = function (fig) {
@@ -99,9 +101,7 @@ var createPaginator = function (fig) {
             $number.html(pageNumber);
 
             $self.click(function () {
-                page = pageNumber;
-                request.setPage(pageNumber);
-                request.search();
+                setPage(pageNumber);
             });
 
             return self;
@@ -122,6 +122,14 @@ var createPaginator = function (fig) {
                 return pageObject.get() === pageNumber;
             });
             return isEmpty(itemsArray) ? null : itemsArray[0];
+        },
+
+        setSelectedPage = function () {
+            call(pages, 'clearSelected');
+            var selectedPage = getPageObjectWithPageNumber(page);
+            if(selectedPage) {
+                selectedPage.setSelected();
+            }
         },
 
         updatePages = function () {
@@ -145,6 +153,8 @@ var createPaginator = function (fig) {
                 pages[i].destroy();
                 pages.splice(i, 1);
             }
+
+            setSelectedPage();
         };
 
     request.subscribe('success', function (response) {
@@ -155,12 +165,22 @@ var createPaginator = function (fig) {
             setNumberOfResults(response.numberOfResults);
         }
         updatePages();
-        call(pages, 'clearSelected');
-        var selectedPage = getPageObjectWithPageNumber(page);
-        if(selectedPage) {
-            selectedPage.setSelected();
-        }
     });
+
+    if(gotoPage) {
+        gotoPage.subscribe('submit', function (data) {
+            var error = gotoPage.validate(data, numberOfPages);
+            if(isEmpty(error)) {
+                gotoPage.clearFeedback();
+                gotoPage.reset();
+                setPage(toInt(data.page));
+            }
+            else {
+                gotoPage.setFeedback(error);
+            }
+        });
+    }
+
 
     return self;
 };
