@@ -26,10 +26,8 @@ foreach($_FILES ?: array() as $file) {
     $fileResults[] = uploadFile($file);
 }
 
-// var_dump($_REQUEST);
 
 if(isset($_POST['text']) && $_POST['text'] === 'w') {
-    // http_response_code(409);
     echo json_encode(array(
         'status' => 409,
         'text' => 'server doesnt like w',
@@ -43,5 +41,4 @@ else {
         'fileData' => $fileResults
     ));
 }
-
 ?>

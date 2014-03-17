@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 16-03-2014
+// (MIT) 17-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -1576,11 +1576,8 @@ var createForm = function (fig) {
 
     ajax(fig.$, function() {
         return {
-
             url: url,
-
             dataType: 'json',
-
             data: self.get(),
 
             validate: function () {
@@ -1611,6 +1608,7 @@ var createForm = function (fig) {
                 self.setGlobalSuccess(response.successMessage);
                 self.publish('success', response);
             },
+
             error: function (response) {
                 // setTimeout(function () {
                 callIfFunction(partial(fig.error, response));
@@ -1618,6 +1616,7 @@ var createForm = function (fig) {
                 self.publish('error', response);
                 // }, 500);
             },
+
             complete: function (response) {
                 // setTimeout(function () {
                 callIfFunction(fig.complete, response);
@@ -1705,32 +1704,7 @@ var createOrdinator = function (fig) {
 
 var createGotoPage = function (fig) {
     var self = createFormBase(fig),
-        // errorMessages = union({
-        //     noPage: "Must enter a page number.",
-        //     notAnInteger: "Must enter valid page number.",
-        //     nonPositiveNumber: "Page number must be positive.",
-        //     pageNumberOutOfBounds: "Page number cannot exceed " +
-        //                            "the total number of pages."
-        // }, fig.errorMessages || {}),
         $self = fig.$;
-
-    // self.validate = function (data, maxPageNumber) {
-    //     var errors = {};
-    //     var pageNumber = toInt(data.page);
-    //     if(!data.page) {
-    //         errors.page = errorMessages.noPage;
-    //     }
-    //     else if(isNaN(pageNumber)) {
-    //         errors.page = errorMessages.notAnInteger;
-    //     }
-    //     else if(pageNumber <= 0) {
-    //         errors.page = errorMessages.nonPositiveNumber;
-    //     }
-    //     else if(pageNumber > maxPageNumber) {
-    //         errors.page = errorMessages.pageNumberOutOfBounds;
-    //     }
-    //     return errors;
-    // };
 
     $self.submit(function (e) {
         e.preventDefault();
@@ -1739,6 +1713,7 @@ var createGotoPage = function (fig) {
 
     return self;
 };
+
 var createPaginator = function (fig) {
     var self = {},
         name = fig.name,

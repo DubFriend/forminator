@@ -9,11 +9,8 @@ var createForm = function (fig) {
 
     ajax(fig.$, function() {
         return {
-
             url: url,
-
             dataType: 'json',
-
             data: self.get(),
 
             validate: function () {
@@ -44,6 +41,7 @@ var createForm = function (fig) {
                 self.setGlobalSuccess(response.successMessage);
                 self.publish('success', response);
             },
+
             error: function (response) {
                 // setTimeout(function () {
                 callIfFunction(partial(fig.error, response));
@@ -51,6 +49,7 @@ var createForm = function (fig) {
                 self.publish('error', response);
                 // }, 500);
             },
+
             complete: function (response) {
                 // setTimeout(function () {
                 callIfFunction(fig.complete, response);

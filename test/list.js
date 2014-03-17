@@ -7,7 +7,6 @@ module("list", {
     }
 });
 
-// test("initially leaves dom unchanged", function () {
 test("initially renders data-value attributes into form", function () {
     var $items = this.$self.find('.frm-list-item');
     strictEqual($items.length, 1, 'one item');

@@ -37,7 +37,7 @@ test("url setFilter", function () {
     strictEqual(this.ajaxFig.url, 'testURL?filter_foo=bar');
 });
 
-test("url setFilter", function () {
+test("url setPage", function () {
     this.request.setPage(5);
     this.request.search();
     strictEqual(this.ajaxFig.url, 'testURL?page=5');

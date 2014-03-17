@@ -75,12 +75,6 @@ function mapOrderValue($value) {
     return $map[$value];
 }
 
-// function mapResults(array $results) {
-//     return array_map(function ($row) {
-//         return $row;
-//     }, $results);
-// }
-
 $response = null;
 switch($_SERVER['REQUEST_METHOD']) {
     case 'GET':
@@ -102,9 +96,6 @@ switch($_SERVER['REQUEST_METHOD']) {
                 ($order ? ' ORDER BY ' . $order : '') .
                 ' LIMIT ' . (RESULTS_PER_PAGE * $pageNumber) . ', ' . RESULTS_PER_PAGE;
 
-        // print_r(getFilters());
-        // print_r($query);
-        // print_r(array_values(implodeArray(getFilters())));
         $resultsObject =  $sql->query(
             $query,
             array_values(implodeArray(getFilters()))
