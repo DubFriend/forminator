@@ -8,6 +8,9 @@ module("search", {
                 setFilter: function (data) {
                     self.setFilterParameters = data;
                 },
+                setPage: function (pageNumber) {
+                    self.setPageParameters = pageNumber;
+                },
                 search: function () {
                     self.searchIsCalled = true;
                 }
@@ -28,5 +31,6 @@ test('submit triggers seach', function () {
         this.setFilterParameters, { text: 'foo' },
         'request parameters set to current input get'
     );
+    strictEqual(this.setPageParameters, 1, 'set to page 1');
     ok(this.searchIsCalled, 'request search is called');
 });

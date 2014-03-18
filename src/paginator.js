@@ -197,6 +197,10 @@ var createPaginator = function (fig) {
         updatePages();
     });
 
+    request.subscribe('setPage', function (pageNumber) {
+        page = pageNumber;
+    });
+
     if(gotoPage) {
         gotoPage.subscribe('submit', function (data) {
             var error = self.validate(data, numberOfPages);

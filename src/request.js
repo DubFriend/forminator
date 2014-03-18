@@ -27,6 +27,7 @@ var createRequest = function (fig) {
 
     self.setPage = function (pageNumber) {
         set({ page: pageNumber });
+        self.publish('setPage', pageNumber);
     };
 
     self.search = function () {

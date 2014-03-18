@@ -109,3 +109,11 @@ test('publishes on error', function () {
 test('publishes on complete', function () {
     buildTestPublishes(this, 'complete');
 });
+
+test('publishes on setPage', function () {
+    expect(1);
+    this.request.subscribe('setPage', function (pageNumber) {
+        strictEqual(pageNumber, 5);
+    });
+    this.request.setPage(5);
+});

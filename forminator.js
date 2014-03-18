@@ -1640,6 +1640,7 @@ var createSearch = function (fig) {
     $self.submit(function (e) {
         e.preventDefault();
         request.setFilter(self.get());
+        request.setPage(1);
         request.search();
     });
 
@@ -1697,6 +1698,7 @@ var createOrdinator = function (fig) {
         request.setOrder(map(call(fields, 'get'), function (order) {
             return order === 'neutral' ? '' : order;
         }));
+        request.setPage(1);
         request.search();
     });
 
@@ -1914,6 +1916,10 @@ var createPaginator = function (fig) {
         updatePages();
     });
 
+    request.subscribe('setPage', function (pageNumber) {
+        page = pageNumber;
+    });
+
     if(gotoPage) {
         gotoPage.subscribe('submit', function (data) {
             var error = self.validate(data, numberOfPages);
@@ -1972,6 +1978,7 @@ var createRequest = function (fig) {
 
     self.setPage = function (pageNumber) {
         set({ page: pageNumber });
+        self.publish('setPage', pageNumber);
     };
 
     self.search = function () {

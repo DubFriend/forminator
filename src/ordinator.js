@@ -50,6 +50,7 @@ var createOrdinator = function (fig) {
         request.setOrder(map(call(fields, 'get'), function (order) {
             return order === 'neutral' ? '' : order;
         }));
+        request.setPage(1);
         request.search();
     });
 

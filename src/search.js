@@ -6,6 +6,7 @@ var createSearch = function (fig) {
     $self.submit(function (e) {
         e.preventDefault();
         request.setFilter(self.get());
+        request.setPage(1);
         request.search();
     });
 
