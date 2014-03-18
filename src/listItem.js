@@ -15,7 +15,7 @@ var createListItem = function (fig) {
 
         getFieldsFromDataValueAttribute = function () {
             var parseDataValue = function (value) {
-                // does begin and end with brackets (denotes array of data) ?
+                // does begin and end with brackets (denotes array of data)
                 return (/^\[.*\]$/).test(value) ?
                     map(
                         // strip trailing and leading brackets and split on comma
@@ -80,22 +80,30 @@ var createListItem = function (fig) {
         return copy(fields);
     };
 
-    (function () {
-        var hasSelectedClass = false;
-        self.addSelectedClass = function () {
-            if(!hasSelectedClass) {
-                $self.addClass('selected');
-            }
-            hasSelectedClass = true;
-        };
+    self.addSelectedClass = function () {
+        $self.addClass('selected');
+    };
 
-        self.removeSelectedClass = function () {
-            if(hasSelectedClass) {
-                $self.removeClass('selected');
-            }
-            hasSelectedClass = false;
-        };
-    }());
+    self.removeSelectedClass = function () {
+        $self.removeClass('selected');
+    };
+
+    // (function () {
+    //     var hasSelectedClass = false;
+    //     self.addSelectedClass = function () {
+    //         if(!hasSelectedClass) {
+    //             $self.addClass('selected');
+    //         }
+    //         hasSelectedClass = true;
+    //     };
+
+    //     self.removeSelectedClass = function () {
+    //         if(hasSelectedClass) {
+    //             $self.removeClass('selected');
+    //         }
+    //         hasSelectedClass = false;
+    //     };
+    // }());
 
     $self.dblclick(function () {
         self.publish('selected', self);

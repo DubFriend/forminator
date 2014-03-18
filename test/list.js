@@ -1,9 +1,8 @@
 module("list", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
-        var self = this;
-        self.$self = $('.frm-list-name');
-        self.list = createList({ $: self.$self });
+        this.$self = $('.frm-list-name');
+        this.list = createList({ $: this.$self });
     }
 });
 
@@ -29,8 +28,20 @@ test("set, removes excess elements", function () {
     this.list.set([{ text: 'a'}, { text: 'b' }, { text: 'c' }]);
     this.list.set([{ text: 'foo' }]);
     var $items = this.$self.find('.frm-list-item');
-    strictEqual($items.length, 1, 'only one item');
-    deepEqual(getListItemsData($items), { text: 'foo' }, 'data is set');
+    strictEqual($items.length, 1, 'dom only one item');
+    deepEqual(getListItemsData($items), { text: 'foo' }, 'dom data is set');
+});
+
+test("prepend", function () {
+    var listItem = this.list.prepend({ text: 'foo' });
+    deepEqual(listItem.get(), {
+        "checkbox[]": '', extra: '', hidden: '',
+        id: '', radio: '', select: '',
+        text: 'foo', textarea: ''
+    }, 'returns new list item');
+    var $items = this.$self.find('.frm-list-item');
+    strictEqual($items.length, 2, 'two items in dom');
+    deepEqual(getListItemsData($($items[0])), { text: 'foo' }, 'dom data set');
 });
 
 test("publishes listItem when selected", function () {
@@ -86,4 +97,26 @@ test("addSelected class listItem when selected", function () {
     $secondListItem.dblclick();
     ok(!$firstListItem.hasClass('selected'), 'removes class from unselected items');
     ok($secondListItem.hasClass('selected'), 'adds class to selected item');
+});
+
+test("clearSelected", function () {
+    var $items = this.$self.find('.frm-list-item');
+    $items.addClass('selected');
+    this.list.clearSelectedClass();
+    ok(!$items.hasClass('selected'), 'selected class removed');
+});
+
+test("setSelected", function () {
+    var $originalItems = this.$self.find('.frm-list-item');
+    $originalItems.addClass('selected');
+    var listItem = this.list.prepend({ text: 'foo' });
+    this.list.setSelectedClass(listItem);
+    ok(
+        !$originalItems.hasClass('selected'),
+        'selected class cleared from previously selected item'
+    );
+    ok(
+        this.$self.find('.frm-list-item').hasClass('selected'),
+        'new item has selected class'
+    );
 });

@@ -35,6 +35,7 @@ var createForm = function (fig) {
                 self.disable();
                 self.publish('beforeSend');
             },
+
             success: function (response) {
                 callIfFunction(partial(fig.success, response));
                 response = response || {};

@@ -16,8 +16,7 @@ var createList = function (fig) {
 
         subscribeListItem = function (listItem) {
             listItem.subscribe('selected', function () {
-                call(items, 'removeSelectedClass');
-                listItem.addSelectedClass();
+                self.setSelectedClass(listItem);
                 self.publish('selected', listItem);
             });
             return listItem;
@@ -33,6 +32,15 @@ var createList = function (fig) {
             });
             return items;
         }());
+
+    self.setSelectedClass = function (listItem) {
+        self.clearSelectedClass();
+        listItem.addSelectedClass();
+    };
+
+    self.clearSelectedClass = function () {
+        call(items, 'removeSelectedClass');
+    };
 
     // erase old set, replace with given items
     self.set = function (newItemsData) {
@@ -63,6 +71,19 @@ var createList = function (fig) {
                 'destroy'
             );
         }
+    };
+
+    // create a new list item element and add it to the beggining of the list
+    self.prepend = function (newItemData) {
+        var $new = $itemTemplate.clone();
+        var newListItem = subscribeListItem(createListItem({
+            $self: $new,
+            fieldMap: fieldMap
+        }));
+        newListItem.set(newItemData);
+        items.unshift(newListItem);
+        $self.prepend($new);
+        return newListItem;
     };
 
     return self;

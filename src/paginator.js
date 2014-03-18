@@ -67,6 +67,10 @@ var createPaginator = function (fig) {
                 pages.pop();
             }
 
+            while(pages.length < 7 && pages[0] > 1) {
+                pages.unshift(pages[0] - 1);
+            }
+
             return pages;
         },
 

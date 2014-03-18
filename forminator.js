@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 17-03-2014
+// (MIT) 18-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -1602,6 +1602,7 @@ var createForm = function (fig) {
                 self.disable();
                 self.publish('beforeSend');
             },
+
             success: function (response) {
                 callIfFunction(partial(fig.success, response));
                 response = response || {};
@@ -1781,6 +1782,10 @@ var createPaginator = function (fig) {
 
             while(!isEmpty(pages) && last(pages) > numberOfPages) {
                 pages.pop();
+            }
+
+            while(pages.length < 7 && pages[0] > 1) {
+                pages.unshift(pages[0] - 1);
             }
 
             return pages;
@@ -2005,7 +2010,7 @@ var createListItem = function (fig) {
 
         getFieldsFromDataValueAttribute = function () {
             var parseDataValue = function (value) {
-                // does begin and end with brackets (denotes array of data) ?
+                // does begin and end with brackets (denotes array of data)
                 return (/^\[.*\]$/).test(value) ?
                     map(
                         // strip trailing and leading brackets and split on comma
@@ -2070,22 +2075,30 @@ var createListItem = function (fig) {
         return copy(fields);
     };
 
-    (function () {
-        var hasSelectedClass = false;
-        self.addSelectedClass = function () {
-            if(!hasSelectedClass) {
-                $self.addClass('selected');
-            }
-            hasSelectedClass = true;
-        };
+    self.addSelectedClass = function () {
+        $self.addClass('selected');
+    };
 
-        self.removeSelectedClass = function () {
-            if(hasSelectedClass) {
-                $self.removeClass('selected');
-            }
-            hasSelectedClass = false;
-        };
-    }());
+    self.removeSelectedClass = function () {
+        $self.removeClass('selected');
+    };
+
+    // (function () {
+    //     var hasSelectedClass = false;
+    //     self.addSelectedClass = function () {
+    //         if(!hasSelectedClass) {
+    //             $self.addClass('selected');
+    //         }
+    //         hasSelectedClass = true;
+    //     };
+
+    //     self.removeSelectedClass = function () {
+    //         if(hasSelectedClass) {
+    //             $self.removeClass('selected');
+    //         }
+    //         hasSelectedClass = false;
+    //     };
+    // }());
 
     $self.dblclick(function () {
         self.publish('selected', self);
@@ -2113,8 +2126,7 @@ var createList = function (fig) {
 
         subscribeListItem = function (listItem) {
             listItem.subscribe('selected', function () {
-                call(items, 'removeSelectedClass');
-                listItem.addSelectedClass();
+                self.setSelectedClass(listItem);
                 self.publish('selected', listItem);
             });
             return listItem;
@@ -2130,6 +2142,15 @@ var createList = function (fig) {
             });
             return items;
         }());
+
+    self.setSelectedClass = function (listItem) {
+        self.clearSelectedClass();
+        listItem.addSelectedClass();
+    };
+
+    self.clearSelectedClass = function () {
+        call(items, 'removeSelectedClass');
+    };
 
     // erase old set, replace with given items
     self.set = function (newItemsData) {
@@ -2162,6 +2183,19 @@ var createList = function (fig) {
         }
     };
 
+    // create a new list item element and add it to the beggining of the list
+    self.prepend = function (newItemData) {
+        var $new = $itemTemplate.clone();
+        var newListItem = subscribeListItem(createListItem({
+            $self: $new,
+            fieldMap: fieldMap
+        }));
+        newListItem.set(newItemData);
+        items.unshift(newListItem);
+        $self.prepend($new);
+        return newListItem;
+    };
+
     return self;
 };
 
@@ -2179,39 +2213,81 @@ var createNewItemButton = function (fig) {
 var forminator = {};
 
 forminator.init = function (fig) {
-    var factory = createFactory(fig),
+    var self = {},
+        factory = createFactory(fig),
         form = factory.form(),
         list = factory.list(),
         newItemButton = factory.newItemButton(),
         request = factory.request(),
         search = factory.search(request),
         ordinator = factory.ordinator(request),
-        paginator = factory.paginator(request);
+        paginator = factory.paginator(request),
+
+        selectedData = null,
+        selectedItem = null;
+
+    self.reset = function () {
+        if(form) {
+            form.reset();
+            form.setAction('create');
+        }
+        if(list) {
+            list.clearSelectedClass();
+        }
+        selectedItem = null;
+        selectedData = null;
+    };
+
+    self.clearFormFeedback = function () {
+        if(form) {
+            form.clearFeedback();
+        }
+    };
 
     form.setAction('create');
 
     if(list && form) {
-        list.subscribe('selected', function (listItem) {
-            form.set(listItem.get());
-            form.setAction('update');
-        });
+        (function () {
 
-        if(newItemButton) {
-            newItemButton.subscribe('click', function () {
-                form.reset();
-                form.clearFeedback();
+            list.subscribe('selected', function (listItem) {
+                form.set(listItem.get());
+                form.setAction('update');
+                selectedItem = listItem;
             });
-        }
+
+            form.subscribe('beforeSend', function () {
+                selectedData = form.get();
+            });
+
+            form.subscribe('success', function () {
+                if(selectedItem && selectedData) {
+                    selectedItem.set(selectedData);
+                }
+                else if(selectedData) {
+                    selectedItem = list.prepend(selectedData);
+                    list.setSelectedClass(selectedItem);
+                }
+                self.reset();
+            });
+
+            if(newItemButton) {
+                newItemButton.subscribe('click', function () {
+                    self.reset();
+                    self.clearFormFeedback();
+                });
+            }
+
+        }());
     }
 
     if(list) {
         request.subscribe('success', function (response) {
-            console.log('request:success', response);
+            self.reset();
             list.set(response ? response.results : []);
         });
     }
 
-    return { form: form, list: list };
+    return self;
 };
 
 window.forminator = forminator;

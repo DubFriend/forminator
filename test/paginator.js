@@ -10,14 +10,19 @@ module("paginator", {
         this.$previous = $('.frm-previous-name');
         this.$next = $('.frm-next-name');
 
-        this.request = mixinPubSub({
-            setPage: function (data) {
-                this.setPageParameters = data;
-            },
-            search: function () {
-                this.searchIsCalled = true;
-            }
-        });
+
+        this.createRequest = function () {
+            return mixinPubSub({
+                setPage: function (data) {
+                    this.setPageParameters = data;
+                },
+                search: function () {
+                    this.searchIsCalled = true;
+                }
+            });
+        };
+
+        this.request = this.createRequest();
 
         this.errorMessages = {
             noPage: "noPage message",
@@ -25,24 +30,28 @@ module("paginator", {
             nonPositiveNumber: "nonPositiveNumber message"
         };
 
-        this.gotoPage = mixinPubSub({
-            validateReturnValue: {},
-            validate: function (data, maxPageNumber) {
-                this.validateParameters = {
-                    data: data, maxPageNumber: maxPageNumber
-                };
-                return this.validateReturnValue;
-            },
-            clearFeedback: function () {
-                this.clearFeedbackCalled = true;
-            },
-            setFeedback: function (data) {
-                this.setFeedbackParameters = data;
-            },
-            reset: function () {
-                this.resetCalled = true;
-            }
-        });
+        this.createGotoPage = function () {
+            return mixinPubSub({
+                validateReturnValue: {},
+                validate: function (data, maxPageNumber) {
+                    this.validateParameters = {
+                        data: data, maxPageNumber: maxPageNumber
+                    };
+                    return this.validateReturnValue;
+                },
+                clearFeedback: function () {
+                    this.clearFeedbackCalled = true;
+                },
+                setFeedback: function (data) {
+                    this.setFeedbackParameters = data;
+                },
+                reset: function () {
+                    this.resetCalled = true;
+                }
+            });
+        };
+
+        this.gotoPage = this.createGotoPage();
 
         this.paginator = createPaginator({
             name: 'name',
@@ -91,6 +100,21 @@ test('subscribes to response: updates pages restricted to 7 pages max', function
     $containers.each(function (index) {
         strictEqual($(this).find('[data-number]').html(), pages[index]);
     });
+});
+
+test('fills out backwords rollover numbers', function () {
+    this.$numberOfPages = $('.frm-number-of-pages-name').html(15);
+    this.$pageNumbers.find('[data-number]').data('number', 15);
+    var request = this.createRequest();
+    this.paginator = createPaginator({
+        name: 'name',
+        request: request,
+        gotoPage: this.createGotoPage(),
+        errorMessages: this.errorMessages
+    });
+    request.publish('success', { numberOfPages: 15 });
+    var $containers = this.$pageNumbers.find('.frm-number-container');
+    strictEqual($containers.length, 7, '7 pages rendered');
 });
 
 test('click page calls request', function () {
