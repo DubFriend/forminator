@@ -47,7 +47,7 @@ var createRequest = function (fig) {
         });
     };
 
-    self.delete = function (fig) {
+    self['delete'] = function (fig) {
         ajax({
             type: 'POST',
             url: queryjs.set(

@@ -2,7 +2,11 @@ module("list", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
         this.$self = $('.frm-list-name');
-        this.list = createList({ $: this.$self });
+        this.request = mixinPubSub();
+        this.list = createList({
+            $: this.$self,
+            request: this.request
+        });
     }
 });
 
@@ -56,20 +60,6 @@ test("publishes listItem when selected", function () {
         );
     });
     this.$self.find('.frm-list-item:first-child').dblclick();
-});
-
-test("publishes listItem when delete clicked", function () {
-    expect(1);
-    this.list.subscribe('delete', function (listItem) {
-        deepEqual(
-            filter(listItem.get(), function (value) {
-                return value ? true : false;
-            }),
-            { 'checkbox[]': ['a', 'b'], radio: 'a', textarea: 'Default Value' },
-            'passes list item (data is correct)'
-        );
-    });
-    this.$self.find('.frm-list-item:first-child .frm-delete-item').click();
 });
 
 test("publishes listItem when selected (set item)", function () {

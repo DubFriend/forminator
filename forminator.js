@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 18-03-2014
+// (MIT) 19-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -932,6 +932,8 @@ var createFactory = function (fig) {
         url = fig.url,
         name = fig.name,
         fieldMap = fig.fieldMap || {},
+        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
+        deleteConfirmation = fig.deleteConfirmation,
         $getModuleByClass = partial($getForminatorByClass, name);
 
     var buildModuleIfExists = function (fn, $module) {
@@ -980,10 +982,13 @@ var createFactory = function (fig) {
         });
     }, $getModuleByClass(''));
 
-    self.list = buildModuleIfExists(function ($module) {
+    self.list = buildModuleIfExists(function ($module, request) {
         return createList({
             $: $module,
-            fieldMap: fieldMap
+            fieldMap: fieldMap,
+            request: request,
+            uniquelyIdentifyingFields: uniquelyIdentifyingFields,
+            deleteConfirmation: deleteConfirmation
         });
     }, $getModuleByClass('list'));
 
@@ -1997,7 +2002,7 @@ var createRequest = function (fig) {
         });
     };
 
-    self.delete = function (fig) {
+    self['delete'] = function (fig) {
         ajax({
             type: 'POST',
             url: queryjs.set(
@@ -2124,8 +2129,11 @@ var createListItem = function (fig) {
 
 var createList = function (fig) {
     var self = mixinPubSub(),
-        fieldMap = fig.fieldMap || {},
         $self = fig.$,
+        fieldMap = fig.fieldMap || {},
+        deleteConfirmation = fig.deleteConfirmation,
+        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
+        request = fig.request,
 
         $itemTemplate = (function () {
             var $el = $self.find('.frm-list-item:first-child').clone();
@@ -2144,8 +2152,39 @@ var createList = function (fig) {
                 self.publish('selected', listItem);
             });
 
+            var deleteItem = function () {
+                var fields = subSet(listItem.get(), uniquelyIdentifyingFields);
+                // only send delete request if item has adequete
+                // uniquely identifiying information.
+                if(keys(fields).length === uniquelyIdentifyingFields.length) {
+                    request['delete']({
+                        uniquelyIdentifyingFields: fields,
+                        success: function (response) {
+                            self.remove(listItem);
+                            self.publish('deleted', listItem);
+                        },
+                        error: function (response) {
+
+                        },
+                        complete: function (response) {
+
+                        }
+                    });
+                }
+            };
+
             listItem.subscribe('delete', function () {
-                self.publish('delete', listItem);
+                if(deleteConfirmation) {
+                    deleteConfirmation(deleteItem);
+                }
+                else {
+                    var isConfirmed = confirm(
+                        'Are you sure you want to delete this item?'
+                    );
+                    if(isConfirmed) {
+                        deleteItem();
+                    }
+                }
             });
 
             return listItem;
@@ -2223,6 +2262,13 @@ var createList = function (fig) {
         return newListItem;
     };
 
+    request.subscribe('success', function (response) {
+        self.set(
+            isObject(response) && isArray(response.results) ?
+                response.results : []
+        );
+    });
+
     return self;
 };
 
@@ -2241,13 +2287,11 @@ var forminator = {};
 
 forminator.init = function (fig) {
     var self = {},
-        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
-        deleteConfirmation = fig.deleteConfirmation,
         factory = createFactory(fig),
         form = factory.form(),
-        list = factory.list(),
         newItemButton = factory.newItemButton(),
         request = factory.request(),
+        list = factory.list(request),
         search = factory.search(request),
         ordinator = factory.ordinator(request),
         paginator = factory.paginator(request),
@@ -2306,50 +2350,15 @@ forminator.init = function (fig) {
     }
 
     if(list) {
-        if(uniquelyIdentifyingFields) {
-            list.subscribe('delete', function (listItem) {
-
-                var deleteItem = function () {
-                    var fields = subSet(listItem.get(), uniquelyIdentifyingFields);
-                    // only send delete request if item has adequete
-                    // uniquely identifiying information.
-                    if(keys(fields).length === uniquelyIdentifyingFields.length) {
-                        request.delete({
-                            uniquelyIdentifyingFields: fields,
-                            success: function (response) {
-                                list.remove(listItem);
-                                if(form) {
-                                    form.reset();
-                                }
-                            },
-                            error: function (response) {
-
-                            },
-                            complete: function (response) {
-
-                            }
-                        });
-                    }
-                };
-
-                if(deleteConfirmation) {
-                    deleteConfirmation(deleteItem);
-                }
-                else {
-                    var isConfirmed = confirm(
-                        'Are you sure you want to delete this item?'
-                    );
-                    if(isConfirmed) {
-                        deleteItem();
-                    }
-                }
-
-            });
-        }
+        list.subscribe('deleted', function (listItem) {
+            if(selectedItem === listItem) {
+                self.reset();
+            }
+        });
 
         request.subscribe('success', function (response) {
             self.reset();
-            list.set(response ? response.results : []);
+            // list.set(response ? response.results : []);
         });
     }
 

@@ -1,7 +1,10 @@
 var createList = function (fig) {
     var self = mixinPubSub(),
-        fieldMap = fig.fieldMap || {},
         $self = fig.$,
+        fieldMap = fig.fieldMap || {},
+        deleteConfirmation = fig.deleteConfirmation,
+        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
+        request = fig.request,
 
         $itemTemplate = (function () {
             var $el = $self.find('.frm-list-item:first-child').clone();
@@ -20,8 +23,39 @@ var createList = function (fig) {
                 self.publish('selected', listItem);
             });
 
+            var deleteItem = function () {
+                var fields = subSet(listItem.get(), uniquelyIdentifyingFields);
+                // only send delete request if item has adequete
+                // uniquely identifiying information.
+                if(keys(fields).length === uniquelyIdentifyingFields.length) {
+                    request['delete']({
+                        uniquelyIdentifyingFields: fields,
+                        success: function (response) {
+                            self.remove(listItem);
+                            self.publish('deleted', listItem);
+                        },
+                        error: function (response) {
+
+                        },
+                        complete: function (response) {
+
+                        }
+                    });
+                }
+            };
+
             listItem.subscribe('delete', function () {
-                self.publish('delete', listItem);
+                if(deleteConfirmation) {
+                    deleteConfirmation(deleteItem);
+                }
+                else {
+                    var isConfirmed = confirm(
+                        'Are you sure you want to delete this item?'
+                    );
+                    if(isConfirmed) {
+                        deleteItem();
+                    }
+                }
             });
 
             return listItem;
@@ -98,6 +132,13 @@ var createList = function (fig) {
         $self.prepend($new);
         return newListItem;
     };
+
+    request.subscribe('success', function (response) {
+        self.set(
+            isObject(response) && isArray(response.results) ?
+                response.results : []
+        );
+    });
 
     return self;
 };

@@ -2,13 +2,11 @@ var forminator = {};
 
 forminator.init = function (fig) {
     var self = {},
-        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
-        deleteConfirmation = fig.deleteConfirmation,
         factory = createFactory(fig),
         form = factory.form(),
-        list = factory.list(),
         newItemButton = factory.newItemButton(),
         request = factory.request(),
+        list = factory.list(request),
         search = factory.search(request),
         ordinator = factory.ordinator(request),
         paginator = factory.paginator(request),
@@ -67,50 +65,15 @@ forminator.init = function (fig) {
     }
 
     if(list) {
-        if(uniquelyIdentifyingFields) {
-            list.subscribe('delete', function (listItem) {
-
-                var deleteItem = function () {
-                    var fields = subSet(listItem.get(), uniquelyIdentifyingFields);
-                    // only send delete request if item has adequete
-                    // uniquely identifiying information.
-                    if(keys(fields).length === uniquelyIdentifyingFields.length) {
-                        request.delete({
-                            uniquelyIdentifyingFields: fields,
-                            success: function (response) {
-                                list.remove(listItem);
-                                if(form) {
-                                    form.reset();
-                                }
-                            },
-                            error: function (response) {
-
-                            },
-                            complete: function (response) {
-
-                            }
-                        });
-                    }
-                };
-
-                if(deleteConfirmation) {
-                    deleteConfirmation(deleteItem);
-                }
-                else {
-                    var isConfirmed = confirm(
-                        'Are you sure you want to delete this item?'
-                    );
-                    if(isConfirmed) {
-                        deleteItem();
-                    }
-                }
-
-            });
-        }
+        list.subscribe('deleted', function (listItem) {
+            if(selectedItem === listItem) {
+                self.reset();
+            }
+        });
 
         request.subscribe('success', function (response) {
             self.reset();
-            list.set(response ? response.results : []);
+            // list.set(response ? response.results : []);
         });
     }
 

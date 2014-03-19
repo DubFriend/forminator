@@ -3,6 +3,8 @@ var createFactory = function (fig) {
         url = fig.url,
         name = fig.name,
         fieldMap = fig.fieldMap || {},
+        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
+        deleteConfirmation = fig.deleteConfirmation,
         $getModuleByClass = partial($getForminatorByClass, name);
 
     var buildModuleIfExists = function (fn, $module) {
@@ -51,10 +53,13 @@ var createFactory = function (fig) {
         });
     }, $getModuleByClass(''));
 
-    self.list = buildModuleIfExists(function ($module) {
+    self.list = buildModuleIfExists(function ($module, request) {
         return createList({
             $: $module,
-            fieldMap: fieldMap
+            fieldMap: fieldMap,
+            request: request,
+            uniquelyIdentifyingFields: uniquelyIdentifyingFields,
+            deleteConfirmation: deleteConfirmation
         });
     }, $getModuleByClass('list'));
 
