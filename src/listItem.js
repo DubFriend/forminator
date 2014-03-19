@@ -1,10 +1,11 @@
 var createListItem = function (fig) {
     var self = mixinPubSub(),
+        $self = fig.$self,
         fieldMap = fig.fieldMap || {},
+
         defaultMap = function (value) {
             return isArray(value) ? value.join(', ') : value;
         },
-        $self = fig.$self,
 
         render = function (fields) {
             foreach(fields, function (value, name) {
@@ -36,7 +37,6 @@ var createListItem = function (fig) {
         fields = getFieldsFromDataValueAttribute();
 
     render(fields);
-
 
     self.set = function (newValues) {
 
@@ -88,25 +88,16 @@ var createListItem = function (fig) {
         $self.removeClass('selected');
     };
 
-    // (function () {
-    //     var hasSelectedClass = false;
-    //     self.addSelectedClass = function () {
-    //         if(!hasSelectedClass) {
-    //             $self.addClass('selected');
-    //         }
-    //         hasSelectedClass = true;
-    //     };
-
-    //     self.removeSelectedClass = function () {
-    //         if(hasSelectedClass) {
-    //             $self.removeClass('selected');
-    //         }
-    //         hasSelectedClass = false;
-    //     };
-    // }());
-
     $self.dblclick(function () {
         self.publish('selected', self);
+    });
+
+    $self.find('.frm-edit-item').click(function () {
+        self.publish('selected', self);
+    });
+
+    $self.find('.frm-delete-item').click(function () {
+        self.publish('delete', self);
     });
 
     return self;

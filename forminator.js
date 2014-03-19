@@ -1690,7 +1690,6 @@ var createOrdinator = function (fig) {
             return fields;
         }());
 
-
     $self.find('[data-field]').click(function () {
         var fieldName = $(this).data('field');
         call(excludedSet(fields, [fieldName]), 'set', ['neutral']);
@@ -1998,15 +1997,33 @@ var createRequest = function (fig) {
         });
     };
 
+    self.delete = function (fig) {
+        ajax({
+            type: 'POST',
+            url: queryjs.set(
+                url, union(fig.uniquelyIdentifyingFields, { action: 'delete' })
+            ),
+            dataType: 'json',
+            success: fig.success,
+            error: function (jqXHR) {
+                callIfFunction(fig.error, jqXHR.responseJSON);
+            },
+            complete: function (jqXHR) {
+                callIfFunction(fig.complete, jqXHR.responseJSON);
+            }
+        });
+    };
+
     return self;
 };
 var createListItem = function (fig) {
     var self = mixinPubSub(),
+        $self = fig.$self,
         fieldMap = fig.fieldMap || {},
+
         defaultMap = function (value) {
             return isArray(value) ? value.join(', ') : value;
         },
-        $self = fig.$self,
 
         render = function (fields) {
             foreach(fields, function (value, name) {
@@ -2038,7 +2055,6 @@ var createListItem = function (fig) {
         fields = getFieldsFromDataValueAttribute();
 
     render(fields);
-
 
     self.set = function (newValues) {
 
@@ -2090,25 +2106,16 @@ var createListItem = function (fig) {
         $self.removeClass('selected');
     };
 
-    // (function () {
-    //     var hasSelectedClass = false;
-    //     self.addSelectedClass = function () {
-    //         if(!hasSelectedClass) {
-    //             $self.addClass('selected');
-    //         }
-    //         hasSelectedClass = true;
-    //     };
-
-    //     self.removeSelectedClass = function () {
-    //         if(hasSelectedClass) {
-    //             $self.removeClass('selected');
-    //         }
-    //         hasSelectedClass = false;
-    //     };
-    // }());
-
     $self.dblclick(function () {
         self.publish('selected', self);
+    });
+
+    $self.find('.frm-edit-item').click(function () {
+        self.publish('selected', self);
+    });
+
+    $self.find('.frm-delete-item').click(function () {
+        self.publish('delete', self);
     });
 
     return self;
@@ -2122,7 +2129,7 @@ var createList = function (fig) {
 
         $itemTemplate = (function () {
             var $el = $self.find('.frm-list-item:first-child').clone();
-            // use ListItems clear method to clean out the template.
+            // Use the ListItem's clear method to clean out the template.
             var listItem = createListItem({
                 $self: $el,
                 fieldMap: fieldMap
@@ -2136,6 +2143,11 @@ var createList = function (fig) {
                 self.setSelectedClass(listItem);
                 self.publish('selected', listItem);
             });
+
+            listItem.subscribe('delete', function () {
+                self.publish('delete', listItem);
+            });
+
             return listItem;
         },
 
@@ -2159,7 +2171,7 @@ var createList = function (fig) {
         call(items, 'removeSelectedClass');
     };
 
-    // erase old set, replace with given items
+    // Erase the old set, replace with the given items
     self.set = function (newItemsData) {
         var newElems = [];
         foreach(newItemsData, function(newItemData, index) {
@@ -2177,6 +2189,7 @@ var createList = function (fig) {
                 items[index].set(newItemData);
             }
         });
+
         $self.append(newElems);
 
         if(items.length > newItemsData.length) {
@@ -2190,7 +2203,14 @@ var createList = function (fig) {
         }
     };
 
-    // create a new list item element and add it to the beggining of the list
+    self.remove = function (listItem) {
+        if(indexOf(items, listItem) !== -1) {
+            items.splice(indexOf(items, listItem), 1);
+        }
+        listItem.destroy();
+    };
+
+    // Create a new list item element and add it to the beggining of the list.
     self.prepend = function (newItemData) {
         var $new = $itemTemplate.clone();
         var newListItem = subscribeListItem(createListItem({
@@ -2221,6 +2241,8 @@ var forminator = {};
 
 forminator.init = function (fig) {
     var self = {},
+        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
+        deleteConfirmation = fig.deleteConfirmation,
         factory = createFactory(fig),
         form = factory.form(),
         list = factory.list(),
@@ -2254,40 +2276,77 @@ forminator.init = function (fig) {
     form.setAction('create');
 
     if(list && form) {
-        (function () {
+        list.subscribe('selected', function (listItem) {
+            form.set(listItem.get());
+            form.setAction('update');
+            selectedItem = listItem;
+        });
 
-            list.subscribe('selected', function (listItem) {
-                form.set(listItem.get());
-                form.setAction('update');
-                selectedItem = listItem;
-            });
+        form.subscribe('beforeSend', function () {
+            selectedData = form.get();
+        });
 
-            form.subscribe('beforeSend', function () {
-                selectedData = form.get();
-            });
-
-            form.subscribe('success', function () {
-                if(selectedItem && selectedData) {
-                    selectedItem.set(selectedData);
-                }
-                else if(selectedData) {
-                    selectedItem = list.prepend(selectedData);
-                    list.setSelectedClass(selectedItem);
-                }
-                self.reset();
-            });
-
-            if(newItemButton) {
-                newItemButton.subscribe('click', function () {
-                    self.reset();
-                    self.clearFormFeedback();
-                });
+        form.subscribe('success', function () {
+            if(selectedItem && selectedData) {
+                selectedItem.set(selectedData);
             }
+            else if(selectedData) {
+                selectedItem = list.prepend(selectedData);
+                list.setSelectedClass(selectedItem);
+            }
+            self.reset();
+        });
 
-        }());
+        if(newItemButton) {
+            newItemButton.subscribe('click', function () {
+                self.reset();
+                self.clearFormFeedback();
+            });
+        }
     }
 
     if(list) {
+        if(uniquelyIdentifyingFields) {
+            list.subscribe('delete', function (listItem) {
+
+                var deleteItem = function () {
+                    var fields = subSet(listItem.get(), uniquelyIdentifyingFields);
+                    // only send delete request if item has adequete
+                    // uniquely identifiying information.
+                    if(keys(fields).length === uniquelyIdentifyingFields.length) {
+                        request.delete({
+                            uniquelyIdentifyingFields: fields,
+                            success: function (response) {
+                                list.remove(listItem);
+                                if(form) {
+                                    form.reset();
+                                }
+                            },
+                            error: function (response) {
+
+                            },
+                            complete: function (response) {
+
+                            }
+                        });
+                    }
+                };
+
+                if(deleteConfirmation) {
+                    deleteConfirmation(deleteItem);
+                }
+                else {
+                    var isConfirmed = confirm(
+                        'Are you sure you want to delete this item?'
+                    );
+                    if(isConfirmed) {
+                        deleteItem();
+                    }
+                }
+
+            });
+        }
+
         request.subscribe('success', function (response) {
             self.reset();
             list.set(response ? response.results : []);

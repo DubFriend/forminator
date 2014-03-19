@@ -147,7 +147,7 @@ switch($_SERVER['REQUEST_METHOD']) {
                 break;
             case 'delete':
                 if(isset($_GET['id'])) {
-                    $sql->delete('forminator', $_GET['id']);
+                    $sql->delete('forminator', array('id' => $_GET['id']));
                     $response = array(
                         'status' => 200,
                         'GLOBAL' => 'Item id:' . $_GET['id'] . ' deleted.'

@@ -117,3 +117,15 @@ test('publishes on setPage', function () {
     });
     this.request.setPage(5);
 });
+
+test('delete method', function () {
+    this.request.delete({
+        uniquelyIdentifyingFields: { a: '1', b: '2' }
+    });
+    strictEqual(
+        this.ajaxFig.url, 'testURL?a=1&b=2&action=delete',
+        'correct url'
+    );
+    strictEqual(this.ajaxFig.type, 'POST', 'type is POST');
+    strictEqual(this.ajaxFig.dataType, 'json', 'dataType is json');
+});

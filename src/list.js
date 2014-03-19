@@ -5,7 +5,7 @@ var createList = function (fig) {
 
         $itemTemplate = (function () {
             var $el = $self.find('.frm-list-item:first-child').clone();
-            // use ListItems clear method to clean out the template.
+            // Use the ListItem's clear method to clean out the template.
             var listItem = createListItem({
                 $self: $el,
                 fieldMap: fieldMap
@@ -19,6 +19,11 @@ var createList = function (fig) {
                 self.setSelectedClass(listItem);
                 self.publish('selected', listItem);
             });
+
+            listItem.subscribe('delete', function () {
+                self.publish('delete', listItem);
+            });
+
             return listItem;
         },
 
@@ -42,7 +47,7 @@ var createList = function (fig) {
         call(items, 'removeSelectedClass');
     };
 
-    // erase old set, replace with given items
+    // Erase the old set, replace with the given items
     self.set = function (newItemsData) {
         var newElems = [];
         foreach(newItemsData, function(newItemData, index) {
@@ -60,6 +65,7 @@ var createList = function (fig) {
                 items[index].set(newItemData);
             }
         });
+
         $self.append(newElems);
 
         if(items.length > newItemsData.length) {
@@ -73,7 +79,14 @@ var createList = function (fig) {
         }
     };
 
-    // create a new list item element and add it to the beggining of the list
+    self.remove = function (listItem) {
+        if(indexOf(items, listItem) !== -1) {
+            items.splice(indexOf(items, listItem), 1);
+        }
+        listItem.destroy();
+    };
+
+    // Create a new list item element and add it to the beggining of the list.
     self.prepend = function (newItemData) {
         var $new = $itemTemplate.clone();
         var newListItem = subscribeListItem(createListItem({

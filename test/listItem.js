@@ -111,15 +111,28 @@ test("clearSelected", function () {
 });
 
 test("double click publishes selected event", function () {
-    expect(2);
+    expect(1);
     var self = this;
-    var isAddSelectedClassCalled = false;
-    this.listItem.addSelectedClass = function () {
-        isAddSelectedClassCalled = true;
-    };
     this.listItem.subscribe('selected', function (listItem) {
         deepEqual(listItem, self.listItem, 'passes in listItem object');
-        ok(!isAddSelectedClassCalled, 'set selected not called');
     });
     this.$self.dblclick();
+});
+
+test("click .frm-edit-item publishes selected event", function () {
+    expect(1);
+    var self = this;
+    this.listItem.subscribe('selected', function (listItem) {
+        deepEqual(listItem, self.listItem, 'passes in listItem object');
+    });
+    this.$self.find('.frm-edit-item').click();
+});
+
+test("click .frm-delete-item publishes delete event", function () {
+    expect(1);
+    var self = this;
+    this.listItem.subscribe('delete', function (listItem) {
+        deepEqual(listItem, self.listItem, 'passes in listItem object');
+    });
+    this.$self.find('.frm-delete-item').click();
 });

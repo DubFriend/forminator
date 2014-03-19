@@ -47,5 +47,22 @@ var createRequest = function (fig) {
         });
     };
 
+    self.delete = function (fig) {
+        ajax({
+            type: 'POST',
+            url: queryjs.set(
+                url, union(fig.uniquelyIdentifyingFields, { action: 'delete' })
+            ),
+            dataType: 'json',
+            success: fig.success,
+            error: function (jqXHR) {
+                callIfFunction(fig.error, jqXHR.responseJSON);
+            },
+            complete: function (jqXHR) {
+                callIfFunction(fig.complete, jqXHR.responseJSON);
+            }
+        });
+    };
+
     return self;
 };
