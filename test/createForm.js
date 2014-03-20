@@ -209,7 +209,7 @@ test('clearFeedback success', function () {
 
 test('trigger beforeSend', function () {
     this.ajaxFig.beforeSend();
-    strictEqual(this.fileInputDisabled, true, 'fileInput disabled');
+    strictEqual(this.fileInputDisabled, null, 'fileInput not disabled');
     strictEqual(this.buttonInputDisabled, true, 'buttonInput disabled');
     strictEqual(this.textInputDisabled, true, 'textInput disabled');
 });

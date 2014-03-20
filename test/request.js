@@ -119,7 +119,7 @@ test('publishes on setPage', function () {
 });
 
 test('delete method', function () {
-    this.request.delete({
+    this.request['delete']({
         uniquelyIdentifyingFields: { a: '1', b: '2' }
     });
     strictEqual(

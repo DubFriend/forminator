@@ -56,6 +56,12 @@ test("click listItem's delete calls request.delete", function () {
     );
 });
 
+test("does not delete if delete confirmation does not call callback", function () {
+    this.list.isDelete = false;
+    this.$self.find('.frm-delete-item').click();
+    strictEqual(this.request.deleteParameters, undefined);
+});
+
 test("publishes deleted listItem on delete success", function () {
     expect(1);
     this.$self.find('.frm-delete-item').click();

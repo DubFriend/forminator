@@ -6,6 +6,34 @@ require 'sequel.php';
 
 define('RESULTS_PER_PAGE', 3);
 
+
+function uploadFile ($file) {
+    if ($file["error"]) {
+        return array('error' => $file['error']);
+    }
+    else {
+        move_uploaded_file(
+            $file["tmp_name"],
+            "uploads/" . $file["name"]
+        );
+
+        return array(
+            'name' => $file['name'],
+            'type' => $file['type'],
+            'size' => $file['size'],
+            'tmp_name' => $file['tmp_name']
+        );
+    }
+}
+
+$fileResults = array();
+foreach($_FILES ?: array() as $file) {
+    $fileResults[] = uploadFile($file);
+}
+
+
+
+
 $sql = new Sequel(new PDO(
     'mysql:dbname=forminator_demo;host=localhost',
     'root',

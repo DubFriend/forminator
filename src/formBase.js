@@ -76,18 +76,7 @@ var createFormBase = function (fig) {
         self.setGlobalFeedback(feedback.GLOBAL);
     };
 
-    self.clearFeedback = function () {
-        call(inputs, 'clearFeedback');
-        self.clearGlobalFeedback();
-    };
 
-    self.disable = function () {
-        call(inputs, 'disable');
-    };
-
-    self.enable = function () {
-        call(inputs, 'enable');
-    };
 
     self.validate = fig.validate || function (data) {
         return {};
@@ -105,6 +94,20 @@ var createFormBase = function (fig) {
         return filter(inputs, function (input) {
             return inArray(filteredTypes, input.getType());
         });
+    };
+
+    self.clearFeedback = function () {
+        call(inputs, 'clearFeedback');
+        self.clearGlobalFeedback();
+    };
+
+    self.disable = function () {
+        // disabling file inputs interferes with iframe ajax. (form disables)
+        call(filterInputs('file'), 'disable');
+    };
+
+    self.enable = function () {
+        call(inputs, 'enable');
     };
 
     self.get = function () {
