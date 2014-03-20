@@ -73,7 +73,6 @@ forminator.init = function (fig) {
 
         request.subscribe('success', function (response) {
             self.reset();
-            // list.set(response ? response.results : []);
         });
     }
 

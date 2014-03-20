@@ -24,7 +24,14 @@ var createList = function (fig) {
             });
 
             var deleteItem = function () {
-                var fields = subSet(listItem.get(), uniquelyIdentifyingFields);
+                var fields = filter(
+                    subSet(listItem.get(), uniquelyIdentifyingFields),
+                    function (value) {
+                        return value !== undefined &&
+                               value !== null &&
+                               value !== '';
+                    }
+                );
                 // only send delete request if item has adequete
                 // uniquely identifiying information.
                 if(keys(fields).length === uniquelyIdentifyingFields.length) {

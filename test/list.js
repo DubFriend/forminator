@@ -1,13 +1,67 @@
 module("list", {
     setup: function () {
         $('#qunit-fixture').html($('#forminator').html());
+        var self = this;
         this.$self = $('.frm-list-name');
-        this.request = mixinPubSub();
+        this.$self.find('[data-field="id"]').attr('data-value', '1');
+        this.request = mixinPubSub({
+            'delete': function (deleteFig) {
+                self.request.deleteParameters = deleteFig;
+            }
+        });
         this.list = createList({
             $: this.$self,
-            request: this.request
+            request: this.request,
+            uniquelyIdentifyingFields: ['id'],
+
+            deleteConfirmation: function (deleteItem) {
+                if(self.list.isDelete) {
+                    deleteItem();
+                }
+            }
         });
+        // isDelete parameter for testing only
+        this.list.isDelete = true;
     }
+});
+
+test("click listItem's delete calls request.delete", function () {
+    this.$self.find('.frm-delete-item').click();
+    deepEqual(
+        this.request.deleteParameters.uniquelyIdentifyingFields, { 'id': 1 },
+        'request is given the uniquelyIdentifyingFields'
+    );
+    strictEqual(
+        this.$self.find('.frm-list-item').length, 1,
+        'list item not yet deleted'
+    );
+    this.request.deleteParameters.success();
+    strictEqual(
+        this.$self.find('.frm-list-item').length, 0,
+        'list item deleted on success'
+    );
+});
+
+test("publishes deleted listItem on delete success", function () {
+    expect(1);
+    this.$self.find('.frm-delete-item').click();
+    this.list.subscribe('deleted', function (listItem) {
+        deepEqual(listItem.get(), {
+            'checkbox[]': ['a', 'b'], extra: "", hidden: "",
+            id: 1, radio: "a", select: "", text: "",
+            textarea: "Default Value"
+        }, 'publishes "deleted" event with deleted listItem');
+    });
+    this.request.deleteParameters.success();
+});
+
+test("does not delete without uniquelyIdentifyingFields", function () {
+    this.list.set([{}]);
+    this.$self.find('.frm-delete-item').click();
+    strictEqual(
+        this.request.deleteParameters, undefined,
+        'delete not called without uniquelyIdentifyingFields'
+    );
 });
 
 test("initially renders data-value attributes into form", function () {
@@ -15,7 +69,7 @@ test("initially renders data-value attributes into form", function () {
     strictEqual($items.length, 1, 'one item');
     deepEqual(
         getListItemsData($items),
-        { textarea: 'Default Value', 'checkbox[]': 'a, b', radio: 'a'},
+        { textarea: 'Default Value', 'checkbox[]': 'a, b', radio: 'a', id: '1' },
         'checkbox rendered into form'
     );
 });
@@ -55,7 +109,7 @@ test("publishes listItem when selected", function () {
             filter(listItem.get(), function (value) {
                 return value ? true : false;
             }),
-            { 'checkbox[]': ['a', 'b'], radio: 'a', textarea: 'Default Value' },
+            { 'checkbox[]': ['a', 'b'], radio: 'a', textarea: 'Default Value', id: 1 },
             'passes list item (data is correct)'
         );
     });
