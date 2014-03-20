@@ -25,6 +25,20 @@ module("list", {
     }
 });
 
+test("sets on request success", function () {
+    this.request.publish('success', { results: [{ id: 2 }, { id: 3 }]});
+    var $items = this.$self.find('.frm-list-item');
+    strictEqual($items.length, 2, 'two items rendered');
+    deepEqual(getListItemsData($($items[0])), { id: '2' }, 'first item rendered');
+    deepEqual(getListItemsData($($items[1])), { id: '3' }, 'second item rendered');
+});
+
+test("sets on request success, no results", function () {
+    this.request.publish('success');
+    var $items = this.$self.find('.frm-list-item');
+    strictEqual($items.length, 0, 'zero items rendered');
+});
+
 test("click listItem's delete calls request.delete", function () {
     this.$self.find('.frm-delete-item').click();
     deepEqual(
