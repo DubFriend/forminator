@@ -24,31 +24,20 @@ var createList = function (fig) {
             });
 
             var deleteItem = function () {
-                var fields = filter(
-                    subSet(listItem.get(), uniquelyIdentifyingFields),
-                    function (value) {
-                        return value !== undefined &&
-                               value !== null &&
-                               value !== '';
+                var fields = subSet(listItem.get(), uniquelyIdentifyingFields);
+                request['delete']({
+                    uniquelyIdentifyingFields: fields,
+                    success: function (response) {
+                        self.remove(listItem);
+                        self.publish('deleted', listItem);
+                    },
+                    error: function (response) {
+
+                    },
+                    complete: function (response) {
+
                     }
-                );
-                // only send delete request if item has adequete
-                // uniquely identifiying information.
-                if(keys(fields).length === uniquelyIdentifyingFields.length) {
-                    request['delete']({
-                        uniquelyIdentifyingFields: fields,
-                        success: function (response) {
-                            self.remove(listItem);
-                            self.publish('deleted', listItem);
-                        },
-                        error: function (response) {
-
-                        },
-                        complete: function (response) {
-
-                        }
-                    });
-                }
+                });
             };
 
             listItem.subscribe('delete', function () {

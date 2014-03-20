@@ -2,6 +2,7 @@ var forminator = {};
 
 forminator.init = function (fig) {
     var self = {},
+        name = fig.name,
         factory = createFactory(fig),
         form = factory.form(),
         newItemButton = factory.newItemButton(),
@@ -64,6 +65,8 @@ forminator.init = function (fig) {
         }
     }
 
+    var $noResultsMessage = $('.frm-no-results-' + name);
+
     if(list) {
         list.subscribe('deleted', function (listItem) {
             if(selectedItem === listItem) {
@@ -73,6 +76,16 @@ forminator.init = function (fig) {
 
         request.subscribe('success', function (response) {
             self.reset();
+            if(
+                !isObject(response) &&
+                !isArray(response.results) ||
+                response.results.length === 0
+            ) {
+                $noResultsMessage.show();
+            }
+            else {
+                $noResultsMessage.hide();
+            }
         });
     }
 

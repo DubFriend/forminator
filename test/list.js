@@ -75,15 +75,6 @@ test("publishes deleted listItem on delete success", function () {
     this.request.deleteParameters.success();
 });
 
-test("does not delete without uniquelyIdentifyingFields", function () {
-    this.list.set([{}]);
-    this.$self.find('.frm-delete-item').click();
-    strictEqual(
-        this.request.deleteParameters, undefined,
-        'delete not called without uniquelyIdentifyingFields'
-    );
-});
-
 test("initially renders data-value attributes into form", function () {
     var $items = this.$self.find('.frm-list-item');
     strictEqual($items.length, 1, 'one item');

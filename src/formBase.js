@@ -76,8 +76,6 @@ var createFormBase = function (fig) {
         self.setGlobalFeedback(feedback.GLOBAL);
     };
 
-
-
     self.validate = fig.validate || function (data) {
         return {};
     };
@@ -102,7 +100,7 @@ var createFormBase = function (fig) {
     };
 
     self.disable = function () {
-        // disabling file inputs interferes with iframe ajax. (form disables)
+        // disabling file inputs interferes with iframe ajax.
         call(filterInputs('file'), 'disable');
     };
 

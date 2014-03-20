@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 19-03-2014
+// (MIT) 20-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -1506,8 +1506,6 @@ var createFormBase = function (fig) {
         self.setGlobalFeedback(feedback.GLOBAL);
     };
 
-
-
     self.validate = fig.validate || function (data) {
         return {};
     };
@@ -1532,7 +1530,7 @@ var createFormBase = function (fig) {
     };
 
     self.disable = function () {
-        // disabling file inputs interferes with iframe ajax. (form disables)
+        // disabling file inputs interferes with iframe ajax.
         call(filterInputs('file'), 'disable');
     };
 
@@ -1608,7 +1606,6 @@ var createForm = function (fig) {
             },
 
             beforeSend: function () {
-                console.log('beforeSend');
                 callIfFunction(fig.beforeSend);
                 self.disable();
                 self.publish('beforeSend');
@@ -1630,7 +1627,6 @@ var createForm = function (fig) {
             },
 
             complete: function (response) {
-                console.log('complete');
                 // setTimeout(function () {
                 callIfFunction(fig.complete, response);
                 self.enable();
@@ -2160,31 +2156,20 @@ var createList = function (fig) {
             });
 
             var deleteItem = function () {
-                var fields = filter(
-                    subSet(listItem.get(), uniquelyIdentifyingFields),
-                    function (value) {
-                        return value !== undefined &&
-                               value !== null &&
-                               value !== '';
+                var fields = subSet(listItem.get(), uniquelyIdentifyingFields);
+                request['delete']({
+                    uniquelyIdentifyingFields: fields,
+                    success: function (response) {
+                        self.remove(listItem);
+                        self.publish('deleted', listItem);
+                    },
+                    error: function (response) {
+
+                    },
+                    complete: function (response) {
+
                     }
-                );
-                // only send delete request if item has adequete
-                // uniquely identifiying information.
-                if(keys(fields).length === uniquelyIdentifyingFields.length) {
-                    request['delete']({
-                        uniquelyIdentifyingFields: fields,
-                        success: function (response) {
-                            self.remove(listItem);
-                            self.publish('deleted', listItem);
-                        },
-                        error: function (response) {
-
-                        },
-                        complete: function (response) {
-
-                        }
-                    });
-                }
+                });
             };
 
             listItem.subscribe('delete', function () {
@@ -2301,6 +2286,7 @@ var forminator = {};
 
 forminator.init = function (fig) {
     var self = {},
+        name = fig.name,
         factory = createFactory(fig),
         form = factory.form(),
         newItemButton = factory.newItemButton(),
@@ -2363,6 +2349,8 @@ forminator.init = function (fig) {
         }
     }
 
+    var $noResultsMessage = $('.frm-no-results-' + name);
+
     if(list) {
         list.subscribe('deleted', function (listItem) {
             if(selectedItem === listItem) {
@@ -2372,6 +2360,16 @@ forminator.init = function (fig) {
 
         request.subscribe('success', function (response) {
             self.reset();
+            if(
+                !isObject(response) &&
+                !isArray(response.results) ||
+                response.results.length === 0
+            ) {
+                $noResultsMessage.show();
+            }
+            else {
+                $noResultsMessage.hide();
+            }
         });
     }
 

@@ -31,7 +31,6 @@ var createForm = function (fig) {
             },
 
             beforeSend: function () {
-                console.log('beforeSend');
                 callIfFunction(fig.beforeSend);
                 self.disable();
                 self.publish('beforeSend');
@@ -53,7 +52,6 @@ var createForm = function (fig) {
             },
 
             complete: function (response) {
-                console.log('complete');
                 // setTimeout(function () {
                 callIfFunction(fig.complete, response);
                 self.enable();

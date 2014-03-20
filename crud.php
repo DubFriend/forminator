@@ -157,7 +157,7 @@ switch($_SERVER['REQUEST_METHOD']) {
                     'successMessage' => 'New item (id:' . $id . ') Created!');
                 break;
             case 'update':
-                if(isset($_POST['id'])) {
+                if(isset($_POST['id']) && is_numeric($_POST['id'])) {
                     $sql->update('forminator', array_filter(preparePOST(), function ($value) {
                         return $value !== 'id';
                     }), array('id' => $_POST['id']));
@@ -174,7 +174,7 @@ switch($_SERVER['REQUEST_METHOD']) {
                 }
                 break;
             case 'delete':
-                if(isset($_GET['id'])) {
+                if(isset($_GET['id']) && is_numeric($_GET['id'])) {
                     $sql->delete('forminator', array('id' => $_GET['id']));
                     $response = array(
                         'status' => 200,
@@ -189,7 +189,7 @@ switch($_SERVER['REQUEST_METHOD']) {
                 }
                 break;
             default:
-                throw new Exception('invalid action : ' . $_GET['action']);
+                throw new Exception('invalid action: ' . $_GET['action']);
         }
         break;
     default:
