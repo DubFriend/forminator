@@ -63,17 +63,17 @@ module("paginator", {
 });
 
 test('subscribes to response success: set number of pages', function () {
-    this.request.publish('success', { numberOfPages: 5 });
+    this.request.publish('success', { action: '', data: { numberOfPages: 5 } });
     strictEqual(this.$numberOfPages.html(), '5');
 });
 
 test('subscribes to response success: set number of results', function () {
-    this.request.publish('success', { numberOfResults: 50 });
+    this.request.publish('success', { action: '', data: { numberOfResults: 50 } });
     strictEqual(this.$numberOfResults.html(), '50');
 });
 
 test('subscribes to response: updates pages restricted', function () {
-    this.request.publish('success', { numberOfPages: 3 });
+    this.request.publish('success', { action: '', data: { numberOfPages: 3 } });
     var $containers = this.$pageNumbers.find('.frm-number-container');
     strictEqual($containers.length, 3, '3 pages rendered');
     var pages = ['1', '2', '3'];
@@ -83,7 +83,7 @@ test('subscribes to response: updates pages restricted', function () {
 });
 
 test('subscribes to response: updates pages restricted to 7 pages max', function () {
-    this.request.publish('success', { numberOfPages: 8 });
+    this.request.publish('success', { action: '', data: { numberOfPages: 8 } });
     var $containers = this.$pageNumbers.find('.frm-number-container');
     strictEqual($containers.length, 7, '7 pages rendered');
     var pages = ['1', '2', '3', '4', '5', '6', '7'];
@@ -93,7 +93,7 @@ test('subscribes to response: updates pages restricted to 7 pages max', function
 });
 
 test('subscribes to response: updates pages restricted to 7 pages max', function () {
-    this.request.publish('success', { numberOfPages: 8 });
+    this.request.publish('success', { action: '', data: { numberOfPages: 8 } });
     var $containers = this.$pageNumbers.find('.frm-number-container');
     strictEqual($containers.length, 7, '7 pages rendered');
     var pages = ['1', '2', '3', '4', '5', '6', '7'];
@@ -112,7 +112,7 @@ test('fills out backwords rollover numbers', function () {
         gotoPage: this.createGotoPage(),
         errorMessages: this.errorMessages
     });
-    request.publish('success', { numberOfPages: 15 });
+    request.publish('success', { action: '', data: { numberOfPages: 15 } });
     var $containers = this.$pageNumbers.find('.frm-number-container');
     strictEqual($containers.length, 7, '7 pages rendered');
 });
@@ -124,7 +124,7 @@ test('click page calls request', function () {
 });
 
 test('subscribes to response: 0 pages', function () {
-    this.request.publish('success', { numberOfPages: 0 });
+    this.request.publish('success', { action: '', data: { numberOfPages: 0 } });
     var $containers = this.$pageNumbers.find('.frm-number-container');
     strictEqual($containers.length, 0, '0 pages rendered');
 });

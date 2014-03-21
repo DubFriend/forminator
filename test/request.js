@@ -92,7 +92,7 @@ var buildTestPublishes = function (self, subscriptionName, functionName, publish
     functionName = functionName || subscriptionName;
     expect(1);
     self.request.subscribe(subscriptionName, function (response) {
-        strictEqual('testData', response);
+        deepEqual({ action: 'get', data: 'testData' }, response);
     });
     self.request.search();
     self.ajaxFig[functionName](publishOverrideData || { responseJSON: 'testData' });

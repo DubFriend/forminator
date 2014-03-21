@@ -38,6 +38,10 @@ var createListItem = function (fig) {
 
     render(fields);
 
+    self.get$ = function () {
+        return $self;
+    };
+
     self.set = function (newValues) {
 
         var bracketedKeys = map(newValues, identity, function (unbracketedName) {

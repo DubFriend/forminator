@@ -18,6 +18,12 @@ var toInt = function (value) {
     return parseInt(value, 10);
 };
 
+var bind = function (f, object) {
+    return function () {
+        return f.apply(object, arguments);
+    };
+};
+
 var partial = function (f) {
     var args = Array.prototype.slice.call(arguments, 1);
     if(isFunction(f)) {

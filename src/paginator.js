@@ -187,7 +187,9 @@ var createPaginator = function (fig) {
         return errors;
     };
 
-    request.subscribe('success', function (response) {
+    request.subscribe('success', function (data) {
+        data = data || {};
+        var response = data.data;
         if(toInt(response.numberOfPages) === 0 || response.numberOfPages) {
             setNumberOfPages(response.numberOfPages);
         }

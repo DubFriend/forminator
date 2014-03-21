@@ -1,15 +1,19 @@
 var createForm = function (fig) {
     var self = createFormBase(fig),
         ajax = fig.ajax,
-        url = fig.url || fig.$.attr('action');
+        url = fig.url || fig.$.attr('action'),
+        action = '',
+        buildURL = function () {
+            return action ? queryjs.set(url, { action: action }) : url;
+        };
 
-    self.setAction = function (action) {
-        url = queryjs.set(url, { action: action });
+    self.setAction = function (newAction) {
+        action = newAction;
     };
 
     ajax(fig.$, function() {
         return {
-            url: url,
+            url: buildURL(),
             dataType: 'json',
             data: self.get(),
 
@@ -20,42 +24,37 @@ var createForm = function (fig) {
                 }
                 else {
                     self.setFeedback(errors);
-                    self.publish('error', errors);
+                    self.publish('error', { data: errors, action: action });
                     return false;
                 }
             },
 
             onprogress: function (e) {
-                callIfFunction(partial(fig.onprogress, e));
-                console.log(e.loaded, e.total);
+                self.publish('onprogress', { data: e, action: action });
             },
 
             beforeSend: function () {
-                callIfFunction(fig.beforeSend);
                 self.disable();
-                self.publish('beforeSend');
+                self.publish('beforeSend', { action: action });
             },
 
             success: function (response) {
-                callIfFunction(partial(fig.success, response));
                 response = response || {};
                 self.setGlobalSuccess(response.successMessage);
-                self.publish('success', response);
+                self.publish('success', { data: response, action: action });
             },
 
             error: function (response) {
                 // setTimeout(function () {
-                callIfFunction(partial(fig.error, response));
                 self.setFeedback(response);
-                self.publish('error', response);
+                self.publish('error', { data: response, action: action });
                 // }, 500);
             },
 
             complete: function (response) {
                 // setTimeout(function () {
-                callIfFunction(fig.complete, response);
                 self.enable();
-                self.publish('complete', response);
+                self.publish('complete', { data: response, action: action });
                 // }, 500);
             }
         };

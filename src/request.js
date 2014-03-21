@@ -36,13 +36,13 @@ var createRequest = function (fig) {
             url: buildURL(),
             dataType: 'json',
             success: function (response) {
-                self.publish('success', response);
+                self.publish('success', { data: response, action: 'get' });
             },
             error: function (jqXHR) {
-                self.publish('error', jqXHR.responseJSON);
+                self.publish('error', { data: jqXHR.responseJSON, action: 'get' });
             },
             complete: function (jqXHR) {
-                self.publish('complete', jqXHR.responseJSON);
+                self.publish('complete', { data: jqXHR.responseJSON, action: 'get' });
             }
         });
     };
@@ -54,12 +54,17 @@ var createRequest = function (fig) {
                 url, union(fig.uniquelyIdentifyingFields, { action: 'delete' })
             ),
             dataType: 'json',
-            success: fig.success,
+            success: function (response) {
+                fig.success(response);
+                self.publish('success', { data: response, action: 'delete' });
+            },
             error: function (jqXHR) {
                 callIfFunction(fig.error, jqXHR.responseJSON);
+                self.publish('error', { data: jqXHR.responseJSON, action: 'delete' });
             },
             complete: function (jqXHR) {
                 callIfFunction(fig.complete, jqXHR.responseJSON);
+                self.publish('complete', { data: jqXHR.responseJSON, action: 'delete' });
             }
         });
     };

@@ -306,13 +306,29 @@
                     errors.GLOBAL = 'An error occured.';
                 }
 
+                if(errors.text) {
+                    setTimeout(this.clearFormFeedback, 2000);
+                }
+
                 return errors;
             },
-            success: function (response) {
-                console.log('success', response);
+            success: function (action, response) {
+                console.log('success', action, response, this);
             },
-            complete: function (response) {
-                setTimeout(nameForminator.clearFormFeedback, 2000);
+            error: function (action, response) {
+                console.log('error', action, response, this);
+            },
+            complete: function (action, response) {
+                console.log('complete', action, response, this);
+                setTimeout(this.clearFormFeedback, 2000);
+            },
+            selected: function ($item) {
+                console.log('selected', $item, this);
+            },
+            fieldMap: {
+                text: function (value) {
+                    return value.toUpperCase();
+                }
             }
             // ,orderIcons: {
             //     ascending: 'a',
@@ -320,9 +336,6 @@
             //     neutral: 'n'
             // }
         });
-        // nameForminator.list.set([{id: 5000, text: 'foo'}, {id: 4999, textarea: 'basdf'}]);
-        // nameForminator.form.set('checkbox[]', ['a', 'b']);
-        // console.log(nameForminator.form.get());
     </script>
 </body>
 </html>

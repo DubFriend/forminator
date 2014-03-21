@@ -30,12 +30,6 @@ var createList = function (fig) {
                     success: function (response) {
                         self.remove(listItem);
                         self.publish('deleted', listItem);
-                    },
-                    error: function (response) {
-
-                    },
-                    complete: function (response) {
-
                     }
                 });
             };
@@ -129,11 +123,15 @@ var createList = function (fig) {
         return newListItem;
     };
 
-    request.subscribe('success', function (response) {
-        self.set(
-            isObject(response) && isArray(response.results) ?
-                response.results : []
-        );
+    request.subscribe('success', function (data) {
+        if(data.action === 'get') {
+            data = data || {};
+            var response = data.data;
+            self.set(
+                isObject(response) && isArray(response.results) ?
+                    response.results : []
+            );
+        }
     });
 
     return self;

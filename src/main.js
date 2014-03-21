@@ -1,8 +1,12 @@
 var forminator = {};
 
 forminator.init = function (fig) {
-    var self = {},
-        name = fig.name,
+
+    var self = {};
+
+    fig.validate = bind(fig.validate, self);
+
+    var name = fig.name,
         factory = createFactory(fig),
         form = factory.form(),
         newItemButton = factory.newItemButton(),
@@ -13,7 +17,21 @@ forminator.init = function (fig) {
         paginator = factory.paginator(request),
 
         selectedData = null,
-        selectedItem = null;
+        selectedItem = null,
+
+        applyUserFunction = function (fn) {
+            if(isFunction(fn)) {
+                fn.apply(self, Array.prototype.slice.call(arguments, 1));
+            }
+        },
+
+        subscribeUserToAjaxEvent = function (object, name) {
+            if(object) {
+                object.subscribe(name, function (data) {
+                    applyUserFunction(fig[name], data.action, data.data);
+                });
+            }
+        };
 
     self.reset = function () {
         if(form) {
@@ -40,18 +58,21 @@ forminator.init = function (fig) {
             form.set(listItem.get());
             form.setAction('update');
             selectedItem = listItem;
+            applyUserFunction(fig.selected, listItem.get$());
         });
 
         form.subscribe('beforeSend', function () {
             selectedData = form.get();
         });
 
-        form.subscribe('success', function () {
+        form.subscribe('success', function (response) {
+            response = response || {};
+            var results = response.data || {};
             if(selectedItem && selectedData) {
                 selectedItem.set(selectedData);
             }
             else if(selectedData) {
-                selectedItem = list.prepend(selectedData);
+                selectedItem = list.prepend(union(selectedData, results.fields || {}));
                 list.setSelectedClass(selectedItem);
             }
             self.reset();
@@ -75,19 +96,29 @@ forminator.init = function (fig) {
         });
 
         request.subscribe('success', function (response) {
+            response = response || {};
             self.reset();
             if(
-                !isObject(response) &&
-                !isArray(response.results) ||
-                response.results.length === 0
+                isObject(response.data) &&
+                isArray(response.data.results) &&
+                response.data.results.length !== 0
             ) {
-                $noResultsMessage.show();
-            }
-            else {
                 $noResultsMessage.hide();
             }
+            else {
+                $noResultsMessage.show();
+            }
+
         });
     }
+
+    subscribeUserToAjaxEvent(form, 'onprogress');
+    subscribeUserToAjaxEvent(form, 'success');
+    subscribeUserToAjaxEvent(form, 'error');
+    subscribeUserToAjaxEvent(form, 'complete');
+    subscribeUserToAjaxEvent(request, 'success');
+    subscribeUserToAjaxEvent(request, 'error');
+    subscribeUserToAjaxEvent(request, 'complete');
 
     return self;
 };

@@ -44,10 +44,10 @@ var createFactory = function (fig) {
             $: $module,
             ajax: ajax,
             validate: fig.validate,
-            onprogress: fig.onprogress,
-            success: fig.success,
-            error: fig.error,
-            complete: fig.complete,
+            // onprogress: fig.onprogress,
+            // success: fig.success,
+            // error: fig.error,
+            // complete: fig.complete,
             url: url,
             inputs: getMappedFormInputs($module)
         });

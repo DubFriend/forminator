@@ -139,8 +139,11 @@ test('trigger validate error publishes error', function () {
     this.textGetData = 'wrong';
     this.form.subscribe('error', function (data) {
         deepEqual(data, {
-            text: 'textErrorMessage',
-            GLOBAL: 'globalErrorMessage'
+            action: '',
+            data: {
+                text: 'textErrorMessage',
+                GLOBAL: 'globalErrorMessage'
+            }
         });
     });
     this.ajaxFig.validate();
@@ -229,7 +232,7 @@ test('uses html form\'s action attribute if url is not given', function () {
 test('ajaxFig publishes error', function () {
     expect(1);
     this.form.subscribe('error', function (data) {
-        deepEqual(data, { errorData: 'foo' });
+        deepEqual(data, { data: { errorData: 'foo' }, action: '' });
     });
     this.ajaxFig.error({ errorData: 'foo' });
 });

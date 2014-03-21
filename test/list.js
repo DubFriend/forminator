@@ -26,7 +26,7 @@ module("list", {
 });
 
 test("sets on request success", function () {
-    this.request.publish('success', { results: [{ id: 2 }, { id: 3 }]});
+    this.request.publish('success',{ action: 'get', data: { results: [{ id: 2 }, { id: 3 }]} });
     var $items = this.$self.find('.frm-list-item');
     strictEqual($items.length, 2, 'two items rendered');
     deepEqual(getListItemsData($($items[0])), { id: '2' }, 'first item rendered');
@@ -34,7 +34,7 @@ test("sets on request success", function () {
 });
 
 test("sets on request success, no results", function () {
-    this.request.publish('success');
+    this.request.publish('success', { action: 'get' });
     var $items = this.$self.find('.frm-list-item');
     strictEqual($items.length, 0, 'zero items rendered');
 });
