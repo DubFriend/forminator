@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Forminator Bootstrap</title>
+
+    <link href="bootstrap-3.1.1-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style type="text/css">
+      .error .help-block,
+      .form-group.error .control-label,
+      .error .radio,
+      .error .checkbox,
+      .error .radio-inline,
+      .error .checkbox-inline {
+        color: #a94442;
+      }
+      .form-group.error .form-control {
+        border-color: #a94442;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+      }
+      .form-group.error .form-control:focus {
+        border-color: #843534;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483;
+      }
+      .error .input-group-addon {
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #a94442;
+      }
+      .error .form-control-feedback {
+        color: #a94442;
+      }
+
+      .success .help-block,
+      .form-group.success .control-label,
+      .success .radio,
+      .success .checkbox,
+      .success .radio-inline,
+      .success .checkbox-inline {
+        color: #3c763d;
+      }
+      .form-group.success .form-control {
+        border-color: #3c763d;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+      }
+      .form-group.success .form-control:focus {
+        border-color: #2b542c;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #67b168;
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #67b168;
+      }
+      .success .input-group-addon {
+        color: #3c763d;
+        background-color: #dff0d8;
+        border-color: #3c763d;
+      }
+      .success .form-control-feedback {
+        color: #3c763d;
+      }
+
+
+      .pagination > .selected > a,
+      .pagination > .selected > span,
+      .pagination > .selected > a:hover,
+      .pagination > .selected > span:hover,
+      .pagination > .selected > a:focus,
+      .pagination > .selected > span:focus {
+        z-index: 2;
+        color: #fff;
+        cursor: default;
+        background-color: #428bca;
+        border-color: #428bca;
+      }
+
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <form class="frm-name well form-horizontal" method="POST" enctype="multipart/form-data" action="respond.php" role="form">
+
+      <input type="hidden" name="id"/>
+
+      <div class="frm-group form-group">
+        <label class="col-sm-2 control-label">Text</label>
+        <div class="col-sm-10">
+          <input class="form-control" type="text" name="text"/>
+          <div class="frm-feedback form-control-feedback"></div>
+        </div>
+      </div>
+
+      <div class="frm-group form-group">
+        <label class="col-sm-2 control-label">Textarea</label>
+        <div class="col-sm-10">
+          <textarea class="form-control" name="textarea"></textarea>
+          <div class="frm-feedback form-control-feedback"></div>
+        </div>
+      </div>
+
+      <div class="frm-group form-group">
+        <label class="col-sm-2 control-label">Select</label>
+        <div class="col-sm-10">
+          <select class="form-control" name="select">
+            <option value="a">A</option>
+            <option value="b">B</option>
+          </select>
+          <div class="frm-feedback form-control-feedback"></div>
+        </div>
+      </div>
+
+      <div class="frm-group form-group">
+        <label class="col-sm-2 control-label">Radio</label>
+        <div class="col-sm-10">
+          <label class="radio-inline">
+            <input type="radio" name="radio" value="a"/> A
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="radio" id="form_radio_b" value="b"/> B
+          </label>
+          <div class="frm-feedback form-control-feedback"></div>
+        </div>
+      </div>
+
+      <div class="frm-group form-group">
+        <label class="col-sm-2 control-label">Checkbox</label>
+        <div class="col-sm-10">
+          <label class="checkbox-inline">
+            <input type="checkbox" name="checkbox[]" value="a"/> A
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" name="checkbox[]" value="b"/> B
+          </label>
+          <div class="frm-feedback form-control-feedback"></div>
+        </div>
+      </div>
+
+      <div class="frm-group form-group">
+        <label class="col-sm-2 control-label">File</label>
+        <div class="col-sm-10">
+          <input type="file" name="file"/>
+          <div class="frm-feedback form-control-feedback"></div>
+        </div>
+      </div>
+
+      <div class="frm-group form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <input class="btn btn-primary btn-lg" type="submit" name="submit" value="Submit"/>
+          <div class="frm-global-feedback form-control-feedback"></div>
+        </div>
+      </div>
+    </form>
+
+    <p># of pages: <span class="frm-number-of-pages-name">3</span></p>
+    <p># of results: <span class="frm-number-of-results-name"></span></p>
+
+
+    <span class="frm-previous-name">Previous</span>
+    <ul class="pagination frm-page-numbers-name">
+      <li class="frm-number-container"><a href="#" data-number="1">1</a></li>
+      <li><a href="#">2</a></li>
+      <li><a href="#">3</a></li>
+      <li><a href="#">4</a></li>
+      <li><a href="#">5</a></li>
+    </ul>
+    <span class="frm-next-name">Next</span>
+
+
+    <form class="frm-goto-page-name" method="GET" action="respond.php">
+      <div class="frm-group">
+        <label>Page</label>
+        <input type="text" name="page"/>
+        <div class="frm-feedback"></div>
+      </div>
+      <input type="submit" value="Goto Page"/>
+    </form>
+
+
+    <script src="lib/jquery-1.11.0.js"></script>
+    <script src="bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
+    <script src="forminator.min.js"></script>
+    <script>
+    var nameForminator = forminator.init({
+            name: 'name',
+            url: 'crud.php',
+            // delete functionality needs to know which field(s) to use to
+            // uniquely identify an item.
+            uniquelyIdentifyingFields: ['id'],
+            validate: function (data) {
+                var errors = {};
+
+                if(data.text.length > 3) {
+                    errors.text = '3 character maximum';
+                }
+                else if(data.text === 'foo') {
+                    errors.text = 'cannot be "foo"';
+                }
+
+                if(errors.text) {
+                    errors.GLOBAL = 'An error occured.';
+                }
+
+                if(errors.text) {
+                    setTimeout(this.clearFormFeedback, 2000);
+                }
+
+                return errors;
+            },
+            success: function (action, response) {
+                console.log('success', action, response, this);
+            },
+            error: function (action, response) {
+                console.log('error', action, response, this);
+            },
+            complete: function (action, response) {
+                console.log('complete', action, response, this);
+                setTimeout(this.clearFormFeedback, 2000);
+            },
+            selected: function ($item) {
+                console.log('selected', $item, this);
+            },
+            fieldMap: {
+                text: function (value) {
+                    return value.toUpperCase();
+                }
+            }
+            // ,orderIcons: {
+            //     ascending: 'a',
+            //     descending: 'd',
+            //     neutral: 'n'
+            // }
+        });
+    </script>
+  </body>
+</html>
