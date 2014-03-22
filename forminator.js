@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 21-03-2014
+// (MIT) 22-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -2415,7 +2415,8 @@ forminator.init = function (fig) {
             ) {
                 $noResultsMessage.hide();
             }
-            else {
+            else if(response.action !== 'delete') {
+
                 $noResultsMessage.show();
             }
 

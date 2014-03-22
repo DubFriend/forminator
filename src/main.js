@@ -105,7 +105,8 @@ forminator.init = function (fig) {
             ) {
                 $noResultsMessage.hide();
             }
-            else {
+            else if(response.action !== 'delete') {
+
                 $noResultsMessage.show();
             }
 
