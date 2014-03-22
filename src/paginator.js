@@ -113,7 +113,8 @@ var createPaginator = function (fig) {
 
             $number.html(pageNumber);
 
-            $self.click(function () {
+            $self.click(function (e) {
+                e.preventDefault();
                 setPage(pageNumber);
             });
 
@@ -225,13 +226,15 @@ var createPaginator = function (fig) {
         });
     }
 
-    $previous.click(function () {
+    $previous.click(function (e) {
+        e.preventDefault();
         if(isEmpty(self.validate({ page: page - 1 }, numberOfPages))) {
             setPage(page - 1);
         }
     });
 
-    $next.click(function () {
+    $next.click(function (e) {
+        e.preventDefault();
         if(isEmpty(self.validate({ page: page + 1 }, numberOfPages))) {
             setPage(page + 1);
         }

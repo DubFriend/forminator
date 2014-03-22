@@ -77,6 +77,10 @@
         border-color: #428bca;
       }
 
+      .frm-list-name tr.frm-list-item.selected td {
+        background: rgb(216, 247, 211);
+      }
+
     </style>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -87,158 +91,284 @@
     <![endif]-->
   </head>
   <body>
-    <form class="frm-name well form-horizontal" method="POST" enctype="multipart/form-data" action="respond.php" role="form">
 
-      <input type="hidden" name="id"/>
+    <div class="modal fade js-form-modal">
+      <form class="modal-dialog frm-name form-horizontal" method="POST" enctype="multipart/form-data" action="respond.php" role="form">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Forminator</h4>
+          </div>
+          <div class="modal-body">
 
-      <div class="frm-group form-group">
-        <label class="col-sm-2 control-label">Text</label>
-        <div class="col-sm-10">
-          <input class="form-control" type="text" name="text"/>
-          <div class="frm-feedback form-control-feedback"></div>
+              <input type="hidden" name="id"/>
+
+              <div class="frm-group form-group">
+                <label class="col-sm-2 control-label">Text</label>
+                <div class="col-sm-10">
+                  <input class="form-control" type="text" name="text"/>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+              </div>
+
+              <div class="frm-group form-group">
+                <label class="col-sm-2 control-label">Textarea</label>
+                <div class="col-sm-10">
+                  <textarea class="form-control" name="textarea"></textarea>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+              </div>
+
+              <div class="frm-group form-group">
+                <label class="col-sm-2 control-label">Select</label>
+                <div class="col-sm-10">
+                  <select class="form-control" name="select">
+                    <option value="a">A</option>
+                    <option value="b">B</option>
+                  </select>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+              </div>
+
+              <div class="frm-group form-group">
+                <label class="col-sm-2 control-label">Radio</label>
+                <div class="col-sm-10">
+                  <label class="radio-inline">
+                    <input type="radio" name="radio" value="a"/> A
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="radio" value="b"/> B
+                  </label>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+              </div>
+
+              <div class="frm-group form-group">
+                <label class="col-sm-2 control-label">Checkbox</label>
+                <div class="col-sm-10">
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="checkbox[]" value="a"/> A
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="checkbox[]" value="b"/> B
+                  </label>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+              </div>
+
+              <div class="frm-group form-group">
+                <label class="col-sm-2 control-label">File</label>
+                <div class="col-sm-10">
+                  <input type="file" name="file"/>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <input class="btn btn-primary" type="submit" name="submit" value="Submit"/>
+            <div class="frm-global-feedback form-control-feedback"></div>
+          </div>
+        </div><!-- /.modal-content -->
+      </form><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
+
+    <div class="container-fluid">
+
+      <input class="frm-new-name btn btn-lg btn-primary" type="button" value="New Item"/>
+
+
+      <div class="row">
+
+
+
+        <div class="col-md-1">
+          <p># of pages: <span class="frm-number-of-pages-name">5</span></p>
+          <p># of results: <span class="frm-number-of-results-name"></span></p>
         </div>
-      </div>
 
-      <div class="frm-group form-group">
-        <label class="col-sm-2 control-label">Textarea</label>
-        <div class="col-sm-10">
-          <textarea class="form-control" name="textarea"></textarea>
-          <div class="frm-feedback form-control-feedback"></div>
+        <div class="col-md-4">
+
+          <ul class="pagination frm-page-numbers-name">
+            <li class="frm-previous-name"><a href="#">&laquo;</a></li>
+            <li class="frm-number-container"><a href="#" data-number="1">1</a></li>
+            <li class="frm-number-container"><a href="#" data-number="2">2</a></li>
+            <li class="frm-number-container"><a href="#" data-number="3">3</a></li>
+            <li class="frm-number-container"><a href="#" data-number="4">4</a></li>
+            <li class="frm-number-container"><a href="#" data-number="5">5</a></li>
+            <li class="frm-next-name"><a href="#">&raquo;</a></li>
+          </ul>
+
         </div>
-      </div>
 
-      <div class="frm-group form-group">
-        <label class="col-sm-2 control-label">Select</label>
-        <div class="col-sm-10">
-          <select class="form-control" name="select">
-            <option value="a">A</option>
-            <option value="b">B</option>
-          </select>
-          <div class="frm-feedback form-control-feedback"></div>
+        <div class="col-md-2">
+          <form class="frm-goto-page-name form-horizontal" method="GET" action="respond.php" role="form">
+            <div class="frm-group form-group">
+              <label class="col-sm-2 control-label">Page</label>
+              <div class="col-sm-10">
+                <input class="form-control" type="text" name="page"/>
+                <div class="frm-feedback form-control-feedback"></div>
+              </div>
+            </div>
+            <div class="frm-group form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <input class="btn btn-default" type="submit" name="submit" value="Goto Page"/>
+                <div class="frm-global-feedback form-control-feedback"></div>
+              </div>
+            </div>
+          </form>
         </div>
-      </div>
 
-      <div class="frm-group form-group">
-        <label class="col-sm-2 control-label">Radio</label>
-        <div class="col-sm-10">
-          <label class="radio-inline">
-            <input type="radio" name="radio" value="a"/> A
-          </label>
-          <label class="radio-inline">
-            <input type="radio" name="radio" id="form_radio_b" value="b"/> B
-          </label>
-          <div class="frm-feedback form-control-feedback"></div>
+        <div class="col-md-5">
+
+          <form class="frm-search-name form-horizontal well" method="POST" action="respond.php" role="form">
+            <legend>Search</legend>
+            <div class="frm-group form-group">
+                <label class="col-sm-3 control-label">Search Text</label>
+                <div class="col-sm-9">
+                  <input type="text" name="text" class="form-control"/>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+            </div>
+
+            <div class="frm-group form-group">
+                <label class="col-sm-3 control-label">Select</label>
+                <div class="col-sm-9">
+                  <select name="select" class="form-control">
+                      <option value="a" selected>A</option>
+                      <option value="b">B</option>
+                  </select>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+            </div>
+
+            <div class="frm-group form-group">
+                <label class="col-sm-3 control-label">Radio</label>
+                <div class="col-sm-9">
+                  <label class="radio-inline">
+                    <input type="radio" name="radio" value="a"/> A
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="radio" value="b"/> B
+                  </label>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+            </div>
+
+            <div class="frm-group form-group">
+                <label class="col-sm-3 control-label">Checkbox</label>
+                <div class="col-sm-9">
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="checkbox[]" value="a"/> A
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="checkbox[]" value="b"/> B
+                  </label>
+                  <div class="frm-feedback form-control-feedback"></div>
+                </div>
+            </div>
+
+            <div class="frm-group form-group">
+              <div class="col-sm-offset-3 col-sm-9">
+                <input class="btn btn-default" type="submit" name="submit" value="Submit"/>
+                <div class="frm-global-feedback form-control-feedback"></div>
+              </div>
+            </div>
+
+
+        </form>
+
         </div>
+
       </div>
 
-      <div class="frm-group form-group">
-        <label class="col-sm-2 control-label">Checkbox</label>
-        <div class="col-sm-10">
-          <label class="checkbox-inline">
-            <input type="checkbox" name="checkbox[]" value="a"/> A
-          </label>
-          <label class="checkbox-inline">
-            <input type="checkbox" name="checkbox[]" value="b"/> B
-          </label>
-          <div class="frm-feedback form-control-feedback"></div>
-        </div>
-      </div>
 
-      <div class="frm-group form-group">
-        <label class="col-sm-2 control-label">File</label>
-        <div class="col-sm-10">
-          <input type="file" name="file"/>
-          <div class="frm-feedback form-control-feedback"></div>
-        </div>
-      </div>
+      <table class="table table-hover">
+        <thead class="frm-ordinator-name">
+          <th></th>
+          <th><a href="#" data-field="text">Text <span data-order="ascending">&#8597;</span></a></th>
+          <th>Textarea</th>
+          <th>Select</th>
+          <th>Radio</th>
+          <th>Checkbox</th>
+          <th>Hidden</th>
+        </thead>
+        <tbody class="frm-list-name">
+          <tr class="frm-list-item">
+            <td>
+              <button class="frm-edit-item btn btn-xs btn-default">Edit</button>
+              <button class="frm-delete-item btn btn-xs btn-danger">Delete</button>
+              <span data-field="id" style="display:none;"></span>
+            </td>
+            <td data-field="text"></td>
+            <td data-field="textarea"></td>
+            <td data-field="select"></td>
+            <td data-field="radio"></td>
+            <td data-field="checkbox"></td>
+            <td data-field="hidden"></td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div class="frm-group form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-          <input class="btn btn-primary btn-lg" type="submit" name="submit" value="Submit"/>
-          <div class="frm-global-feedback form-control-feedback"></div>
-        </div>
-      </div>
-    </form>
+      <div class="frm-no-results-name" style="display:none;">No matches found.</div>
 
-    <p># of pages: <span class="frm-number-of-pages-name">3</span></p>
-    <p># of results: <span class="frm-number-of-results-name"></span></p>
-
-
-    <span class="frm-previous-name">Previous</span>
-    <ul class="pagination frm-page-numbers-name">
-      <li class="frm-number-container"><a href="#" data-number="1">1</a></li>
-      <li><a href="#">2</a></li>
-      <li><a href="#">3</a></li>
-      <li><a href="#">4</a></li>
-      <li><a href="#">5</a></li>
-    </ul>
-    <span class="frm-next-name">Next</span>
-
-
-    <form class="frm-goto-page-name" method="GET" action="respond.php">
-      <div class="frm-group">
-        <label>Page</label>
-        <input type="text" name="page"/>
-        <div class="frm-feedback"></div>
-      </div>
-      <input type="submit" value="Goto Page"/>
-    </form>
-
-
+    </div>
     <script src="lib/jquery-1.11.0.js"></script>
     <script src="bootstrap-3.1.1-dist/js/bootstrap.min.js"></script>
     <script src="forminator.min.js"></script>
     <script>
     var nameForminator = forminator.init({
-            name: 'name',
-            url: 'crud.php',
-            // delete functionality needs to know which field(s) to use to
-            // uniquely identify an item.
-            uniquelyIdentifyingFields: ['id'],
-            validate: function (data) {
-                var errors = {};
+        name: 'name',
+        url: 'crud.php',
+        // delete functionality needs to know which field(s) to use to
+        // uniquely identify an item.
+        uniquelyIdentifyingFields: ['id'],
+        validate: function (data) {
+            var errors = {};
 
-                if(data.text.length > 3) {
-                    errors.text = '3 character maximum';
-                }
-                else if(data.text === 'foo') {
-                    errors.text = 'cannot be "foo"';
-                }
-
-                if(errors.text) {
-                    errors.GLOBAL = 'An error occured.';
-                }
-
-                if(errors.text) {
-                    setTimeout(this.clearFormFeedback, 2000);
-                }
-
-                return errors;
-            },
-            success: function (action, response) {
-                console.log('success', action, response, this);
-            },
-            error: function (action, response) {
-                console.log('error', action, response, this);
-            },
-            complete: function (action, response) {
-                console.log('complete', action, response, this);
-                setTimeout(this.clearFormFeedback, 2000);
-            },
-            selected: function ($item) {
-                console.log('selected', $item, this);
-            },
-            fieldMap: {
-                text: function (value) {
-                    return value.toUpperCase();
-                }
+            if(data.text.length > 3) {
+                errors.text = '3 character maximum';
             }
-            // ,orderIcons: {
-            //     ascending: 'a',
-            //     descending: 'd',
-            //     neutral: 'n'
-            // }
-        });
+            else if(data.text === 'foo') {
+                errors.text = 'cannot be "foo"';
+            }
+
+            if(errors.text) {
+                errors.GLOBAL = 'An error occured.';
+            }
+
+            if(errors.text) {
+                setTimeout(this.clearFormFeedback, 2000);
+            }
+
+            return errors;
+        },
+        success: function (action, response) {
+            console.log('success', action, response, this);
+            $('.js-form-modal').modal('hide');
+        },
+        error: function (action, response) {
+            console.log('error', action, response, this);
+        },
+        complete: function (action, response) {
+            console.log('complete', action, response, this);
+            setTimeout(this.clearFormFeedback, 2000);
+        },
+        selected: function ($item) {
+            $('.js-form-modal').modal('show');
+        },
+        fieldMap: {
+            text: function (value) {
+                return value.toUpperCase();
+            }
+        }
+    });
+
+    $('.frm-new-name').click(function () {
+        $('.js-form-modal').modal('show');
+    })
     </script>
   </body>
 </html>

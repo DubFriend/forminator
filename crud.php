@@ -4,7 +4,7 @@ error_reporting(E_STRICT|E_ALL);
 
 require 'sequel.php';
 
-define('RESULTS_PER_PAGE', 3);
+define('RESULTS_PER_PAGE', 10);
 
 
 function uploadFile ($file) {

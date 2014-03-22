@@ -42,7 +42,8 @@ var createOrdinator = function (fig) {
             return fields;
         }());
 
-    $self.find('[data-field]').click(function () {
+    $self.find('[data-field]').click(function (e) {
+        e.preventDefault();
         var fieldName = $(this).data('field');
         call(excludedSet(fields, [fieldName]), 'set', ['neutral']);
         fields[fieldName].next();
