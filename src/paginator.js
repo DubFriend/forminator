@@ -18,6 +18,8 @@ var createPaginator = function (fig) {
         $gotoPage = $('.frm-goto-page-' + name),
         $previous = $('.frm-previous-' + name),
         $next = $('.frm-next-' + name),
+        // used if user has placed a .frm-next- inside .frm-page-numbers- container
+        $innerNext = $pageNumbers.find('.frm-next-' + name),
 
         getDataNumber = function ($el) {
             return $el.is('data-number') ? $el : $el.find('[data-number]');
@@ -32,8 +34,7 @@ var createPaginator = function (fig) {
         // note: $itemTemplate should be initialized after visiblePages and
         // currentPage are initialized.
         $itemTemplate = (function () {
-            var $el = $pageNumbers
-                    .find('.frm-number-container:first-child').clone();
+            var $el = $($pageNumbers.find('.frm-number-container')[0]).clone();
             $el.removeClass('selected');
             getDataNumber($el).html('').data('number', '');
             return $el;
@@ -152,7 +153,14 @@ var createPaginator = function (fig) {
                 }
                 else {
                     var $item = $itemTemplate.clone();
-                    $pageNumbers.append($item);
+
+                    if($innerNext.length) {
+                        $item.insertBefore($innerNext);
+                    }
+                    else {
+                        $pageNumbers.append($item);
+                    }
+
                     pages[i] = createPageItem({
                         pageNumber: pageNumber,
                         $: $item

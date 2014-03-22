@@ -118,7 +118,7 @@ test('fills out backwords rollover numbers', function () {
 });
 
 test('click page calls request', function () {
-    this.$pageNumbers.find('.frm-number-container:first-child').click();
+    $(this.$pageNumbers.find('.frm-number-container')[0]).click();
     strictEqual(this.request.setPageParameters, 2, 'setPage called with pageNumber');
     ok(this.request.searchIsCalled, 'search is called');
 });
