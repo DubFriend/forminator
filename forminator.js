@@ -1,6 +1,6 @@
 // forminator version 0.0.0
 // https://github.com/DubFriend/forminator
-// (MIT) 22-03-2014
+// (MIT) 23-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -1579,12 +1579,22 @@ var createForm = function (fig) {
         ajax = fig.ajax,
         url = fig.url || fig.$.attr('action'),
         action = '',
+        parameters = {},
         buildURL = function () {
-            return action ? queryjs.set(url, { action: action }) : url;
+            return action ? queryjs.set(url, union({ action: action }, parameters)) : url;
         };
 
     self.setAction = function (newAction) {
         action = newAction;
+    };
+
+    self.setParameters = function (newParameters) {
+        if(isObject(newParameters)) {
+            parameters = newParameters;
+        }
+        else {
+            throw 'parameters must be an object';
+        }
     };
 
     ajax(fig.$, function() {
@@ -1926,14 +1936,18 @@ var createPaginator = function (fig) {
         };
 
     self.show = function () {
-        gotoPage.show();
+        if(gotoPage) {
+            gotoPage.show();
+        }
         $pageNumbers.show();
         $previous.show();
         $next.show();
     };
 
     self.hide = function () {
-        gotoPage.hide();
+        if(gotoPage) {
+            gotoPage.hide();
+        }
         $pageNumbers.hide();
         $previous.hide();
         $next.hide();
@@ -2375,7 +2389,9 @@ forminator.init = function (fig) {
     self.reset = function () {
         if(form) {
             form.reset();
-            form.setAction('create');
+            if(list) {
+                form.setAction('create');
+            }
         }
         if(list) {
             list.clearSelectedClass();
@@ -2390,9 +2406,15 @@ forminator.init = function (fig) {
         }
     };
 
-    form.setAction('create');
+    self.setFormParameters = function (parameters) {
+        if(form) {
+            form.setParameters(parameters);
+        }
+    };
 
     if(list && form) {
+        form.setAction('create');
+
         list.subscribe('selected', function (listItem) {
             form.set(listItem.get());
             form.setAction('update');
@@ -2437,7 +2459,7 @@ forminator.init = function (fig) {
         // hide/show elements if no results (hide paginator if 0 or 1 pages).
         request.subscribe('success', function (response) {
             response = response || {};
-            var results = response.data ? response.data.results : [];
+            var results = response.data ? (response.data.results || []) : [];
             var numberOfPages = response.data ? toInt(response.data.numberOfPages) : 0;
             self.reset();
             if(results.length !== 0) {

@@ -36,7 +36,9 @@ forminator.init = function (fig) {
     self.reset = function () {
         if(form) {
             form.reset();
-            form.setAction('create');
+            if(list) {
+                form.setAction('create');
+            }
         }
         if(list) {
             list.clearSelectedClass();
@@ -51,9 +53,15 @@ forminator.init = function (fig) {
         }
     };
 
-    form.setAction('create');
+    self.setFormParameters = function (parameters) {
+        if(form) {
+            form.setParameters(parameters);
+        }
+    };
 
     if(list && form) {
+        form.setAction('create');
+
         list.subscribe('selected', function (listItem) {
             form.set(listItem.get());
             form.setAction('update');
@@ -98,7 +106,7 @@ forminator.init = function (fig) {
         // hide/show elements if no results (hide paginator if 0 or 1 pages).
         request.subscribe('success', function (response) {
             response = response || {};
-            var results = response.data ? response.data.results : [];
+            var results = response.data ? (response.data.results || []) : [];
             var numberOfPages = response.data ? toInt(response.data.numberOfPages) : 0;
             self.reset();
             if(results.length !== 0) {

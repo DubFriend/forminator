@@ -180,14 +180,18 @@ var createPaginator = function (fig) {
         };
 
     self.show = function () {
-        gotoPage.show();
+        if(gotoPage) {
+            gotoPage.show();
+        }
         $pageNumbers.show();
         $previous.show();
         $next.show();
     };
 
     self.hide = function () {
-        gotoPage.hide();
+        if(gotoPage) {
+            gotoPage.hide();
+        }
         $pageNumbers.hide();
         $previous.hide();
         $next.hide();

@@ -3,12 +3,22 @@ var createForm = function (fig) {
         ajax = fig.ajax,
         url = fig.url || fig.$.attr('action'),
         action = '',
+        parameters = {},
         buildURL = function () {
-            return action ? queryjs.set(url, { action: action }) : url;
+            return action ? queryjs.set(url, union({ action: action }, parameters)) : url;
         };
 
     self.setAction = function (newAction) {
         action = newAction;
+    };
+
+    self.setParameters = function (newParameters) {
+        if(isObject(newParameters)) {
+            parameters = newParameters;
+        }
+        else {
+            throw 'parameters must be an object';
+        }
     };
 
     ajax(fig.$, function() {
