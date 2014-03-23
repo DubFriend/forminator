@@ -1,4 +1,4 @@
-// forminator version 0.0.0
+// forminator version 0.1.0
 // https://github.com/DubFriend/forminator
 // (MIT) 23-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
@@ -857,10 +857,6 @@ var queryjs = (function () {
             var isHash = url.indexOf('#') !== -1,
                 isQuery = url.indexOf('?') !== -1,
                 queryString = '';
-
-            // var isHash = indexOf(url, '#') !== -1,
-            //     isQuery = indexOf(url, '?') !== -1,
-            //     queryString = '';
 
             if(isQuery) {
                 queryString = url.split('?')[1] || '';
