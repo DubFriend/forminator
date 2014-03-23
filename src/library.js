@@ -318,8 +318,8 @@ var queryjs = (function () {
     var parse = function (url) {
         var domain = '', hash = '';
         var getParameterStrings = function () {
-            var isHash = indexOf(url, '#') !== -1,
-                isQuery = indexOf(url, '?') !== -1,
+            var isHash = url.indexOf('#') !== -1,
+                isQuery = url.indexOf('?') !== -1,
                 queryString = '';
 
             if(isQuery) {
