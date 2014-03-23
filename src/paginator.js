@@ -169,6 +169,7 @@ var createPaginator = function (fig) {
                 }
                 i += 1;
             });
+
             // remove excess pages
             while(pages[i]) {
                 pages[i].destroy();
@@ -177,6 +178,20 @@ var createPaginator = function (fig) {
 
             setSelectedPage();
         };
+
+    self.show = function () {
+        gotoPage.show();
+        $pageNumbers.show();
+        $previous.show();
+        $next.show();
+    };
+
+    self.hide = function () {
+        gotoPage.hide();
+        $pageNumbers.hide();
+        $previous.hide();
+        $next.hide();
+    };
 
     self.validate = function (data, maxPageNumber) {
         var errors = {};

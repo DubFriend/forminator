@@ -981,10 +981,6 @@ var createFactory = function (fig) {
             $: $module,
             ajax: ajax,
             validate: fig.validate,
-            // onprogress: fig.onprogress,
-            // success: fig.success,
-            // error: fig.error,
-            // complete: fig.complete,
             url: url,
             inputs: getMappedFormInputs($module)
         });
@@ -1727,6 +1723,14 @@ var createGotoPage = function (fig) {
         self.publish('submit', self.get());
     });
 
+    self.show = function () {
+        $self.show();
+    };
+
+    self.hide = function () {
+        $self.hide();
+    };
+
     return self;
 };
 
@@ -1901,6 +1905,7 @@ var createPaginator = function (fig) {
                 }
                 i += 1;
             });
+
             // remove excess pages
             while(pages[i]) {
                 pages[i].destroy();
@@ -1909,6 +1914,20 @@ var createPaginator = function (fig) {
 
             setSelectedPage();
         };
+
+    self.show = function () {
+        gotoPage.show();
+        $pageNumbers.show();
+        $previous.show();
+        $next.show();
+    };
+
+    self.hide = function () {
+        gotoPage.hide();
+        $pageNumbers.hide();
+        $previous.hide();
+        $next.hide();
+    };
 
     self.validate = function (data, maxPageNumber) {
         var errors = {};
@@ -2405,21 +2424,27 @@ forminator.init = function (fig) {
             }
         });
 
+        // hide/show elements if no results (hide paginator if 0 or 1 pages).
         request.subscribe('success', function (response) {
             response = response || {};
+            var results = response.data ? response.data.results : [];
+            var numberOfPages = response.data ? toInt(response.data.numberOfPages) : 0;
             self.reset();
-            if(
-                isObject(response.data) &&
-                isArray(response.data.results) &&
-                response.data.results.length !== 0
-            ) {
+            if(results.length !== 0) {
                 $noResultsMessage.hide();
             }
-            else if(response.action !== 'delete') {
-
+            else if(response.action === 'get') {
                 $noResultsMessage.show();
             }
 
+            if(paginator) {
+                if(numberOfPages > 1) {
+                    paginator.show();
+                }
+                else if(response.action === 'get') {
+                    paginator.hide();
+                }
+            }
         });
     }
 

@@ -60,7 +60,8 @@
             },
             success: function (response) {
                 console.log('success', response);
-                nameForminator.form.clear();
+                this.reset();
+                setTimeout(this.clearFormFeedback, 2000);
             }
         });
     </script>

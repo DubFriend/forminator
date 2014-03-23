@@ -69,6 +69,7 @@
       }
 
 
+
       .pagination > .selected > a,
       .pagination > .selected > span,
       .pagination > .selected > a:hover,
@@ -89,6 +90,10 @@
       .frm-goto-page-name {
         position: relative;
         top: 20px;
+      }
+
+      .frm-goto-page-name input[name="page"] {
+        width: 60px;
       }
 
       .frm-new-name {
@@ -170,10 +175,10 @@
               <label class="col-sm-3 control-label">Checkbox</label>
               <div class="col-sm-7">
                 <label class="checkbox-inline">
-                  <input type="checkbox" name="checkbox" value="a"/> A
+                  <input type="checkbox" name="checkbox[]" value="a"/> A
                 </label>
                 <label class="checkbox-inline">
-                  <input type="checkbox" name="checkbox" value="b"/> B
+                  <input type="checkbox" name="checkbox[]" value="b"/> B
                 </label>
                 <div class="frm-feedback form-control-feedback"></div>
               </div>
@@ -264,10 +269,10 @@
                 <label class="col-sm-3 control-label">Checkbox</label>
                 <div class="col-sm-5">
                   <label class="checkbox-inline">
-                    <input type="checkbox" name="checkbox" value="a"/> A
+                    <input type="checkbox" name="checkbox[]" value="a"/> A
                   </label>
                   <label class="checkbox-inline">
-                    <input type="checkbox" name="checkbox" value="b"/> B
+                    <input type="checkbox" name="checkbox[]" value="b"/> B
                   </label>
                   <div class="frm-feedback form-control-feedback"></div>
                 </div>
@@ -288,7 +293,7 @@
 
       <div class="row">
 
-        <div class="col-sm-1">
+        <div class="col-sm-2">
           <!-- New Item -->
           <button class="frm-new-name btn btn-lg btn-primary">
             New <span class="glyphicon glyphicon-plus-sign"></span>
@@ -304,7 +309,7 @@
 
         <!-- Pagination Numbers -->
         <div class="col-sm-6">
-          <ul class="pagination frm-page-numbers-name pull-right">
+          <ul class="pagination frm-page-numbers-name">
             <li class="frm-previous-name"><a href="#">&laquo;</a></li>
             <li class="frm-number-container"><a href="#" data-number="1">1</a></li>
             <li class="frm-number-container"><a href="#" data-number="2">2</a></li>
@@ -316,9 +321,9 @@
         </div>
 
 
-        <div class="col-sm-3">
+        <div class="col-sm-2">
           <!-- Pagination Goto Page -->
-          <form class="frm-goto-page-name form-inline" method="GET" action="respond.php" role="form">
+          <form class="frm-goto-page-name form-inline pull-right" method="GET" action="respond.php" role="form">
               <div class="frm-group form-group">
                   <input class="form-control" type="text" name="page" placeholder="Page"/>
                   <div class="frm-feedback form-control-feedback"></div>
@@ -339,8 +344,8 @@
         <thead class="frm-ordinator-name">
           <th></th>
           <th><a href="#" data-field="text">Text <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></a></th>
-          <th>Textarea</th>
-          <th>Select</th>
+          <th><a href="#" data-field="textarea">Textarea <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></th>
+          <th><a href="#" data-field="select">Select <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></th>
           <th>Radio</th>
           <th>Checkbox</th>
         </thead>
@@ -361,7 +366,7 @@
             <td data-field="textarea"></td>
             <td data-field="select"></td>
             <td data-field="radio"></td>
-            <td data-field="checkbox"></td>
+            <td data-field="checkbox[]"></td>
           </tr>
         </tbody>
 

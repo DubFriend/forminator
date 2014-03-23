@@ -95,21 +95,27 @@ forminator.init = function (fig) {
             }
         });
 
+        // hide/show elements if no results (hide paginator if 0 or 1 pages).
         request.subscribe('success', function (response) {
             response = response || {};
+            var results = response.data ? response.data.results : [];
+            var numberOfPages = response.data ? toInt(response.data.numberOfPages) : 0;
             self.reset();
-            if(
-                isObject(response.data) &&
-                isArray(response.data.results) &&
-                response.data.results.length !== 0
-            ) {
+            if(results.length !== 0) {
                 $noResultsMessage.hide();
             }
-            else if(response.action !== 'delete') {
-
+            else if(response.action === 'get') {
                 $noResultsMessage.show();
             }
 
+            if(paginator) {
+                if(numberOfPages > 1) {
+                    paginator.show();
+                }
+                else if(response.action === 'get') {
+                    paginator.hide();
+                }
+            }
         });
     }
 

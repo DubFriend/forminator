@@ -7,5 +7,13 @@ var createGotoPage = function (fig) {
         self.publish('submit', self.get());
     });
 
+    self.show = function () {
+        $self.show();
+    };
+
+    self.hide = function () {
+        $self.hide();
+    };
+
     return self;
 };
