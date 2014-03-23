@@ -6,9 +6,9 @@ var createInputText = function (fig) {
         return 'text';
     };
 
-    self.$().keyup(function (e) {
-        self.publish('change', self.get());
-    });
+    self.$().keyup(debounce(200, function (e) {
+        self.publish('change', self);
+    }));
 
     return self;
 };

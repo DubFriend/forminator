@@ -26,8 +26,8 @@ var testClear = function () {
 
 var testPublishesOnSetChange = function() {
     expect(1);
-    this.input.subscribe('change', function (data) {
-        deepEqual(data, 'b', 'publishes changed data');
+    this.input.subscribe('change', function (input) {
+        deepEqual(input.get(), 'b', 'publishes changed data');
     });
     this.input.set('b');
 };
@@ -83,11 +83,12 @@ test("textInput getType", testGetType('text'));
 test("textInput disable", testDisabled);
 test("textInput enable", testEnabled);
 
-test("textInput set publishes change on keyup", function () {
+asyncTest("textInput set publishes change on keyup", function () {
     expect(1);
     this.input.set('a');
-    this.input.subscribe('change', function (data) {
-        deepEqual(data, 'a', 'published');
+    this.input.subscribe('change', function (input) {
+        deepEqual(input.get(), 'a', 'published');
+        start();
     });
     // http://stackoverflow.com/questions/832059/definitive-way-to-trigger-keypress-events-with-jquery
     var keyUpEvent = $.Event('keyup');
@@ -118,11 +119,12 @@ test("textareaInput clear", testClear);
 test("textareaInput set publishes change if changed", testPublishesOnSetChange);
 test("textareaInput set no publish if data not different", testNotPublishesOnSetNotChange);
 
-test("textareaInput set publishes change on keyup", function () {
+asyncTest("textareaInput set publishes change on keyup", function () {
     expect(1);
     this.input.set('a');
-    this.input.subscribe('change', function (data) {
-        deepEqual(data, 'a', 'published');
+    this.input.subscribe('change', function (input) {
+        deepEqual(input.get(), 'a', 'published');
+        start();
     });
     // http://stackoverflow.com/questions/832059/definitive-way-to-trigger-keypress-events-with-jquery
     var keyUpEvent = $.Event('keyup');
@@ -154,8 +156,8 @@ test("selectInput set no publish if data not different", testNotPublishesOnSetNo
 test("selectInput set publishes change on change", function () {
     expect(1);
     this.input.set('b');
-    this.input.subscribe('change', function (data) {
-        deepEqual(data, 'b', 'published');
+    this.input.subscribe('change', function (input) {
+        deepEqual(input.get(), 'b', 'published');
     });
     this.$.change();
 });
@@ -199,8 +201,8 @@ test("radioInput set no publish if data not different", testNotPublishesOnSetNot
 test("radioInput set publishes change on change", function () {
     expect(1);
     this.input.set('b');
-    this.input.subscribe('change', function (data) {
-        deepEqual(data, 'b', 'published');
+    this.input.subscribe('change', function (input) {
+        deepEqual(input.get(), 'b', 'published');
     });
     this.$.filter('[value="a"]').change();
 });
@@ -270,8 +272,8 @@ test("checkboxInput set no publish if data not different", testNotPublishesOnSet
 
 test("checkboxInput set publishes change on click", function () {
     expect(1);
-    this.input.subscribe('change', function (data) {
-        deepEqual(data, ['a'], 'published');
+    this.input.subscribe('change', function (input) {
+        deepEqual(input.get(), ['a'], 'published');
     });
     this.$.filter('[value="a"]').click();
 });
@@ -297,8 +299,8 @@ test("fileInput getFileName, file not set", function () {
 });
 test("fileInput publishes filename when file changed", function () {
     expect(1);
-    this.input.subscribe('change', function (data) {
-        strictEqual(data, '', 'publishes');
+    this.input.subscribe('change', function (input) {
+        strictEqual(input.get(), '', 'publishes');
     });
     this.$.change();
 });

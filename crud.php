@@ -74,9 +74,17 @@ function getOrders() {
 }
 
 function getFilters() {
-    return wrapKeysWithBackticks(
+    $filters =  wrapKeysWithBackticks(
         stripLeadingKey(getWhereStartsWith($_GET, 'filter_'), 'filter_')
     );
+
+    foreach($filters as $key => $value) {
+        if($key === '`text`') {
+            $filters[$key] = '%' . $value . '%';
+        }
+    }
+
+    return $filters;
 }
 
 function implodeArray(array $array) {
@@ -107,7 +115,7 @@ $response = null;
 switch($_SERVER['REQUEST_METHOD']) {
     case 'GET':
         $where = implode(' AND ', array_map(function ($key) {
-            return $key . ' = ?';
+            return $key === '`text`' ? $key . ' LIKE ?' : $key . ' = ?';
         }, array_keys(getFilters())));
 
 

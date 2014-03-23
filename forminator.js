@@ -966,10 +966,7 @@ var createFactory = function (fig) {
 
     var getMappedFormInputs = function ($form) {
         return map(
-            buildFormInputs({
-                $: $form,
-                factory: self
-            }),
+            buildFormInputs({ $: $form, factory: self }),
             function (input) {
                 return createFormGroup({ input: input });
             }
@@ -1012,6 +1009,7 @@ var createFactory = function (fig) {
     self.search = buildModuleIfExists(function ($module, request) {
         return createSearch({
             $: $module,
+            isInstantSearch: fig.isInstantSearch === false ? false : true,
             request: request,
             inputs: getMappedFormInputs($module)
         });
@@ -1146,7 +1144,7 @@ var createInput = function (fig, my) {
         var oldValue = self.get();
         if(oldValue !== newValue) {
             self.$().val(newValue);
-            self.publish('change', newValue);
+            self.publish('change', self);
         }
     };
 
@@ -1159,7 +1157,7 @@ var createInput = function (fig, my) {
             var oldValue = self.get();
             if(oldValue !== newValue) {
                 callback.call(self, newValue);
-                self.publish('change', newValue);
+                self.publish('change', self);
             }
         };
     };
@@ -1227,7 +1225,7 @@ var createInputCheckbox = function (fig) {
     };
 
     self.$().click(function () {
-        self.publish('change', self.get());
+        self.publish('change', self);
     });
 
     return self;
@@ -1250,7 +1248,7 @@ var createInputFile = function (fig) {
     };
 
     self.$().change(function () {
-        self.publish('change', self.get());
+        self.publish('change', self);
     });
 
     return self;
@@ -1278,7 +1276,7 @@ var createInputRadio = function (fig) {
     });
 
     self.$().change(function () {
-        self.publish('change', self.get());
+        self.publish('change', self);
     });
 
     return self;
@@ -1293,7 +1291,7 @@ var createInputSelect = function (fig) {
     };
 
     self.$().change(function () {
-        self.publish('change', self.get());
+        self.publish('change', self);
     });
 
     return self;
@@ -1307,9 +1305,9 @@ var createInputText = function (fig) {
         return 'text';
     };
 
-    self.$().keyup(function (e) {
-        self.publish('change', self.get());
-    });
+    self.$().keyup(debounce(200, function (e) {
+        self.publish('change', self);
+    }));
 
     return self;
 };
@@ -1322,9 +1320,9 @@ var createInputTextarea = function (fig) {
         return 'textarea';
     };
 
-    self.$().keyup(function () {
-        self.publish('change', self.get());
-    });
+    self.$().keyup(debounce(200, function () {
+        self.publish('change', self);
+    }));
 
     return self;
 };
@@ -1338,7 +1336,7 @@ var createInputHidden = function (fig) {
     };
 
     self.$().keyup(function (e) {
-        self.publish('change', self.get());
+        self.publish('change', self);
     });
 
     return self;
@@ -1396,6 +1394,7 @@ var createFormGroup = function (fig) {
     self.disable = input.disable;
     self.enable = input.enable;
     self.getType = input.getType;
+    self.subscribe = input.subscribe;
 
     self.$ = function (selector) {
         return selector ? $self.find(selector) : $self;
@@ -1644,14 +1643,25 @@ var createForm = function (fig) {
 var createSearch = function (fig) {
     var self = createFormBase(fig),
         $self = fig.$,
-        request = fig.request;
+        request = fig.request,
+        isInstantSearch = fig.isInstantSearch,
+        inputs = fig.inputs,
+        search = function () {
+            request.setFilter(self.get());
+            request.setPage(1);
+            request.search();
+        };
 
     $self.submit(function (e) {
         e.preventDefault();
-        request.setFilter(self.get());
-        request.setPage(1);
-        request.search();
+        search();
     });
+
+    if(isInstantSearch) {
+        foreach(inputs, function (input) {
+            input.subscribe('change', search);
+        });
+    }
 
     return self;
 };

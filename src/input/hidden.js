@@ -7,7 +7,7 @@ var createInputHidden = function (fig) {
     };
 
     self.$().keyup(function (e) {
-        self.publish('change', self.get());
+        self.publish('change', self);
     });
 
     return self;

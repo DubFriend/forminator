@@ -6,9 +6,9 @@ var createInputTextarea = function (fig) {
         return 'textarea';
     };
 
-    self.$().keyup(function () {
-        self.publish('change', self.get());
-    });
+    self.$().keyup(debounce(200, function () {
+        self.publish('change', self);
+    }));
 
     return self;
 };

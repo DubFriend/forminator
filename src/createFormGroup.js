@@ -9,6 +9,7 @@ var createFormGroup = function (fig) {
     self.disable = input.disable;
     self.enable = input.enable;
     self.getType = input.getType;
+    self.subscribe = input.subscribe;
 
     self.$ = function (selector) {
         return selector ? $self.find(selector) : $self;

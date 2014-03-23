@@ -29,10 +29,7 @@ var createFactory = function (fig) {
 
     var getMappedFormInputs = function ($form) {
         return map(
-            buildFormInputs({
-                $: $form,
-                factory: self
-            }),
+            buildFormInputs({ $: $form, factory: self }),
             function (input) {
                 return createFormGroup({ input: input });
             }
@@ -75,6 +72,7 @@ var createFactory = function (fig) {
     self.search = buildModuleIfExists(function ($module, request) {
         return createSearch({
             $: $module,
+            isInstantSearch: fig.isInstantSearch === false ? false : true,
             request: request,
             inputs: getMappedFormInputs($module)
         });

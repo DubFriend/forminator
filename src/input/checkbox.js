@@ -47,7 +47,7 @@ var createInputCheckbox = function (fig) {
     };
 
     self.$().click(function () {
-        self.publish('change', self.get());
+        self.publish('change', self);
     });
 
     return self;

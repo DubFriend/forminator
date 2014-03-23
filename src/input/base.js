@@ -35,7 +35,7 @@ var createInput = function (fig, my) {
         var oldValue = self.get();
         if(oldValue !== newValue) {
             self.$().val(newValue);
-            self.publish('change', newValue);
+            self.publish('change', self);
         }
     };
 
@@ -48,7 +48,7 @@ var createInput = function (fig, my) {
             var oldValue = self.get();
             if(oldValue !== newValue) {
                 callback.call(self, newValue);
-                self.publish('change', newValue);
+                self.publish('change', self);
             }
         };
     };
