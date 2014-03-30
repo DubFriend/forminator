@@ -1,6 +1,6 @@
 // forminator version 0.1.0
 // https://github.com/DubFriend/forminator
-// (MIT) 23-03-2014
+// (MIT) 30-03-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -961,7 +961,8 @@ var createFactory = function (fig) {
         checkbox: createInputCheckbox,
         file: createInputFile,
         button: createInputButton,
-        hidden: createInputHidden
+        hidden: createInputHidden,
+        range: createInputRange
     };
 
     var getMappedFormInputs = function ($form) {
@@ -1297,6 +1298,8 @@ var createInputSelect = function (fig) {
     return self;
 };
 
+// createInputText is also used for password, email, and url input types.
+// (see buildFormInputs.js)
 var createInputText = function (fig) {
     var my = {},
         self = createInput(fig, my);
@@ -1341,6 +1344,21 @@ var createInputHidden = function (fig) {
 
     return self;
 };
+var createInputRange = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'range';
+    };
+
+     self.$().change(function (e) {
+        self.publish('change', self);
+    });
+
+    return self;
+};
+
 var buildFormInputs = function (fig) {
     var $self = fig.$,
         factory = fig.factory,
@@ -1357,6 +1375,12 @@ var buildFormInputs = function (fig) {
     };
 
     addInputsBasic('text', 'input[type="text"]');
+    addInputsBasic('text', 'input[type="password"]');
+    addInputsBasic('text', 'input[type="email"]');
+    addInputsBasic('text', 'input[type="url"]');
+
+    addInputsBasic('range', 'input[type="range"]');
+
     addInputsBasic('textarea', 'textarea');
     addInputsBasic('select', 'select');
     addInputsBasic('file', 'input[type="file"]');

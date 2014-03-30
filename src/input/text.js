@@ -1,3 +1,5 @@
+// createInputText is also used for password, email, and url input types.
+// (see buildFormInputs.js)
 var createInputText = function (fig) {
     var my = {},
         self = createInput(fig, my);

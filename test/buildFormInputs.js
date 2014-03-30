@@ -8,7 +8,8 @@ var createMockFactory = function () {
             checkbox: identity,
             file: identity,
             button: identity,
-            hidden: identity
+            hidden: identity,
+            range: identity
         }
     };
 };
@@ -38,8 +39,14 @@ var buildTest = function (name, length) {
 
 };
 
+
 buildTest('text', 1);
 buildTest('text2', 1);
+buildTest('password', 1);
+buildTest('email', 1);
+buildTest('url', 1);
+buildTest('range', 1);
+
 buildTest('textarea', 1);
 buildTest('textarea2', 1);
 buildTest('radio', 2);

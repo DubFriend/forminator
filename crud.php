@@ -94,10 +94,26 @@ function implodeArray(array $array) {
 }
 
 function preparePOST() {
+
+
+    $acceptedFields = array(
+        'text', 'text2', 'textarea', 'textarea2', 'radio', 'radio2', 'checkbox',
+        'checkbox2', 'select', 'select2', 'hidden', 'id'
+    );
+
     $imploded = implodeArray($_POST);
 
-    $wrapped = array();
+    $fields = array();
+
     foreach($imploded as $key => $value) {
+        if(in_array($key, $acceptedFields)) {
+            $fields[$key] = $value;
+        }
+    }
+
+
+    $wrapped = array();
+    foreach($fields as $key => $value) {
         $wrapped['`' . $key . '`'] = $value;
     }
     return $wrapped;

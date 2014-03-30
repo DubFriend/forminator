@@ -24,7 +24,8 @@ var createFactory = function (fig) {
         checkbox: createInputCheckbox,
         file: createInputFile,
         button: createInputButton,
-        hidden: createInputHidden
+        hidden: createInputHidden,
+        range: createInputRange
     };
 
     var getMappedFormInputs = function ($form) {

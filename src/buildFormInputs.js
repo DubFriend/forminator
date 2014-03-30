@@ -14,6 +14,12 @@ var buildFormInputs = function (fig) {
     };
 
     addInputsBasic('text', 'input[type="text"]');
+    addInputsBasic('text', 'input[type="password"]');
+    addInputsBasic('text', 'input[type="email"]');
+    addInputsBasic('text', 'input[type="url"]');
+
+    addInputsBasic('range', 'input[type="range"]');
+
     addInputsBasic('textarea', 'textarea');
     addInputsBasic('select', 'select');
     addInputsBasic('file', 'input[type="file"]');

@@ -6,17 +6,20 @@ var buildSetup = function (fig) {
         this.$ = $fixture.find('.frm-name ' + fig.selector);
         this.createInput = fig.createInput;
         this.input = this.createInput({ $: this.$ });
+        this.testValue = fig.testValue;
     };
 };
 
 var testGet = function() {
-    this.$.val('b');
-    deepEqual(this.input.get(), 'b', 'gets current value');
+    var value = this.testValue || 'b';
+    this.$.val(value);
+    deepEqual(this.input.get(), value, 'gets current value');
 };
 
 var testSet = function() {
-    this.input.set('b');
-    deepEqual(this.$.val(), 'b', 'text input value is set');
+    var value = this.testValue || 'b';
+    this.input.set(value);
+    deepEqual(this.$.val(), value, 'text input value is set');
 };
 
 var testClear = function () {
@@ -25,20 +28,22 @@ var testClear = function () {
 };
 
 var testPublishesOnSetChange = function() {
+    var value = this.testValue || 'b';
     expect(1);
     this.input.subscribe('change', function (input) {
-        deepEqual(input.get(), 'b', 'publishes changed data');
+        deepEqual(input.get(), value, 'publishes changed data');
     });
-    this.input.set('b');
+    this.input.set(value);
 };
 
 var testNotPublishesOnSetNotChange = function() {
     expect(0);
-    this.input.set('b');
+    var value = this.testValue || 'b';
+    this.input.set(value);
     this.input.subscribe('change', function (data) {
         ok(false);
     });
-    this.input.set('b');
+    this.input.set(value);
 };
 
 var testGetType = function (type) {
@@ -66,6 +71,18 @@ var testEnabled = function () {
     deepEqual(this.$.prop('disabled'), false, 'disabled property not set');
 };
 
+var testPublishesChangeOnKeyup = function () {
+    expect(1);
+    var value = this.testValue || 'a';
+    this.input.set(value);
+    this.input.subscribe('change', function (input) {
+        deepEqual(input.get(), value, 'published');
+        start();
+    });
+    // http://stackoverflow.com/questions/832059/definitive-way-to-trigger-keypress-events-with-jquery
+    var keyUpEvent = $.Event('keyup');
+    this.$.trigger(keyUpEvent);
+};
 
 module("createInputText", {
     setup: buildSetup({
@@ -82,17 +99,82 @@ test("textInput set no publish if data not different", testNotPublishesOnSetNotC
 test("textInput getType", testGetType('text'));
 test("textInput disable", testDisabled);
 test("textInput enable", testEnabled);
+asyncTest("textInput set publishes change on keyup", testPublishesChangeOnKeyup);
 
-asyncTest("textInput set publishes change on keyup", function () {
+
+module("createInputPassword", {
+    setup: buildSetup({
+        selector: 'input[name="password"]',
+        createInput: createInputText
+    })
+});
+
+test("passwordInput get", testGet);
+test("passwordInput set", testSet);
+test("passwordInput clear", testClear);
+test("passwordInput set publishes change if changed", testPublishesOnSetChange);
+test("passwordInput set no publish if data not different", testNotPublishesOnSetNotChange);
+test("passwordInput getType", testGetType('text'));
+test("passwordInput disable", testDisabled);
+test("passwordInput enable", testEnabled);
+asyncTest("passwordInput set publishes change on keyup", testPublishesChangeOnKeyup);
+
+module("createInputEmail", {
+    setup: buildSetup({
+        selector: 'input[name="email"]',
+        createInput: createInputText
+    })
+});
+
+test("emailInput get", testGet);
+test("emailInput set", testSet);
+test("emailInput clear", testClear);
+test("emailInput set publishes change if changed", testPublishesOnSetChange);
+test("emailInput set no publish if data not different", testNotPublishesOnSetNotChange);
+test("emailInput getType", testGetType('text'));
+test("emailInput disable", testDisabled);
+test("emailInput enable", testEnabled);
+asyncTest("emailInput set publishes change on keyup", testPublishesChangeOnKeyup);
+
+module("createInputURL", {
+    setup: buildSetup({
+        selector: 'input[name="url"]',
+        createInput: createInputText
+    })
+});
+
+test("urlInput get", testGet);
+test("urlInput set", testSet);
+test("urlInput clear", testClear);
+test("urlInput set publishes change if changed", testPublishesOnSetChange);
+test("urlInput set no publish if data not different", testNotPublishesOnSetNotChange);
+test("urlInput getType", testGetType('text'));
+test("urlInput disable", testDisabled);
+test("urlInput enable", testEnabled);
+asyncTest("urlInput set publishes change on keyup", testPublishesChangeOnKeyup);
+
+module("createInputRange", {
+    setup: buildSetup({
+        selector: 'input[name="range"]',
+        createInput: createInputRange,
+        testValue: '5'
+    })
+});
+
+test("rangeInput get", testGet);
+test("rangeInput set", testSet);
+test("rangeInput set publishes change if changed", testPublishesOnSetChange);
+test("rangeInput set no publish if data not different", testNotPublishesOnSetNotChange);
+test("rangeInput getType", testGetType('range'));
+test("rangeInput disable", testDisabled);
+test("rangeInput enable", testEnabled);
+test("rangeInput set publishes change on change", function () {
     expect(1);
-    this.input.set('a');
+    this.input.set('1');
     this.input.subscribe('change', function (input) {
-        deepEqual(input.get(), 'a', 'published');
-        start();
+        deepEqual(input.get(), '1', 'published');
     });
-    // http://stackoverflow.com/questions/832059/definitive-way-to-trigger-keypress-events-with-jquery
-    var keyUpEvent = $.Event('keyup');
-    this.$.trigger(keyUpEvent);
+    this.$.change();
 });
 
 
@@ -115,22 +197,9 @@ test("textareaInput set", function() {
 
 
 test("textareaInput clear", testClear);
-
 test("textareaInput set publishes change if changed", testPublishesOnSetChange);
 test("textareaInput set no publish if data not different", testNotPublishesOnSetNotChange);
-
-asyncTest("textareaInput set publishes change on keyup", function () {
-    expect(1);
-    this.input.set('a');
-    this.input.subscribe('change', function (input) {
-        deepEqual(input.get(), 'a', 'published');
-        start();
-    });
-    // http://stackoverflow.com/questions/832059/definitive-way-to-trigger-keypress-events-with-jquery
-    var keyUpEvent = $.Event('keyup');
-    this.$.trigger(keyUpEvent);
-});
-
+asyncTest("textareaInput set publishes change on keyup", testPublishesChangeOnKeyup);
 test("textareaInput getType", testGetType('textarea'));
 test("textareaInput disable", testDisabled);
 test("textareaInput enable", testEnabled);
@@ -206,6 +275,8 @@ test("radioInput set publishes change on change", function () {
     });
     this.$.filter('[value="a"]').change();
 });
+
+
 
 test("radioInput getType", testGetType('radio'));
 test("radioInput disable", testDisabled);
