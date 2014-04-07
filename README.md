@@ -21,9 +21,10 @@ different element types, as long as the classnames and data attributes follow
 the same pattern as in the examples below.
 
 Forminator interfaces must be given names to distinguish multiple forminator
-interfaces on the same page.  In the following examples, the form is given the
-name "foo".
+interfaces on the same page.  In the following examples, the interface is given
+the name "foo".
 
+### The Form
 ```html
 <!--
 The main form, denoted by the class "frm-[name]".  Used in the full crud
@@ -51,4 +52,39 @@ interface For creating and updating data.
     -->
     <div class="frm-global-feedback"></div>
 </form>
+```
+
+###Search
+The search form follows the same format as the regular form.
+```html
+```
+
+###New Item Button
+If you want to create things you might need a new item button.
+```html
+```
+
+###Pagination Data
+```html
+```
+
+###Pagination Numbers
+```html
+```
+
+###Pagination Goto Page
+```html
+```
+
+###Ordinator
+```html
+```
+
+###Results List
+```html
+```
+
+###Configuration
+You will need to write at least a little bit of javascript to get things configured.
+```javascript
 ```
