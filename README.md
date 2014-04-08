@@ -7,18 +7,16 @@
 Forminator works by using class names and data attributes supplied in the HMTL
 markup to declaratively build dynamic, ajax interfaces.
 
-Forminator understands how to build form, pagination, which can be combined to
-create full CRUD (Create/Read/Update/Delete) interfaces, down to simple single
-form interfaces.
+Forminator understands how to build forms, pagination, order, and list widgets
+which can be combined to create full CRUD (Create/Read/Update/Delete) interfaces.
+These elements can be combined in different ways to create different types of functionality.
+A read only interface may be made by ommiting the main form, and edit and delete elements.
+A simple ajax form interface may be made by supplying only a form.
 
-Here is an example using all the elements to create a full crud interface.  You
-may omit portions to create for example a read only interface, or only use the form
-element to create a simple ajax form.
-
-The forminator aims to provide as much flexability and ease of use with the html
-markup as possible.  Generally speaking you may add extra html elements, use
-different element types, as long as the classnames and data attributes follow
-the same pattern as in the examples below.
+The forminator aims to provide as much flexability and ease of use as possible.
+Generally speaking you may add extra html elements, attributes, and use different element types.
+Things should continue to work as long as you follow the classnames, attribute
+patterns and nesting structure as the examples given below.
 
 Forminator interfaces must be given names to distinguish multiple forminator
 interfaces on the same page.  In the following examples, the interface is given
@@ -57,7 +55,7 @@ interface For creating and updating data.
 ###Search
 The search form follows the same format as the regular form.
 ```html
-<form class="frm-search-foo">&hellip;</form>
+<form class="frm-search-foo">...</form>
 ```
 
 ###New Item Button
@@ -135,8 +133,8 @@ The "frm-list" is where a list of results will be displayed.  Forminator will
 use the first "frm-list-item" nested within the "frm-list" as a template for
 rendering subsequent results.  You may optionally render multiple results with
 "data-value" attributes on initial page load.(Rendering the initial results on
-page load instead of with a subsequent ajax request has the SEO advantages, as
-well as getting the data out to your users faster.)
+page load instead of with a subsequent ajax request is better for SEO, and
+gets the data to your users faster.)
 ```html
 <div class="frm-list-foo">
     <div class="frm-list-item">
@@ -191,7 +189,109 @@ and this element will be shown instead.
 ###Configuration
 You will need a bit of javascript to get things configured.
 ```javascript
-```
+var nameForminator = forminator.init({
+
+    // (required)
+    // name of the interface, (appended to html class names. see html examples)
+    name: 'foo',
+
+    // (required)
+    // the url that forminator will make http requests to
+    url: 'request.php',
+
+    // (required if updating or deleting items)
+    // delete functionality needs to know which field(s) to use to
+    // uniquely identify an item.
+    uniquelyIdentifyingFields: ['id'],
+
+    // (optional)
+    // validate is called whenever the user submits the form.  Validate will be
+    // passed the forms data as an object.  According to this doc's html examples,
+    // the form might contain data such as...
+    // {
+    //     name: 'Bob Gunderson',
+    //     sex: 'male'
+    // }
+    // validate should return an errors object, which if empty will denote a passing
+    // validation.
+    validate: function (data) {
+        var errors = {};
+
+        if(data.name.length < 3) {
+            // The field named "name" will be given an error message of
+            // "3 character minimum." in its corresponding "frm-feedback" container.
+            errors.name = '3 character minimum.';
+        }
+
+        if(errors.name) {
+            // The form's "frm-global-feedback" container will be given an error
+            // message of "An error occured."
+            errors.GLOBAL = 'An error occured.';
+        }
+
+        return errors;
+    },
+
+    // (optional)
+    // called on a response to a successfull http request.  The "action" parameter
+    // will be either "create", "get", "update", or "delete"
+    success: function (action, response) {
+        console.log('success', action, response, this);
+        $('.js-form-modal').modal('hide');
+        setTimeout(this.clearFormFeedback, 2000);
+    },
+
+    // (optional)
+    // called whenever a list item is selected.  "selected" is passed a jquery
+    // reference to the selected list item.  The form will be populated with
+    // with the selected items data.  In this example the form has been wrapped
+    // with a modal which is set to show whenever an item is selected.
+    selected: function ($item) {
+        $('.js-form-modal').modal('show');
+    },
+
+    // (optional, defaults to a confirm dialogue)
+    // called whenever the user clicks a "frm-delete-item" element.
+    // "deleteConfirmation" is passed a callback which will initiate an http
+    // request to delete the selected item when called.  In this example a delete
+    // modal is displayed.
+    deleteConfirmation: function (deleteItem) {
+        var $deleteButton = $('.js-delete');
+        var $modal = $('.js-confirm-delete-modal');
+        $modal.modal('show');
+        $deleteButton.click(function () {
+            $modal.modal('hide');
+            deleteItem();
+            $deleteButton.unbind();
+        });
+    },
+
+    // (optional)
+    // fieldMap's map a data-field's underlying data representation, to a
+    // representation visible to the user.
+    fieldMap: {
+        sex: function (value) {
+            return value.toUpperCase();
+        }
+    },
+
+    // (optional)
+    // choose content to display in ordinator controls for values of "ascending",
+    // "descending" and "neutral"
+    orderIcons: {
+        ascending: 'Goin Up',
+        descending: 'Coming Down',
+        neutral: 'Round and Round'
+    }
+});
+
+// clicking the "frm-new" element will reset the form in preperation for creating
+// a new element.  In this example the form has been wrapped in a modal and is
+// displayed for creating a new element
+$('.frm-new-foo').click(function () {
+    $('.js-form-modal').modal('show');
+});
+
 
 ###The Server
 Forminator will will construct and send ajax requests at the appropriate times,
