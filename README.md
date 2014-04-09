@@ -22,6 +22,12 @@ Forminator interfaces must be given names to distinguish multiple forminator
 interfaces on the same page.  In the following examples, the interface is given
 the name "foo".
 
+Full working examples with example server implementations can be found in the code.
+See `index.html` or `example_bootstrap.html` for the client implementation, and
+`crud.php` for a server-side implemenation.
+
+Tested in ie8, chrome, firefox and safari mobile.
+
 ### The Form
 ```html
 <!--
@@ -316,13 +322,13 @@ and expects results to have a certain format.
 Forminator makes four request types, "create", "update", "get" and "delete"
 
 In general, you may add your own data to the request and response, as long as
-the documented require fields are also present.
+the required fields are also present.
 
 ###get
 get requests can be detected server side as they are the only forminator
 request type to use the http GET method.  ("create", "update", and "delete" all use POST)
 
-"get" request send, send "filter", "order" and "page" variables as query
+"get" request send "filter", "order" and "page" variables as query
 parameters to the url.
 
 ####get request
@@ -426,7 +432,7 @@ A json response of the following format is expected
         "id": 5
     },
 
-    // optional: a success message that will be rendered in to the forms
+    // optional: a success message that will be rendered into the form's
     // "frm-global-feedback" container
     "successMessage": "A new item has been created!"
 }
