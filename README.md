@@ -59,13 +59,13 @@ The search form follows the same format as the regular form.
 ```
 
 ###New Item Button
-If you want to create things you might need a new item button.
+If you want to create things you will need a new item button.
 ```html
 <input class="frm-new-foo" type="button" value="New Item"/>
 ```
 
 ###Pagination Data
-Display the number of pages and results found on the given results
+Display the number of pages and or results for the given results
 ```html
 Number of pages: <span class="frm-number-of-pages-foo"></span>
 Number of results: <span class="frm-number-of-results-foo"></span>
@@ -82,8 +82,19 @@ previous button for page navigation
     outside the "frm-page-numbers" container
     -->
     <div class="frm-previous-foo">Previous</div>
+    <!--
+    forminator will use the first "frm-number-container" as a template
+    for rendering subsequent "frm-number-containers"
+    you may render multiple "frm-number-container"'s on page load.
+    -->
+    <div class="frm-number-container">
+        <span data-number="1">1</span>
+    </div>
     <div class="frm-number-container selected">
         <span data-number="2">2</span>
+    </div>
+    <div class="frm-number-container">
+        <span data-number="3">3</span>
     </div>
     <div class="frm-next-foo">Next</div>
 </div>
@@ -160,6 +171,10 @@ gets the data to your users faster.)
         -->
         <span data-field="id" data-value="5" style="display:none;"></span>
         <span>Name</span>
+        <!--
+        data-field denotes the field name of a field, "data-value" denotes
+        its corresponding value.
+        -->
         <span data-field="name" data-value="Bob Gunderson">Bob Gunderson</span>
         <span>Sex</span>
         <span data-field="sex" data-value="male">Male</span>
@@ -291,8 +306,147 @@ var nameForminator = forminator.init({
 $('.frm-new-foo').click(function () {
     $('.js-form-modal').modal('show');
 });
+```
 
 
 ###The Server
 Forminator will will construct and send ajax requests at the appropriate times,
-and expects results with a certain format.
+and expects results to have a certain format.
+
+Forminator makes four request types, "create", "update", "get" and "delete"
+
+In general, you may add your own data to the request and response, as long as
+the documented require fields are also present.
+
+###get
+get requests can be detected server side as they are the only forminator
+request type to use the http GET method.  ("create", "update", and "delete" all use POST)
+
+"get" request send, send "filter", "order" and "page" variables as query
+parameters to the url.
+
+####get request
+
+filter and order parameters take the form "filter\_[field name]" and "order\_[field name]".
+The filter and order parameters will be taken from the corresponding html's "data-field"
+attributes (see html examples above)
+
+an example url might be
+`request.php?filter_name=Bob&order_name=ascending&page=2`
+
+Your server side implementation is responsible for delivering appropriate results
+sets for these results
+
+####get response
+You should respond to GET request with JSON of the following format.
+```javascript
+{
+    // optional: (defaults to 200)
+    // A mock http response code. Codes between 200 and 399 will be concidered
+    // a success, all other response codes denote an error condition.
+    // forminator cannot use the actual response code, as it falls back to a
+    // hidden iframe for ajax file uploads, and the real http response code
+    // cannot be obtained using this method.
+    "status": 200,
+
+    // The number of pages returned. Used to update the pagination elements
+    "numberOfPages": 5,
+
+    // optional
+    // The number of results returned.
+    "numberOfResults": 48,
+
+    // the results should be an array of objects whose keys correspond to the
+    // "data-field" attributes on the list and form, and order elements.
+    // (the "data-field" attributes on the search form do not need to follow the
+    // same values)
+    "results": [
+        {
+            "id": 47,
+            "name": "Sally Sue",
+            "sex": "female"
+        },
+        {
+            "id": 45,
+            "name": "John Doe",
+            "sex": "male"
+        }
+        //...
+    ]
+}
+```
+
+
+###delete
+
+####delete request
+"delete" requests send http POST requests and have urls of the following form
+
+`request.php?id=5&action=delete`
+
+In this example a parameter named "id" is passed.  But "delete" will pass whatever
+fields have been notified as the set of unique identifiers (see the
+"uniquelyIdentifyingFields" field in the Configuration section of the docs).
+
+Your server implementation is responsible for deleting the resource given by the
+uniquely identifying fields.
+
+####delete response
+```javascript
+{
+    // optional: (defaults to 200)
+    // same format as for get requests
+    "status": 201
+}
+```
+
+
+###create
+
+####create request
+create requests send a POST request with the following url format.
+`request.php?action=create`
+the body of the request contains the names and values of the forms "data-field"
+attributes.
+
+####create response
+The server is expected to create a new resource based on the sent values and
+return the uniquely identifying fields (see "uniquelyIdentifyingFields" under
+Configuration).
+
+A json response of the following format is expected
+```javascript
+{
+    // optional (defaults to 200)
+    "status": 200,
+
+    // required: the uniquely identifying fields (possibly generated on the server)
+    // for this item
+    "fields": {
+        "id": 5
+    },
+
+    // optional: a success message that will be rendered in to the forms
+    // "frm-global-feedback" container
+    "successMessage": "A new item has been created!"
+}
+```
+
+###update
+
+####update request
+sends a POST request with a url of the following format
+
+`request.php?action=update`
+
+the body of the request contains the forms data (same as for a create request)
+
+####update response
+```javascript
+{
+    //optional
+    "status": 200,
+    //optional
+    "successMessage": "Item has been Updated!"
+}
+```
