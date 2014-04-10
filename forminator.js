@@ -1,6 +1,6 @@
 // forminator version 0.1.0
 // https://github.com/DubFriend/forminator
-// (MIT) 30-03-2014
+// (MIT) 09-04-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
