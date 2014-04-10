@@ -32,7 +32,7 @@ Some forminator html classnames must be appended with a name in order to
 distinguish between multiple forminator interfaces on the same page.
 
 In the following examples, the interface is given
-the name "foo".
+the name `foo`.
 
 ### The Form
 ```html
