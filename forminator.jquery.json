@@ -1,6 +1,6 @@
 {
     "name": "forminator",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "title": "forminator",
     "author": {
         "name": "Brian Detering",
@@ -13,9 +13,9 @@
             "url": "https://github.com/DubFriend/forminator/blob/master/LICENSE.md"
         }
     ],
-    "description": "Cross Browser Ajax File Uploads.",
+    "description": "Forminator works by using class names and data attributes supplied in the HMTL markup to declaratively build dynamic, ajax interfaces.",
     "keywords": [
-        "file", "upload", "ajax", "iframe", "xhr2"
+        "form", "generator", "interface", "ui", "dynamic", "ajax"
     ],
     "docs": "https://github.com/DubFriend/forminator/blob/master/README.md",
     "demo": "http://briandetering.net/forminator",
