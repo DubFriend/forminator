@@ -20,7 +20,7 @@ patterns and nesting structure as the examples given below.
 
 Forminator interfaces must be given names to distinguish multiple forminator
 interfaces on the same page.  In the following examples, the interface is given
-the name "foo".
+the name `foo`.
 
 Full working examples with example server implementations can be found in the code.
 See `index.html` or `example_bootstrap.html` for the client implementation, and
