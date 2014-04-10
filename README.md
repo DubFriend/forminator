@@ -18,10 +18,6 @@ Generally speaking you may add extra html elements, attributes, and use differen
 Things should continue to work as long as you follow the classnames, attribute
 patterns and nesting structure as the examples given below.
 
-Forminator interfaces must be given names to distinguish multiple forminator
-interfaces on the same page.  In the following examples, the interface is given
-the name `foo`.
-
 Full working examples with example server implementations can be found in the code.
 See `index.html` or `example_bootstrap.html` for the client implementation, and
 `crud.php` for a server-side implemenation.
@@ -31,8 +27,7 @@ Tested in ie8, chrome, firefox and safari mobile.
 Some forminator html classnames must be appended with a name in order to
 distinguish between multiple forminator interfaces on the same page.
 
-In the following examples, the interface is given
-the name `foo`.
+In the following examples, the interface is giventhe name `foo`.
 
 ### The Form
 ```html
