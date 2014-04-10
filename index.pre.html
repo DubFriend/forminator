@@ -61,6 +61,12 @@
             success: function (response) {
                 this.reset();
                 setTimeout(this.clearFormFeedback, 2000);
+            },
+            error: function (response) {
+                console.log('error', arguments, this);
+            },
+            complete: function (response) {
+                console.log('complete', arguments, this);
             }
         });
     </script>

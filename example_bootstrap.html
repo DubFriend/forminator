@@ -413,6 +413,12 @@
                 $('.js-form-modal').modal('hide');
                 setTimeout(this.clearFormFeedback, 2000);
             },
+            error: function (response) {
+                console.log('error', arguments, this);
+            },
+            complete: function (response) {
+                console.log('complete', arguments, this);
+            },
             selected: function ($item) {
                 $('.js-form-modal').modal('show');
             },

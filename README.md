@@ -28,6 +28,12 @@ See `index.html` or `example_bootstrap.html` for the client implementation, and
 
 Tested in ie8, chrome, firefox and safari mobile.
 
+Some forminator html classnames must be appended with a name in order to
+distinguish between multiple forminator interfaces on the same page.
+
+In the following examples, the interface is given
+the name "foo".
+
 ### The Form
 ```html
 <!--
@@ -263,6 +269,19 @@ var nameForminator = forminator.init({
     },
 
     // (optional)
+    // called on response to an error http request.
+    error: function (action, response) {
+        console.log('error', action, response, this);
+    },
+
+    // (optional)
+    // called on on request complete.
+    complete: function (action, response) {
+        console.log('complete', action, response, this);
+        setTimeout(this.clearFormFeedback, 2000);
+    },
+
+    // (optional)
     // called whenever a list item is selected.  "selected" is passed a jquery
     // reference to the selected list item.  The form will be populated with
     // with the selected items data.  In this example the form has been wrapped
@@ -347,14 +366,6 @@ sets for these results
 You should respond to GET request with JSON of the following format.
 ```javascript
 {
-    // optional: (defaults to 200)
-    // A mock http response code. Codes between 200 and 399 will be concidered
-    // a success, all other response codes denote an error condition.
-    // forminator cannot use the actual response code, as it falls back to a
-    // hidden iframe for ajax file uploads, and the real http response code
-    // cannot be obtained using this method.
-    "status": 200,
-
     // The number of pages returned. Used to update the pagination elements
     "numberOfPages": 5,
 
@@ -399,11 +410,7 @@ uniquely identifying fields.
 
 ####delete response
 ```javascript
-{
-    // optional: (defaults to 200)
-    // same format as for get requests
-    "status": 201
-}
+{}
 ```
 
 
@@ -423,9 +430,6 @@ Configuration).
 A json response of the following format is expected
 ```javascript
 {
-    // optional (defaults to 200)
-    "status": 200,
-
     // required: the uniquely identifying fields (possibly generated on the server)
     // for this item
     "fields": {
@@ -450,8 +454,6 @@ the body of the request contains the forms data (same as for a create request)
 ####update response
 ```javascript
 {
-    //optional
-    "status": 200,
     //optional
     "successMessage": "Item has been Updated!"
 }

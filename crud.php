@@ -165,7 +165,7 @@ switch($_SERVER['REQUEST_METHOD']) {
         $count = $resultsObject->count();
 
         $response = array(
-            'status' => 200,
+            // 'status' => 200,
             'results' => $results,
             'numberOfResults' => $count,
             'numberOfPages' => ceil($count / RESULTS_PER_PAGE)
@@ -176,7 +176,7 @@ switch($_SERVER['REQUEST_METHOD']) {
             case 'create':
                 $id = $sql->insert('forminator', preparePOST());
                 $response = array(
-                    'status' => 200,
+                    // 'status' => 200,
                     'fields' => array('id' => $id),
                     'successMessage' => 'New item (id:' . $id . ') Created!');
                 break;
@@ -186,13 +186,13 @@ switch($_SERVER['REQUEST_METHOD']) {
                         return $value !== 'id';
                     }), array('id' => $_POST['id']));
                     $response = array(
-                        'status' => 200,
+                        // 'status' => 200,
                         'successMessage' => 'Updated!'
                     );
                 }
                 else {
                     $response = array(
-                        'status' => 409,
+                        // 'status' => 409,
                         'GLOBAL' => 'Update must have an id field.'
                     );
                 }
@@ -201,13 +201,13 @@ switch($_SERVER['REQUEST_METHOD']) {
                 if(isset($_GET['id']) && is_numeric($_GET['id'])) {
                     $sql->delete('forminator', array('id' => $_GET['id']));
                     $response = array(
-                        'status' => 200,
+                        // 'status' => 200,
                         'GLOBAL' => 'Item id:' . $_GET['id'] . ' deleted.'
                     );
                 }
                 else {
                     $response = array(
-                        'status' => 409,
+                        // 'status' => 409,
                         'GLOBAL' => 'Delete must have id query parameter'
                     );
                 }
@@ -219,5 +219,6 @@ switch($_SERVER['REQUEST_METHOD']) {
     default:
         throw new Exception('invalid request method: ' . $_SERVER['REQUEST_METHOD']);
 }
+
 echo json_encode($response);
 ?>
