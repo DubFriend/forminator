@@ -43,7 +43,7 @@ var createPaginator = function (fig) {
         setNumberOfPages = function (newNumberOfPages) {
             newNumberOfPages = toInt(newNumberOfPages);
             if(newNumberOfPages !== numberOfPages) {
-                $numberOfPages.html(newNumberOfPages);
+                $numberOfPages.html(xss(newNumberOfPages));
                 numberOfPages = newNumberOfPages;
             }
         },
@@ -51,7 +51,7 @@ var createPaginator = function (fig) {
         setNumberOfResults = function (newNumberOfResults) {
             newNumberOfResults = toInt(newNumberOfResults);
             if(newNumberOfResults !== numberOfResults) {
-                $numberOfResults.html(newNumberOfResults);
+                $numberOfResults.html(xss(newNumberOfResults));
                 numberOfResults = newNumberOfResults;
             }
         },
@@ -90,7 +90,7 @@ var createPaginator = function (fig) {
             self.set = function (newPageNumber) {
                 newPageNumber = toInt(newPageNumber);
                 if(pageNumber !== newPageNumber) {
-                    $number.html(newPageNumber);
+                    $number.html(xss(newPageNumber));
                     pageNumber = newPageNumber;
                 }
             };
@@ -111,7 +111,7 @@ var createPaginator = function (fig) {
                 $self.remove();
             };
 
-            $number.html(pageNumber);
+            $number.html(xss(pageNumber));
 
             $self.click(function (e) {
                 e.preventDefault();

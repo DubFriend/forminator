@@ -80,7 +80,8 @@ Number of results: <span class="frm-number-of-results-foo"></span>
 
 ###Pagination Numbers
 Display the current page number, the adjacent page numbers, and a next and
-previous button for page navigation
+previous button for page navigation.  Pagination numbers will be hidden if
+there is one page or less of results.
 ```html
 
 <div class="frm-page-numbers-foo">
@@ -108,7 +109,8 @@ previous button for page navigation
 ```
 
 ###Pagination Goto Page
-Display a "Goto Page" form for page navigation
+Display a "Goto Page" form for page navigation. Pagination Goto Page will be
+hidden if their is one page or less of results.
 ```html
 <form class="frm-goto-page-foo">
     <div class="frm-group">
@@ -453,3 +455,13 @@ the body of the request contains the forms data (same as for a create request)
     "successMessage": "Item has been Updated!"
 }
 ```
+
+###html escaping.
+
+html entities are escaped from values before being inserted into the dom.  Note
+that orderIcons are not escaped to allow custom order icons using html.
+
+###File uploads.
+
+forminator supports file inputs and uploads them via ajax, (using an iframe
+fallback for older browsers that do not support XHR2).

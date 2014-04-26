@@ -17,6 +17,7 @@ module.exports = function (grunt) {
                 src: [
                     'src/intro.js',
                     'lib/jquery.file-ajax.js',
+                    'lib/xss-escape.js',
                     'src/library.js',
                     'src/factory.js',
                     'src/ajax.js',

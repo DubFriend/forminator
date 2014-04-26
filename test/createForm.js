@@ -173,6 +173,7 @@ test('trigger error', function () {
     );
 });
 
+
 test('error cleared after success', function () {
     this.ajaxFig.error({ text: 'errorMessage', GLOBAL: 'globalErrorMessage' });
     this.ajaxFig.success();

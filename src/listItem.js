@@ -8,9 +8,13 @@ var createListItem = function (fig) {
         },
 
         render = function (fields) {
-            foreach(fields, function (value, name) {
+            foreach(xss(fields), function (value, name) {
                 $self.find('[data-field="' + name + '"]')
-                    .html(fieldMap[name] ? fieldMap[name](value) : defaultMap(value));
+                    .html(
+                        fieldMap[name] ?
+                            fieldMap[name](value) :
+                            defaultMap(value)
+                    );
             });
         },
 

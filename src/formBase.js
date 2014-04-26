@@ -15,7 +15,7 @@ var createFormBase = function (fig) {
                 $self.addClass('error');
             }
             if(newMessage !== oldMessage) {
-                $feedback.html(newMessage);
+                $feedback.html(xss(newMessage));
             }
             isError = true;
             oldMessage = newMessage;
@@ -44,7 +44,7 @@ var createFormBase = function (fig) {
                 $self.addClass('success');
             }
             if(newMessage !== oldMessage) {
-                $feedback.html(newMessage);
+                $feedback.html(xss(newMessage));
             }
             isSuccess = true;
             oldMessage = newMessage;

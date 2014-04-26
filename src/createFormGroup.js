@@ -25,7 +25,7 @@ var createFormGroup = function (fig) {
                 self.$().addClass('error');
             }
             if(newMessage !== oldMessage) {
-                self.$('.frm-feedback').html(newMessage);
+                self.$('.frm-feedback').html(xss(newMessage));
             }
             oldMessage = newMessage;
             isError = true;

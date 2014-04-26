@@ -1,6 +1,6 @@
-// forminator version 0.1.1
+// forminator version 0.1.3
 // https://github.com/DubFriend/forminator
-// (MIT) 09-04-2014
+// (MIT) 25-04-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -534,6 +534,126 @@
 
 }(jQuery));
 
+// xss-escape
+// https://github.com/DubFriend/xss-escape
+
+// https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet
+
+var xss = (function () {
+    'use strict';
+
+    var isString = function (data) {
+        return typeof data === 'string';
+    };
+
+    var isArray = function (value) {
+        return toString.call(value) === "[object Array]";
+    };
+
+    var isObject = function (value) {
+        return !isArray(value) && value instanceof Object;
+    };
+
+    var isNumber = function (value) {
+        return typeof value === 'number';
+    };
+
+    var charForLoopStrategy = function (unescapedString) {
+        var i, character, escapedString = '';
+
+        for(i = 0; i < unescapedString.length; i += 1) {
+            character = unescapedString.charAt(i);
+            switch(character) {
+                case '<':
+                    escapedString += '&lt;';
+                    break;
+                case '>':
+                    escapedString += '&gt;';
+                    break;
+                case '&':
+                    escapedString += '&amp;';
+                    break;
+                case '/':
+                    escapedString += '&#x2F;';
+                    break;
+                case '"':
+                    escapedString += '&quot;';
+                    break;
+                case "'":
+                    escapedString += '&#x27;';
+                    break;
+                default:
+                    escapedString += character;
+            }
+        }
+
+        return escapedString;
+    };
+
+    var regexStrategy = function (string) {
+        return string
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, "&#x27;")
+            .replace(/\//g, '&#x2F;');
+    };
+
+    var shiftToRegexStrategyThreshold = 32;
+
+    var xssEscape = function (data, forceStrategy) {
+        var escapedData, character, key, i, charArray = [], stringLength;
+
+        if(isString(data)) {
+            stringLength = data.length;
+            if(forceStrategy === 'charForLoopStrategy') {
+                escapedData = charForLoopStrategy(data);
+            }
+            else if(forceStrategy === 'regexStrategy') {
+                escapedData = regexStrategy(data);
+            }
+            else if(stringLength > shiftToRegexStrategyThreshold) {
+                escapedData = regexStrategy(data);
+            }
+            else {
+                escapedData = charForLoopStrategy(data);
+            }
+        }
+        else if(isNumber(data)) {
+            escapedData = data;
+        }
+        else if(isArray(data)) {
+            escapedData = [];
+            for(i = 0; i < data.length; i += 1) {
+                escapedData.push(xssEscape(data[i]));
+            }
+        }
+        else if(isObject(data)) {
+            escapedData = {};
+            for(key in data) {
+                if(data.hasOwnProperty(key)) {
+                    escapedData[key] = xssEscape(data[key]);
+                }
+            }
+        }
+
+        return escapedData;
+    };
+
+    return xssEscape;
+
+    // // use in browser or nodejs
+    // if (typeof exports !== 'undefined') {
+    //     if (typeof module !== 'undefined' && module.exports) {
+    //         exports = module.exports = xssEscape;
+    //     }
+    //     exports.xssEscape = xssEscape;
+    // } else {
+    //     this.xssEscape = xssEscape;
+    // }
+
+}());
 var identity = function (x) {
     return x;
 };
@@ -1064,7 +1184,6 @@ var ajax = function ($form, figFN) {
         $form.fileAjax(applyDefaultFileAjaxFig, false);
     }
     else {
-        console.log('$.ajax');
         // form has no files, use standard ajax.
         $form.submit(function (e) {
             e.preventDefault();
@@ -1378,9 +1497,7 @@ var buildFormInputs = function (fig) {
     addInputsBasic('text', 'input[type="password"]');
     addInputsBasic('text', 'input[type="email"]');
     addInputsBasic('text', 'input[type="url"]');
-
     addInputsBasic('range', 'input[type="range"]');
-
     addInputsBasic('textarea', 'textarea');
     addInputsBasic('select', 'select');
     addInputsBasic('file', 'input[type="file"]');
@@ -1434,7 +1551,7 @@ var createFormGroup = function (fig) {
                 self.$().addClass('error');
             }
             if(newMessage !== oldMessage) {
-                self.$('.frm-feedback').html(newMessage);
+                self.$('.frm-feedback').html(xss(newMessage));
             }
             oldMessage = newMessage;
             isError = true;
@@ -1470,7 +1587,7 @@ var createFormBase = function (fig) {
                 $self.addClass('error');
             }
             if(newMessage !== oldMessage) {
-                $feedback.html(newMessage);
+                $feedback.html(xss(newMessage));
             }
             isError = true;
             oldMessage = newMessage;
@@ -1499,7 +1616,7 @@ var createFormBase = function (fig) {
                 $self.addClass('success');
             }
             if(newMessage !== oldMessage) {
-                $feedback.html(newMessage);
+                $feedback.html(xss(newMessage));
             }
             isSuccess = true;
             oldMessage = newMessage;
@@ -1823,7 +1940,7 @@ var createPaginator = function (fig) {
         setNumberOfPages = function (newNumberOfPages) {
             newNumberOfPages = toInt(newNumberOfPages);
             if(newNumberOfPages !== numberOfPages) {
-                $numberOfPages.html(newNumberOfPages);
+                $numberOfPages.html(xss(newNumberOfPages));
                 numberOfPages = newNumberOfPages;
             }
         },
@@ -1831,7 +1948,7 @@ var createPaginator = function (fig) {
         setNumberOfResults = function (newNumberOfResults) {
             newNumberOfResults = toInt(newNumberOfResults);
             if(newNumberOfResults !== numberOfResults) {
-                $numberOfResults.html(newNumberOfResults);
+                $numberOfResults.html(xss(newNumberOfResults));
                 numberOfResults = newNumberOfResults;
             }
         },
@@ -1870,7 +1987,7 @@ var createPaginator = function (fig) {
             self.set = function (newPageNumber) {
                 newPageNumber = toInt(newPageNumber);
                 if(pageNumber !== newPageNumber) {
-                    $number.html(newPageNumber);
+                    $number.html(xss(newPageNumber));
                     pageNumber = newPageNumber;
                 }
             };
@@ -1891,7 +2008,7 @@ var createPaginator = function (fig) {
                 $self.remove();
             };
 
-            $number.html(pageNumber);
+            $number.html(xss(pageNumber));
 
             $self.click(function (e) {
                 e.preventDefault();
@@ -2125,9 +2242,13 @@ var createListItem = function (fig) {
         },
 
         render = function (fields) {
-            foreach(fields, function (value, name) {
+            foreach(xss(fields), function (value, name) {
                 $self.find('[data-field="' + name + '"]')
-                    .html(fieldMap[name] ? fieldMap[name](value) : defaultMap(value));
+                    .html(
+                        fieldMap[name] ?
+                            fieldMap[name](value) :
+                            defaultMap(value)
+                    );
             });
         },
 

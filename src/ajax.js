@@ -20,7 +20,6 @@ var ajax = function ($form, figFN) {
         $form.fileAjax(applyDefaultFileAjaxFig, false);
     }
     else {
-        console.log('$.ajax');
         // form has no files, use standard ajax.
         $form.submit(function (e) {
             e.preventDefault();
