@@ -28,7 +28,7 @@ module('createForm',{
         self.hiddenClearCalled = false;
 
         self.inputs = {
-            fileInput: {
+            fileInput: mixinPubSub({
                 getType: function () { return 'file'; },
                 get: function () { return 'fileInputData'; },
                 disable: function () { self.fileInputDisabled = true; },
@@ -36,8 +36,8 @@ module('createForm',{
                 clearFeedback: function () { self.fileFeedback = false; },
                 setFeedback: function (message) { self.fileFeedback = message; },
                 clear: function () { self.fileClearCalled = true; }
-            },
-            buttonInput: {
+            }),
+            buttonInput: mixinPubSub({
                 getType: function () { return 'button'; },
                 get: function () { return 'buttonInputData'; },
                 set: function (value) {
@@ -50,8 +50,8 @@ module('createForm',{
                     self.buttonFeedback = message;
                 },
                 clear: function () { self.buttonClearCalled = true; }
-            },
-            hiddenInput: {
+            }),
+            hiddenInput: mixinPubSub({
                 getType: function () { return 'hidden'; },
                 get: function () { return 'hiddenInputData'; },
                 set: function (value) {
@@ -64,8 +64,8 @@ module('createForm',{
                     self.hiddenFeedback = message;
                 },
                 clear: function () { self.hiddenClearCalled = true; }
-            },
-            text: {
+            }),
+            text: mixinPubSub({
                 $: self.$mock.find('input[name="text"]'),
                 getType: function () { return 'text'; },
                 get: function () { return self.textGetData; },
@@ -76,8 +76,12 @@ module('createForm',{
                 enable: function () { self.textInputDisabled = false; },
                 clearFeedback: function () { self.textFeedback = false; },
                 setFeedback: function (message) { self.textFeedback = message; },
+                setSuccess: function (value) {
+                    this.setSuccessParameters = value;
+                    this.setSuccessIsCalled = true;
+                },
                 clear: function () { self.textClearCalled = true; }
-            }
+            })
         };
 
         self.ajaxCalled = false;
@@ -88,6 +92,22 @@ module('createForm',{
             return createForm(union({
                 $: self.$mock,
                 inputs: self.inputs,
+                fieldValidators: {
+                    text: function (data) {
+                        if(data === 'wrong') {
+                            return {
+                                isSuccess: false,
+                                message: 'test error message'
+                            };
+                        }
+                        else if(data === 'right') {
+                            return {
+                                isSuccess: true,
+                                message: 'test success message'
+                            };
+                        }
+                    }
+                },
                 ajax: function ($form, figFN) {
                     self.ajaxCalled = true;
                     self.$form = $form;
@@ -109,6 +129,24 @@ module('createForm',{
         };
         self.form = self.createForm();
     }
+});
+
+test('field validate neutral', function () {
+    this.inputs.text.publish('validate');
+    ok(!this.inputs.text.setSuccessIsCalled, 'setSuccess not called');
+    ok(!this.textFeedback, 'set feedback not called');
+});
+
+test('field validate success', function () {
+    this.textGetData = 'right';
+    this.inputs.text.publish('validate');
+    strictEqual(this.inputs.text.setSuccessIsCalled, true);
+});
+
+test('field validate error', function () {
+    this.textGetData = 'wrong';
+    this.inputs.text.publish('validate');
+    strictEqual(this.textFeedback, "test error message");
 });
 
 test('submit callback is registered', function () {

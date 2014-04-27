@@ -65,3 +65,37 @@ test('clearFeedback', function () {
     );
     ok(!this.$group.hasClass('error'), 'removes error class');
 });
+
+test('setSuccess', function () {
+    this.formGroup.setSuccess('foo');
+    strictEqual(
+        this.$group.find('.frm-feedback').html(), 'foo',
+        'sets feedback div'
+    );
+    ok(this.$group.hasClass('success'), 'adds success class');
+});
+
+// dependent on test 'setSuccess'
+test('clearSuccess', function () {
+    this.formGroup.setSuccess('foo');
+    this.formGroup.clearSuccess();
+    strictEqual(this.$group.find(
+        '.frm-feedback').html(), '',
+        'clears feedback div'
+    );
+    ok(!this.$group.hasClass('success'), 'removes success class');
+});
+
+test('setFeedback then setSuccess clears error class', function () {
+    this.formGroup.setFeedback();
+    this.formGroup.setSuccess();
+    ok(this.$group.hasClass('success'), 'has success class');
+    ok(!this.$group.hasClass('error'), 'error class removed');
+});
+
+test('setSuccess then setFeedback clears success class', function () {
+    this.formGroup.setSuccess();
+    this.formGroup.setFeedback();
+    ok(!this.$group.hasClass('success'), 'success class removed');
+    ok(this.$group.hasClass('error'), 'has error class');
+});

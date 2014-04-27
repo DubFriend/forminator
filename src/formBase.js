@@ -2,7 +2,7 @@ var createFormBase = function (fig) {
     var self = mixinPubSub(),
         $self = fig.$,
         $feedback = $self.find('.frm-global-feedback'),
-        inputs = fig.inputs;
+        inputs = fig.inputs || {};
 
     //minimize dom manipulation
     (function () {

@@ -1,12 +1,15 @@
 var createForm = function (fig) {
     var self = createFormBase(fig),
+        inputs = fig.inputs || {},
         ajax = fig.ajax,
         url = fig.url || fig.$.attr('action'),
         action = '',
         parameters = {},
         buildURL = function () {
-            return action ? queryjs.set(url, union({ action: action }, parameters)) : url;
-        };
+            return action ?
+                queryjs.set(url, union({ action: action }, parameters)) : url;
+        },
+        fieldValidators = fig.fieldValidators || {};
 
     self.setAction = function (newAction) {
         action = newAction;
@@ -55,21 +58,35 @@ var createForm = function (fig) {
             },
 
             error: function (response) {
-                // setTimeout(function () {
                 self.setFeedback(response);
                 self.publish('error', { data: response, action: action });
-                // }, 500);
             },
 
             complete: function (response) {
-                // setTimeout(function () {
                 self.enable();
                 self.publish('complete', { data: response, action: action });
-                // }, 500);
             }
         };
     });
 
+    foreach(inputs, function (input, name) {
+        input.subscribe('validate', function () {
+            var error = null;
+
+            if(fieldValidators[name]) {
+                error = fieldValidators[name](input.get());
+            }
+
+            if(error) {
+                if(error.isSuccess) {
+                    input.setSuccess(error.message || '');
+                }
+                else {
+                    input.setFeedback(error.message || '');
+                }
+            }
+        });
+    });
 
     return self;
 };

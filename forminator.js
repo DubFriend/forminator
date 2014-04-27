@@ -1,6 +1,6 @@
 // forminator version 0.1.3
 // https://github.com/DubFriend/forminator
-// (MIT) 26-04-2014
+// (MIT) 27-04-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -1540,7 +1540,8 @@ var buildFormInputs = function (fig) {
 var createFormGroup = function (fig) {
     var self = {},
         input = fig.input,
-        $self = input.$().closest('.frm-group');
+        $self = input.$().closest('.frm-group'),
+        $feedback = $self.find('.frm-feedback');
 
     self.get = input.get || function () {};
     self.set = input.set || function () {};
@@ -1554,31 +1555,27 @@ var createFormGroup = function (fig) {
         return selector ? $self.find(selector) : $self;
     };
 
-    // minimizing dom manipulation.
-    (function () {
-        var oldMessage = null,
-            isError = false;
+    self.setFeedback = function (newMessage) {
+        self.$().removeClass('success');
+        self.$().addClass('error');
+        $feedback.html(xss(newMessage || ''));
+    };
 
-        self.setFeedback = function (newMessage) {
-            if(!isError) {
-                self.$().addClass('error');
-            }
-            if(newMessage !== oldMessage) {
-                self.$('.frm-feedback').html(xss(newMessage));
-            }
-            oldMessage = newMessage;
-            isError = true;
-        };
+    self.clearFeedback = function () {
+        self.$().removeClass('error');
+        $feedback.html('');
+    };
 
-        self.clearFeedback = function () {
-            if(isError) {
-                self.$().removeClass('error');
-                self.$('.frm-feedback').html('');
-            }
-            oldMessage = null;
-            isError = false;
-        };
-    }());
+    self.setSuccess = function (successMessage) {
+        self.$().removeClass('error');
+        self.$().addClass('success');
+        $feedback.html(xss(successMessage || ''));
+    };
+
+    self.clearSuccess = function () {
+        self.$().removeClass('success');
+        $feedback.html('');
+    };
 
     return self;
 };
@@ -1587,7 +1584,7 @@ var createFormBase = function (fig) {
     var self = mixinPubSub(),
         $self = fig.$,
         $feedback = $self.find('.frm-global-feedback'),
-        inputs = fig.inputs;
+        inputs = fig.inputs || {};
 
     //minimize dom manipulation
     (function () {
@@ -1730,13 +1727,16 @@ var createFormBase = function (fig) {
 
 var createForm = function (fig) {
     var self = createFormBase(fig),
+        inputs = fig.inputs || {},
         ajax = fig.ajax,
         url = fig.url || fig.$.attr('action'),
         action = '',
         parameters = {},
         buildURL = function () {
-            return action ? queryjs.set(url, union({ action: action }, parameters)) : url;
-        };
+            return action ?
+                queryjs.set(url, union({ action: action }, parameters)) : url;
+        },
+        fieldValidators = fig.fieldValidators || {};
 
     self.setAction = function (newAction) {
         action = newAction;
@@ -1785,21 +1785,35 @@ var createForm = function (fig) {
             },
 
             error: function (response) {
-                // setTimeout(function () {
                 self.setFeedback(response);
                 self.publish('error', { data: response, action: action });
-                // }, 500);
             },
 
             complete: function (response) {
-                // setTimeout(function () {
                 self.enable();
                 self.publish('complete', { data: response, action: action });
-                // }, 500);
             }
         };
     });
 
+    foreach(inputs, function (input, name) {
+        input.subscribe('validate', function () {
+            var error = null;
+
+            if(fieldValidators[name]) {
+                error = fieldValidators[name](input.get());
+            }
+
+            if(error) {
+                if(error.isSuccess) {
+                    input.setSuccess(error.message || '');
+                }
+                else {
+                    input.setFeedback(error.message || '');
+                }
+            }
+        });
+    });
 
     return self;
 };
