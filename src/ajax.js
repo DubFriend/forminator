@@ -16,7 +16,6 @@ var ajax = function ($form, figFN) {
     };
 
     if($form.find('input[type="file"]').length) {
-        console.log('$.fn.fileAjax');
         $form.fileAjax(applyDefaultFileAjaxFig, false);
     }
     else {

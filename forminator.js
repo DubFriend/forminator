@@ -187,8 +187,6 @@
             return data;
         };
 
-        // console.log('figData', figData);
-
         return figData ? flattenData(figData) : getFormsData();
     };
 
@@ -317,8 +315,6 @@
                 $form.find('input[type="file"]')
             );
 
-            // console.log(grouped);
-
             var elements = {};
             foreach(grouped, function (elems, name) {
                 foreach(elems, function ($el, index) {
@@ -330,7 +326,6 @@
 
 
         $form.submit(function (e) {
-            console.log('ajax2');
             e.preventDefault();
 
             var fig = applyFigDefaults(figFN());
@@ -351,7 +346,6 @@
                         }
                         else {
                             foreach(file.files, function (file, index) {
-                                // console.log(file);
                                 formData.append(name + '[' + index + ']', file);
                             });
                         }
@@ -413,7 +407,6 @@
     var iframeAjax = function (figFN) {
         $form.submit(function (e) {
             e.stopPropagation();
-            console.log('iframeAjax');
 
             var fig = applyFigDefaults(figFN());
 
@@ -1182,7 +1175,6 @@ var ajax = function ($form, figFN) {
     };
 
     if($form.find('input[type="file"]').length) {
-        console.log('$.fn.fileAjax');
         $form.fileAjax(applyDefaultFileAjaxFig, false);
     }
     else {
