@@ -46,6 +46,12 @@ var testNotPublishesOnSetNotChange = function() {
     this.input.set(value);
 };
 
+
+
+
+
+
+
 var testGetType = function (type) {
     return function () {
         deepEqual(this.input.getType(), type, 'getType returns ' + type);
@@ -84,6 +90,18 @@ var testPublishesChangeOnKeyup = function () {
     this.$.trigger(keyUpEvent);
 };
 
+var testPublishesValidateOn = function (eventName) {
+    return function () {
+        expect(1);
+        var self = this;
+        self.input.subscribe('validate', function (input) {
+            strictEqual(input, self.input, 'passed input object');
+            start();
+        });
+        self.$.trigger($.Event(eventName));
+    };
+};
+
 module("createInputText", {
     setup: buildSetup({
         selector: 'input[name="text"]',
@@ -100,7 +118,7 @@ test("textInput getType", testGetType('text'));
 test("textInput disable", testDisabled);
 test("textInput enable", testEnabled);
 asyncTest("textInput set publishes change on keyup", testPublishesChangeOnKeyup);
-
+asyncTest("textInput publishes validate on blur", testPublishesValidateOn('blur'));
 
 module("createInputPassword", {
     setup: buildSetup({
@@ -118,6 +136,7 @@ test("passwordInput getType", testGetType('text'));
 test("passwordInput disable", testDisabled);
 test("passwordInput enable", testEnabled);
 asyncTest("passwordInput set publishes change on keyup", testPublishesChangeOnKeyup);
+asyncTest("passwordInput publishes validate on blur", testPublishesValidateOn('blur'));
 
 module("createInputEmail", {
     setup: buildSetup({
@@ -135,6 +154,7 @@ test("emailInput getType", testGetType('text'));
 test("emailInput disable", testDisabled);
 test("emailInput enable", testEnabled);
 asyncTest("emailInput set publishes change on keyup", testPublishesChangeOnKeyup);
+asyncTest("emailInput publishes validate on blur", testPublishesValidateOn('blur'));
 
 module("createInputURL", {
     setup: buildSetup({
@@ -152,6 +172,7 @@ test("urlInput getType", testGetType('text'));
 test("urlInput disable", testDisabled);
 test("urlInput enable", testEnabled);
 asyncTest("urlInput set publishes change on keyup", testPublishesChangeOnKeyup);
+asyncTest("urlInput publishes validate on blur", testPublishesValidateOn('blur'));
 
 module("createInputRange", {
     setup: buildSetup({
@@ -176,6 +197,7 @@ test("rangeInput set publishes change on change", function () {
     });
     this.$.change();
 });
+asyncTest("rangeInput publishes validate on change", testPublishesValidateOn('change'));
 
 
 module("createInputTextarea", {
@@ -199,11 +221,11 @@ test("textareaInput set", function() {
 test("textareaInput clear", testClear);
 test("textareaInput set publishes change if changed", testPublishesOnSetChange);
 test("textareaInput set no publish if data not different", testNotPublishesOnSetNotChange);
-asyncTest("textareaInput set publishes change on keyup", testPublishesChangeOnKeyup);
 test("textareaInput getType", testGetType('textarea'));
 test("textareaInput disable", testDisabled);
 test("textareaInput enable", testEnabled);
-
+asyncTest("textareaInput set publishes change on keyup", testPublishesChangeOnKeyup);
+asyncTest("textareaInput publishes validate on blur", testPublishesValidateOn('blur'));
 
 module("createInputSelect", {
     setup: buildSetup({
@@ -221,7 +243,9 @@ test("selectInput clear", function () {
 
 test("selectInput set publishes change if changed", testPublishesOnSetChange);
 test("selectInput set no publish if data not different", testNotPublishesOnSetNotChange);
-
+test("selectInput getType", testGetType('select'));
+test("selectInput disable", testDisabled);
+test("selectInput enable", testEnabled);
 test("selectInput set publishes change on change", function () {
     expect(1);
     this.input.set('b');
@@ -230,10 +254,7 @@ test("selectInput set publishes change on change", function () {
     });
     this.$.change();
 });
-
-test("selectInput getType", testGetType('select'));
-test("selectInput disable", testDisabled);
-test("selectInput enable", testEnabled);
+asyncTest("selectInput publishes validate on change", testPublishesValidateOn('change'));
 
 
 module("createInputRadio", {
@@ -272,6 +293,16 @@ test("radioInput set publishes change on change", function () {
     this.input.set('b');
     this.input.subscribe('change', function (input) {
         deepEqual(input.get(), 'b', 'published');
+    });
+    this.$.filter('[value="a"]').change();
+});
+
+test("radioInput set publishes validate on change", function () {
+    expect(1);
+    var self = this;
+    this.input.set('b');
+    this.input.subscribe('validate', function (input) {
+        strictEqual(input, self.input, 'published');
     });
     this.$.filter('[value="a"]').change();
 });
@@ -349,6 +380,15 @@ test("checkboxInput set publishes change on click", function () {
     this.$.filter('[value="a"]').click();
 });
 
+test("checkboxInput set publishes validate on click", function () {
+    expect(1);
+    var self = this;
+    this.input.subscribe('validate', function (input) {
+        strictEqual(input, self.input, 'published');
+    });
+    this.$.filter('[value="a"]').click();
+});
+
 test("checkboxInput getType", testGetType('checkbox'));
 test("checkboxInput disable", testDisabled);
 test("checkboxInput enable", testEnabled);
@@ -375,9 +415,9 @@ test("fileInput publishes filename when file changed", function () {
     });
     this.$.change();
 });
+asyncTest("fileInput publishes validate on change", testPublishesValidateOn('change'));
 
-
-module("createInputFile", {
+module("createInputButton", {
     setup: buildSetup({
         selector: '[name="button"]',
         createInput: createInputButton

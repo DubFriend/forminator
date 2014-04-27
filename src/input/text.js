@@ -12,5 +12,9 @@ var createInputText = function (fig) {
         self.publish('change', self);
     }));
 
+    self.$().blur(function (e) {
+        self.publish('validate', self);
+    });
+
     return self;
 };

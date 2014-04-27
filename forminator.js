@@ -1,6 +1,6 @@
 // forminator version 0.1.3
 // https://github.com/DubFriend/forminator
-// (MIT) 25-04-2014
+// (MIT) 26-04-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -1346,6 +1346,7 @@ var createInputCheckbox = function (fig) {
 
     self.$().click(function () {
         self.publish('change', self);
+        self.publish('validate', self);
     });
 
     return self;
@@ -1369,6 +1370,7 @@ var createInputFile = function (fig) {
 
     self.$().change(function () {
         self.publish('change', self);
+        self.publish('validate', self);
     });
 
     return self;
@@ -1397,6 +1399,7 @@ var createInputRadio = function (fig) {
 
     self.$().change(function () {
         self.publish('change', self);
+        self.publish('validate', self);
     });
 
     return self;
@@ -1412,6 +1415,7 @@ var createInputSelect = function (fig) {
 
     self.$().change(function () {
         self.publish('change', self);
+        self.publish('validate', self);
     });
 
     return self;
@@ -1431,6 +1435,10 @@ var createInputText = function (fig) {
         self.publish('change', self);
     }));
 
+    self.$().blur(function (e) {
+        self.publish('validate', self);
+    });
+
     return self;
 };
 
@@ -1445,6 +1453,10 @@ var createInputTextarea = function (fig) {
     self.$().keyup(debounce(200, function () {
         self.publish('change', self);
     }));
+
+    self.$().blur(function (e) {
+        self.publish('validate', self);
+    });
 
     return self;
 };
@@ -1471,8 +1483,9 @@ var createInputRange = function (fig) {
         return 'range';
     };
 
-     self.$().change(function (e) {
+    self.$().change(function (e) {
         self.publish('change', self);
+        self.publish('validate', self);
     });
 
     return self;

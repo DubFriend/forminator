@@ -8,6 +8,7 @@ var createInputSelect = function (fig) {
 
     self.$().change(function () {
         self.publish('change', self);
+        self.publish('validate', self);
     });
 
     return self;
