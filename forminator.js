@@ -1062,7 +1062,8 @@ var createFactory = function (fig) {
         fieldMap = fig.fieldMap || {},
         uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
         deleteConfirmation = fig.deleteConfirmation,
-        $getModuleByClass = partial($getForminatorByClass, name);
+        $getModuleByClass = partial($getForminatorByClass, name),
+        fieldValidators = fig.fieldValidators;
 
     var buildModuleIfExists = function (fn, $module) {
         return function () {
@@ -1100,7 +1101,8 @@ var createFactory = function (fig) {
             ajax: ajax,
             validate: fig.validate,
             url: url,
-            inputs: getMappedFormInputs($module)
+            inputs: getMappedFormInputs($module),
+            fieldValidators: fieldValidators
         });
     }, $getModuleByClass(''));
 

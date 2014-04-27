@@ -337,40 +337,40 @@
 
       </div>
 
+      <div class="table-responsive">
+        <table class="table table-hover">
 
-      <table class="table table-hover">
+          <!-- Ordinator -->
+          <thead class="frm-ordinator-name">
+            <th></th>
+            <th><a href="#" data-field="text">Text <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></a></th>
+            <th><a href="#" data-field="textarea">Textarea <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></th>
+            <th><a href="#" data-field="select">Select <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></th>
+            <th>Radio</th>
+            <th>Checkbox</th>
+          </thead>
 
-        <!-- Ordinator -->
-        <thead class="frm-ordinator-name">
-          <th></th>
-          <th><a href="#" data-field="text">Text <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></a></th>
-          <th><a href="#" data-field="textarea">Textarea <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></th>
-          <th><a href="#" data-field="select">Select <span data-order="neutral"><span class="glyphicon glyphicon-resize-vertical"></span></span></th>
-          <th>Radio</th>
-          <th>Checkbox</th>
-        </thead>
-
-        <!-- List -->
-        <tbody class="frm-list-name">
-          <tr class="frm-list-item">
-            <td>
-              <button class="frm-edit-item btn btn-sm btn-default">
-                <span class="glyphicon glyphicon-edit"></span>
-              </button>
-              <button class="frm-delete-item btn btn-sm btn-danger">
-                <span class="glyphicon glyphicon-remove"></span>
-              </button>
-              <span data-field="id" style="display:none;"></span>
-            </td>
-            <td data-field="text"></td>
-            <td data-field="textarea"></td>
-            <td data-field="select"></td>
-            <td data-field="radio"></td>
-            <td data-field="checkbox[]"></td>
-          </tr>
-        </tbody>
-
-      </table>
+          <!-- List -->
+          <tbody class="frm-list-name">
+            <tr class="frm-list-item">
+              <td>
+                <button class="frm-edit-item btn btn-sm btn-default">
+                  <span class="glyphicon glyphicon-edit"></span>
+                </button>
+                <button class="frm-delete-item btn btn-sm btn-danger">
+                  <span class="glyphicon glyphicon-remove"></span>
+                </button>
+                <span data-field="id" style="display:none;"></span>
+              </td>
+              <td data-field="text"></td>
+              <td data-field="textarea"></td>
+              <td data-field="select"></td>
+              <td data-field="radio"></td>
+              <td data-field="checkbox[]"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <div class="frm-no-results-name" style="display:none;">
         No matches found.
@@ -407,6 +407,22 @@
                 }
 
                 return errors;
+            },
+            fieldValidators: {
+                text: function (value) {
+                    if(!value) {
+                        return {
+                            isSuccess: false,
+                            message: 'Required'
+                        }
+                    }
+                    else {
+                        return {
+                            isSuccess: true,
+                            message: 'OK'
+                        };
+                    }
+                }
             },
             success: function (action, response) {
                 console.log('success', action, response, this);
