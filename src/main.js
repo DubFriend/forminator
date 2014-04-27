@@ -50,6 +50,7 @@ forminator.init = function (fig) {
     self.clearFormFeedback = function () {
         if(form) {
             form.clearFeedback();
+            form.clearSuccess();
         }
     };
 

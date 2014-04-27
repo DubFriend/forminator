@@ -99,6 +99,11 @@ var createFormBase = function (fig) {
         self.clearGlobalFeedback();
     };
 
+    self.clearSuccess = function () {
+        call(inputs, 'clearSuccess');
+        self.clearGlobalSuccess();
+    };
+
     self.disable = function () {
         // disabling file inputs interferes with iframe ajax.
         call(filterInputs('file'), 'disable');

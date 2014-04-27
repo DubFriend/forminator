@@ -257,6 +257,33 @@ var nameForminator = forminator.init({
     },
 
     // (optional)
+    // A field validator function is called on individual html input elements
+    // (on blur for text based inputs, and on change/click for select, radio,
+    // checkbox inputs).
+    // Note that field validators are not called on form submit.  In this case
+    // use the "validate" function instead.
+    fieldValidators: {
+        text: function (value) {
+            if(!value) {
+                return {
+                    // error class is added to input group
+                    isSuccess: false,
+                    // (optional) message inserted into .frm-feedback
+                    message: 'Required'
+                }
+            }
+            else {
+                return {
+                    // success class is added to input group
+                    isSuccess: true,
+                    // (optional) message inserted into .frm-feedback
+                    message: 'OK'
+                };
+            }
+        }
+    },
+
+    // (optional)
     // called on a response to a successfull http request.  The "action" parameter
     // will be either "create", "get", "update", or "delete"
     success: function (action, response) {
