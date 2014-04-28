@@ -286,22 +286,22 @@ var nameForminator = forminator.init({
     // (optional)
     // called on a response to a successfull http request.  The "action" parameter
     // will be either "create", "get", "update", or "delete"
-    success: function (action, response) {
-        console.log('success', action, response, this);
+    success: function (response, action) {
+        console.log('success', response, action, this);
         $('.js-form-modal').modal('hide');
         setTimeout(this.clearFormFeedback, 2000);
     },
 
     // (optional)
     // called on response to an error http request.
-    error: function (action, response) {
-        console.log('error', action, response, this);
+    error: function (response, action) {
+        console.log('error', response, action, this);
     },
 
     // (optional)
     // called on on request complete.
-    complete: function (action, response) {
-        console.log('complete', action, response, this);
+    complete: function (response, action) {
+        console.log('complete', response, action, this);
         setTimeout(this.clearFormFeedback, 2000);
     },
 

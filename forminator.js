@@ -1,4 +1,4 @@
-// forminator version 0.1.3
+// forminator version 0.2.0
 // https://github.com/DubFriend/forminator
 // (MIT) 27-04-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
@@ -2552,7 +2552,7 @@ forminator.init = function (fig) {
         subscribeUserToAjaxEvent = function (object, name) {
             if(object) {
                 object.subscribe(name, function (data) {
-                    applyUserFunction(fig[name], data.action, data.data);
+                    applyUserFunction(fig[name], data.data, data.action);
                 });
             }
         };

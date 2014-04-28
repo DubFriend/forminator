@@ -28,7 +28,7 @@ forminator.init = function (fig) {
         subscribeUserToAjaxEvent = function (object, name) {
             if(object) {
                 object.subscribe(name, function (data) {
-                    applyUserFunction(fig[name], data.action, data.data);
+                    applyUserFunction(fig[name], data.data, data.action);
                 });
             }
         };
