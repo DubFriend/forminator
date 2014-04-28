@@ -67,6 +67,7 @@ forminator.init = function (fig) {
             form.set(listItem.get());
             form.setAction('update');
             selectedItem = listItem;
+            self.clearFormFeedback();
             applyUserFunction(fig.selected, listItem.get$());
         });
 

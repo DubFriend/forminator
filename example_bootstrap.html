@@ -422,6 +422,13 @@
                             message: 'OK'
                         };
                     }
+                },
+                select: function (value) {
+                    if(value === 'b') {
+                        return {
+                            isSuccess: true
+                        }
+                    }
                 }
             },
             success: function (action, response) {
@@ -465,9 +472,9 @@
         });
 
         // http://stackoverflow.com/questions/8363802/bind-a-function-to-twitter-bootstrap-modal-close
-        $('.js-form-modal').on('hidden.bs.modal', function () {
-            nameForminator.clearFormFeedback();
-        });
+        // $('.js-form-modal').on('hidden.bs.modal', function () {
+        //     nameForminator.clearFormFeedback();
+        // });
 
     });
     </script>

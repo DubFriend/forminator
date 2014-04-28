@@ -1678,7 +1678,7 @@ var createFormBase = function (fig) {
     self.clearSuccess = function () {
         call(inputs, 'clearSuccess');
         self.clearGlobalSuccess();
-    }
+    };
 
     self.disable = function () {
         // disabling file inputs interferes with iframe ajax.
@@ -2591,6 +2591,7 @@ forminator.init = function (fig) {
             form.set(listItem.get());
             form.setAction('update');
             selectedItem = listItem;
+            self.clearFormFeedback();
             applyUserFunction(fig.selected, listItem.get$());
         });
 
