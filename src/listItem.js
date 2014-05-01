@@ -7,12 +7,13 @@ var createListItem = function (fig) {
             return isArray(value) ? value.join(', ') : value;
         },
 
-        render = function (fields) {
-            foreach(xss(fields), function (value, name) {
+        render = function (dirtyFields) {
+            var escapedFields = xss(dirtyFields);
+            foreach(escapedFields, function (value, name) {
                 $self.find('[data-field="' + name + '"]')
                     .html(
                         fieldMap[name] ?
-                            fieldMap[name](value) :
+                            fieldMap[name](value, escapedFields) :
                             defaultMap(value)
                     );
             });

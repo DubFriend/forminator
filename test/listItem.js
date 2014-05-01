@@ -63,6 +63,19 @@ test("hardSet fieldMap", function () {
     );
 });
 
+test("fieldMap is passed all values as second parameter", function () {
+    var secondParameter;
+    var listItem = createListItem({
+        $self: this.$self, fieldMap: {
+            text: function (value, allValues) {
+                secondParameter = allValues;
+            }
+        }
+    });
+    listItem.hardSet({ text: 'foo', textarea: 'bar' });
+    deepEqual(secondParameter, { text: 'foo', textarea: 'bar' });
+});
+
 test("default fieldMap joins array (hardSet)", function () {
     this.listItem.hardSet({ 'text': ['a', 'b'] });
     deepEqual(getListItemsData(this.$self), { text: 'a, b' });

@@ -334,7 +334,7 @@ var nameForminator = forminator.init({
     // fieldMap's map a data-field's underlying data representation, to a
     // representation visible to the user.
     fieldMap: {
-        sex: function (value) {
+        sex: function (value, allValues) {
             return value.toUpperCase();
         }
     },

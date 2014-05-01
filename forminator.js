@@ -1,6 +1,6 @@
 // forminator version 0.2.0
 // https://github.com/DubFriend/forminator
-// (MIT) 27-04-2014
+// (MIT) 30-04-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function () {
 'use strict';
@@ -2267,12 +2267,13 @@ var createListItem = function (fig) {
             return isArray(value) ? value.join(', ') : value;
         },
 
-        render = function (fields) {
-            foreach(xss(fields), function (value, name) {
+        render = function (dirtyFields) {
+            var escapedFields = xss(dirtyFields);
+            foreach(escapedFields, function (value, name) {
                 $self.find('[data-field="' + name + '"]')
                     .html(
                         fieldMap[name] ?
-                            fieldMap[name](value) :
+                            fieldMap[name](value, escapedFields) :
                             defaultMap(value)
                     );
             });
