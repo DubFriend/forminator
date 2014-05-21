@@ -2,6 +2,7 @@ var createFactory = function (fig) {
     var self = {},
         url = fig.url,
         name = fig.name,
+        isHardREST = fig.isHardREST || false,
         fieldMap = fig.fieldMap || {},
         uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
         deleteConfirmation = fig.deleteConfirmation,
@@ -44,6 +45,7 @@ var createFactory = function (fig) {
             ajax: ajax,
             validate: fig.validate,
             url: url,
+            isHardREST: isHardREST,
             inputs: getMappedFormInputs($module),
             fieldValidators: fieldValidators
         });
@@ -68,7 +70,8 @@ var createFactory = function (fig) {
             ajax: function (fig) {
                 $.ajax(fig);
             },
-            url: url
+            url: url,
+            isHardREST: isHardREST
         });
     };
 

@@ -2,6 +2,7 @@ var createRequest = function (fig) {
     var self = mixinPubSub(),
         ajax = fig.ajax,
         url = fig.url,
+        isHardREST = fig.isHardREST,
         data = {},
         buildURL = function () {
             return queryjs.set(url, filter(data || {}, function (value) {
@@ -49,10 +50,11 @@ var createRequest = function (fig) {
 
     self['delete'] = function (fig) {
         ajax({
-            type: 'POST',
-            url: queryjs.set(
-                url, union(fig.uniquelyIdentifyingFields, { action: 'delete' })
-            ),
+            type: isHardREST ? 'DELETE' : 'POST',
+            url: queryjs.set(url, union(
+                fig.uniquelyIdentifyingFields,
+                isHardREST ? {} : { action: 'delete' }
+            )),
             dataType: 'json',
             success: function (response) {
                 fig.success(response);

@@ -17,7 +17,6 @@ var createInputCheckbox = function (fig) {
     };
 
     self.set = function (newValues) {
-
         newValues = isArray(newValues) ? newValues : [newValues];
 
         var oldValues = self.get(),

@@ -112,6 +112,7 @@ module('createForm',{
                     self.ajaxCalled = true;
                     self.$form = $form;
                     self.ajaxFig = figFN();
+                    self.ajaxCallback = figFN;
                 },
                 validate: function (data) {
                     if(data.text === 'wrong') {
@@ -280,6 +281,23 @@ test('setFeedback called on error ajax response', function () {
     this.ajaxFig.error({ text: 'ajax error message' });
     strictEqual(this.textFeedback, 'ajax error message', 'text feedback set');
 });
+
+test('hard rest create', function () {
+    var form = this.createForm({ isHardREST: true });
+    form.setAction('create');
+    ajaxFig = this.ajaxCallback();
+    strictEqual(ajaxFig.url, 'testURL', 'action not appended to url');
+    strictEqual(ajaxFig.type, 'POST', 'type is POST');
+});
+
+test('hard rest update', function () {
+    var form = this.createForm({ isHardREST: true });
+    form.setAction('update');
+    ajaxFig = this.ajaxCallback();
+    strictEqual(ajaxFig.url, 'testURL', 'action not appended to url');
+    strictEqual(ajaxFig.type, 'PUT', 'type is PUT');
+});
+
 
 test('set name and value parameters', function () {
     this.form.set('text', 'newValue');

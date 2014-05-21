@@ -3,13 +3,27 @@ var createForm = function (fig) {
         inputs = fig.inputs || {},
         ajax = fig.ajax,
         url = fig.url || fig.$.attr('action'),
+        isHardREST = fig.isHardREST,
         action = '',
         parameters = {},
         buildURL = function () {
             return action ?
-                queryjs.set(url, union({ action: action }, parameters)) : url;
+            queryjs.set(url, union(
+                isHardREST ? {} : { action: action },
+                parameters
+            )) : url;
         },
         fieldValidators = fig.fieldValidators || {};
+
+    var getRESTMethod = function () {
+        var map = {
+            'get': 'GET',
+            'update': 'PUT',
+            'create': 'POST',
+            'delete': 'DELETE'
+        };
+        return action ? map[action] : '';
+    };
 
     self.setAction = function (newAction) {
         action = newAction;
@@ -27,6 +41,7 @@ var createForm = function (fig) {
     ajax(fig.$, function() {
         return {
             url: buildURL(),
+            type: isHardREST ? getRESTMethod() : 'POST',
             dataType: 'json',
             data: self.get(),
 

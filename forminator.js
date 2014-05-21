@@ -1,8 +1,8 @@
-// forminator version 0.2.0
+// forminator version 0.2.1
 // https://github.com/DubFriend/forminator
-// (MIT) 30-04-2014
+// (MIT) 21-05-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
-(function () {
+(function ($) {
 'use strict';
 
 (function ($) {
@@ -1052,6 +1052,7 @@ var createFactory = function (fig) {
     var self = {},
         url = fig.url,
         name = fig.name,
+        isHardREST = fig.isHardREST || false,
         fieldMap = fig.fieldMap || {},
         uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
         deleteConfirmation = fig.deleteConfirmation,
@@ -1094,6 +1095,7 @@ var createFactory = function (fig) {
             ajax: ajax,
             validate: fig.validate,
             url: url,
+            isHardREST: isHardREST,
             inputs: getMappedFormInputs($module),
             fieldValidators: fieldValidators
         });
@@ -1118,7 +1120,8 @@ var createFactory = function (fig) {
             ajax: function (fig) {
                 $.ajax(fig);
             },
-            url: url
+            url: url,
+            isHardREST: isHardREST
         });
     };
 
@@ -1309,7 +1312,6 @@ var createInputCheckbox = function (fig) {
     };
 
     self.set = function (newValues) {
-
         newValues = isArray(newValues) ? newValues : [newValues];
 
         var oldValues = self.get(),
@@ -1729,13 +1731,27 @@ var createForm = function (fig) {
         inputs = fig.inputs || {},
         ajax = fig.ajax,
         url = fig.url || fig.$.attr('action'),
+        isHardREST = fig.isHardREST,
         action = '',
         parameters = {},
         buildURL = function () {
             return action ?
-                queryjs.set(url, union({ action: action }, parameters)) : url;
+            queryjs.set(url, union(
+                isHardREST ? {} : { action: action },
+                parameters
+            )) : url;
         },
         fieldValidators = fig.fieldValidators || {};
+
+    var getRESTMethod = function () {
+        var map = {
+            'get': 'GET',
+            'update': 'PUT',
+            'create': 'POST',
+            'delete': 'DELETE'
+        };
+        return action ? map[action] : '';
+    };
 
     self.setAction = function (newAction) {
         action = newAction;
@@ -1753,6 +1769,7 @@ var createForm = function (fig) {
     ajax(fig.$, function() {
         return {
             url: buildURL(),
+            type: isHardREST ? getRESTMethod() : 'POST',
             dataType: 'json',
             data: self.get(),
 
@@ -2189,6 +2206,7 @@ var createRequest = function (fig) {
     var self = mixinPubSub(),
         ajax = fig.ajax,
         url = fig.url,
+        isHardREST = fig.isHardREST,
         data = {},
         buildURL = function () {
             return queryjs.set(url, filter(data || {}, function (value) {
@@ -2236,10 +2254,11 @@ var createRequest = function (fig) {
 
     self['delete'] = function (fig) {
         ajax({
-            type: 'POST',
-            url: queryjs.set(
-                url, union(fig.uniquelyIdentifyingFields, { action: 'delete' })
-            ),
+            type: isHardREST ? 'DELETE' : 'POST',
+            url: queryjs.set(url, union(
+                fig.uniquelyIdentifyingFields,
+                isHardREST ? {} : { action: 'delete' }
+            )),
             dataType: 'json',
             success: function (response) {
                 fig.success(response);
@@ -2667,4 +2686,4 @@ forminator.init = function (fig) {
 
 window.forminator = forminator;
 
-}());
+}(jQuery));

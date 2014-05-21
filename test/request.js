@@ -1,12 +1,15 @@
+var createExampleRequest = function (self, override) {
+    return createRequest(union({
+        url: 'testURL',
+        ajax: function (fig) {
+            self.ajaxFig = fig;
+        }
+    }, override || {}));
+};
+
 module("request", {
     setup: function () {
-        var self = this;
-        self.request = createRequest({
-            url: 'testURL',
-            ajax: function (fig) {
-                self.ajaxFig = fig;
-            }
-        });
+        this.request = createExampleRequest(this);
     }
 });
 
@@ -128,4 +131,13 @@ test('delete method', function () {
     );
     strictEqual(this.ajaxFig.type, 'POST', 'type is POST');
     strictEqual(this.ajaxFig.dataType, 'json', 'dataType is json');
+});
+
+test('hardRest delete', function () {
+    var request = createExampleRequest(this, { isHardREST: true });
+    request['delete']({
+        uniquelyIdentifyingFields: { a: '1', b: '2' }
+    });
+    strictEqual(this.ajaxFig.url, 'testURL?a=1&b=2', 'correct url');
+    strictEqual(this.ajaxFig.type, 'DELETE', 'type is DELETE');
 });
