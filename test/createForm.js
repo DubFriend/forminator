@@ -298,6 +298,22 @@ test('hard rest update', function () {
     strictEqual(ajaxFig.type, 'PUT', 'type is PUT');
 });
 
+test('mapOutputData', function () {
+    expect(2);
+
+    var form = this.createForm({
+        mapOutputData: function (data) {
+            deepEqual(data, {
+                hiddenInput: 'hiddenInputData',
+                text: 'textInputData'
+            });
+            return 'mapped data';
+        }
+    });
+
+    strictEqual(this.ajaxFig.data, 'mapped data');
+});
+
 
 test('set name and value parameters', function () {
     this.form.set('text', 'newValue');

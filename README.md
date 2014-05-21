@@ -223,6 +223,14 @@ var nameForminator = forminator.init({
     // the url that forminator will make http requests to
     url: 'request.php',
 
+    // (optional)
+    // perform mutation on form's data just before sending it in a request
+    // to the server.
+    mapOutputData: function (data) {
+        data.date = formatData(data.date);
+        return data;
+    },
+
     // (optional, defaults to false)
     // if set to true, forminator will use GET, PUT, POST, and DELETE
     // instead of setting an "action" variable on the url parameters.

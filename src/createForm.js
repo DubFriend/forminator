@@ -4,6 +4,7 @@ var createForm = function (fig) {
         ajax = fig.ajax,
         url = fig.url || fig.$.attr('action'),
         isHardREST = fig.isHardREST,
+        mapOutputData = fig.mapOutputData || identity,
         action = '',
         parameters = {},
         buildURL = function () {
@@ -43,7 +44,8 @@ var createForm = function (fig) {
             url: buildURL(),
             type: isHardREST ? getRESTMethod() : 'POST',
             dataType: 'json',
-            data: self.get(),
+
+            data: mapOutputData(self.get()),
 
             validate: function () {
                 var errors = self.validate(self.get());

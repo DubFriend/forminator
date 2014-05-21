@@ -45,6 +45,7 @@ var createFactory = function (fig) {
             ajax: ajax,
             validate: fig.validate,
             url: url,
+            mapOutputData: fig.mapOutputData,
             isHardREST: isHardREST,
             inputs: getMappedFormInputs($module),
             fieldValidators: fieldValidators
