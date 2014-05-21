@@ -223,6 +223,11 @@ var nameForminator = forminator.init({
     // the url that forminator will make http requests to
     url: 'request.php',
 
+    // (optional, defaults to false)
+    // if set to true, forminator will use GET, PUT, POST, and DELETE
+    // instead of setting an "action" variable on the url parameters.
+    isHardREST: false,
+
     // (required if updating or deleting items)
     // delete functionality needs to know which field(s) to use to
     // uniquely identify an item.
@@ -482,6 +487,12 @@ the body of the request contains the forms data (same as for a create request)
     "successMessage": "Item has been Updated!"
 }
 ```
+
+##Hard REST
+if the `isHardREST` option is set to `true` in the init options, then
+forminator will use http's GET, PUT, POST, DELETE methods instead of setting
+the `action` url parameter.
+
 
 ###html escaping.
 
