@@ -178,7 +178,7 @@ test('trigger validate error publishes error', function () {
     this.textGetData = 'wrong';
     this.form.subscribe('error', function (data) {
         deepEqual(data, {
-            action: '',
+            action: 'create',
             data: {
                 text: 'textErrorMessage',
                 GLOBAL: 'globalErrorMessage'
@@ -266,13 +266,13 @@ test('trigger complete', function () {
 
 test('uses html form\'s action attribute if url is not given', function () {
     this.createForm({ url: undefined });
-    strictEqual(this.ajaxFig.url, 'respond.php', 'url is set');
+    strictEqual(this.ajaxFig.url, 'respond.php?action=create', 'url is set');
 });
 
 test('ajaxFig publishes error', function () {
     expect(1);
     this.form.subscribe('error', function (data) {
-        deepEqual(data, { data: { errorData: 'foo' }, action: '' });
+        deepEqual(data, { data: { errorData: 'foo' }, action: 'create' });
     });
     this.ajaxFig.error({ errorData: 'foo' });
 });

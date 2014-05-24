@@ -5,7 +5,16 @@ var createForm = function (fig) {
         url = fig.url || fig.$.attr('action'),
         isHardREST = fig.isHardREST,
         mapOutputData = fig.mapOutputData || identity,
-        action = '',
+
+        actionsMap = {
+            'get': 'GET',
+            'update': 'PUT',
+            'create': 'POST',
+            'delete': 'DELETE'
+        },
+
+        action = inverse(actionsMap)[fig.$.attr('method')] || '',
+
         parameters = {},
         buildURL = function () {
             return action ?
@@ -17,13 +26,7 @@ var createForm = function (fig) {
         fieldValidators = fig.fieldValidators || {};
 
     var getRESTMethod = function () {
-        var map = {
-            'get': 'GET',
-            'update': 'PUT',
-            'create': 'POST',
-            'delete': 'DELETE'
-        };
-        return action ? map[action] : '';
+        return action ? actionsMap[action] : '';
     };
 
     self.setAction = function (newAction) {

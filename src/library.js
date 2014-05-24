@@ -14,6 +14,14 @@ var isFunction = function (value) {
     return value instanceof Function;
 };
 
+var inverse = function (object) {
+    var inverted = {};
+    foreach(object, function (val, key) {
+        inverted[val] = key;
+    });
+    return inverted;
+};
+
 var toInt = function (value) {
     return parseInt(value, 10);
 };

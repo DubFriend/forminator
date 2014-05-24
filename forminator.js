@@ -1,6 +1,6 @@
 // forminator version 0.3.1
 // https://github.com/DubFriend/forminator
-// (MIT) 21-05-2014
+// (MIT) 24-05-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function ($) {
 'use strict';
@@ -661,6 +661,14 @@ var isObject = function (value) {
 
 var isFunction = function (value) {
     return value instanceof Function;
+};
+
+var inverse = function (object) {
+    var inverted = {};
+    foreach(object, function (val, key) {
+        inverted[val] = key;
+    });
+    return inverted;
 };
 
 var toInt = function (value) {
@@ -1734,7 +1742,16 @@ var createForm = function (fig) {
         url = fig.url || fig.$.attr('action'),
         isHardREST = fig.isHardREST,
         mapOutputData = fig.mapOutputData || identity,
-        action = '',
+
+        actionsMap = {
+            'get': 'GET',
+            'update': 'PUT',
+            'create': 'POST',
+            'delete': 'DELETE'
+        },
+
+        action = inverse(actionsMap)[fig.$.attr('method')] || '',
+
         parameters = {},
         buildURL = function () {
             return action ?
@@ -1746,13 +1763,7 @@ var createForm = function (fig) {
         fieldValidators = fig.fieldValidators || {};
 
     var getRESTMethod = function () {
-        var map = {
-            'get': 'GET',
-            'update': 'PUT',
-            'create': 'POST',
-            'delete': 'DELETE'
-        };
-        return action ? map[action] : '';
+        return action ? actionsMap[action] : '';
     };
 
     self.setAction = function (newAction) {
