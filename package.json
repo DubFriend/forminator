@@ -1,6 +1,6 @@
 {
   "name": "forminator",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "form generator",
   "main": "forminator.js",
   "directories": {

@@ -34,8 +34,17 @@ In the following examples, the interface is giventhe name `foo`.
 <!--
 The main form, denoted by the class "frm-[name]".  Used in the full crud
 interface For creating and updating data.
+
+If the form has a method attribute, it will be used as the default form action
+
+method -> action
+
+GET -> get
+PUT -> update
+POST -> create
+DELETE -> delete
 -->
-<form class="frm-foo">
+<form class="frm-foo" method="POST">
     <!--
     "frm-group" elements should contain an html input with a name attribute,
     as well as a corresponding "frm-feedback" container, which will hold error
