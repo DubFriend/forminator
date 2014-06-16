@@ -8,7 +8,7 @@ var createInputText = function (fig) {
         return 'text';
     };
 
-    self.$().keyup(debounce(200, function (e) {
+    self.$().keyup(debounce(300, function (e) {
         self.publish('change', self);
     }));
 

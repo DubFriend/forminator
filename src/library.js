@@ -220,6 +220,10 @@ var subSet = function (object, subsetKeys) {
     });
 };
 
+var doesContainKeys = function (object, keyNames) {
+    return keys(subSet(object, keyNames)).length === keyNames.length;
+};
+
 var excludedSet = function (object, excludedKeys) {
     return filter(object, function (value, key) {
         return indexOf(excludedKeys, key) === -1;

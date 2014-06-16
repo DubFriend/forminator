@@ -1,6 +1,6 @@
 // forminator version 0.3.3
 // https://github.com/DubFriend/forminator
-// (MIT) 24-05-2014
+// (MIT) 15-06-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function ($) {
 'use strict';
@@ -869,6 +869,10 @@ var subSet = function (object, subsetKeys) {
     });
 };
 
+var doesContainKeys = function (object, keyNames) {
+    return keys(subSet(object, keyNames)).length === keyNames.length;
+};
+
 var excludedSet = function (object, excludedKeys) {
     return filter(object, function (value, key) {
         return indexOf(excludedKeys, key) === -1;
@@ -1436,7 +1440,7 @@ var createInputText = function (fig) {
         return 'text';
     };
 
-    self.$().keyup(debounce(200, function (e) {
+    self.$().keyup(debounce(300, function (e) {
         self.publish('change', self);
     }));
 
@@ -1455,7 +1459,7 @@ var createInputTextarea = function (fig) {
         return 'textarea';
     };
 
-    self.$().keyup(debounce(200, function () {
+    self.$().keyup(debounce(300, function () {
         self.publish('change', self);
     }));
 
@@ -2565,6 +2569,7 @@ forminator.init = function (fig) {
     fig.validate = bind(fig.validate, self);
 
     var name = fig.name,
+        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
         factory = createFactory(fig),
         form = factory.form(),
         newItemButton = factory.newItemButton(),
@@ -2573,7 +2578,6 @@ forminator.init = function (fig) {
         search = factory.search(request),
         ordinator = factory.ordinator(request),
         paginator = factory.paginator(request),
-
         selectedData = null,
         selectedItem = null,
 
@@ -2652,6 +2656,19 @@ forminator.init = function (fig) {
                 self.clearFormFeedback();
             });
         }
+    }
+
+    if(form && !list) {
+        form.subscribe('success', function (response) {
+            var results = response && response.data || {};
+            form.set(results.fields || {});
+            if(
+                uniquelyIdentifyingFields &&
+                doesContainKeys(form.get(), uniquelyIdentifyingFields)
+            ) {
+                form.setAction('update');
+            }
+        });
     }
 
     var $noResultsMessage = $('.frm-no-results-' + name);

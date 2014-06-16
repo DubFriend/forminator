@@ -7,6 +7,7 @@ forminator.init = function (fig) {
     fig.validate = bind(fig.validate, self);
 
     var name = fig.name,
+        uniquelyIdentifyingFields = fig.uniquelyIdentifyingFields,
         factory = createFactory(fig),
         form = factory.form(),
         newItemButton = factory.newItemButton(),
@@ -15,7 +16,6 @@ forminator.init = function (fig) {
         search = factory.search(request),
         ordinator = factory.ordinator(request),
         paginator = factory.paginator(request),
-
         selectedData = null,
         selectedItem = null,
 
@@ -94,6 +94,19 @@ forminator.init = function (fig) {
                 self.clearFormFeedback();
             });
         }
+    }
+
+    if(form && !list) {
+        form.subscribe('success', function (response) {
+            var results = response && response.data || {};
+            form.set(results.fields || {});
+            if(
+                uniquelyIdentifyingFields &&
+                doesContainKeys(form.get(), uniquelyIdentifyingFields)
+            ) {
+                form.setAction('update');
+            }
+        });
     }
 
     var $noResultsMessage = $('.frm-no-results-' + name);
