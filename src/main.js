@@ -60,6 +60,10 @@ forminator.init = function (fig) {
         }
     };
 
+    self.getFormFields = function () {
+        return copy(form.get());
+    };
+
     if(list && form) {
         form.setAction('create');
 

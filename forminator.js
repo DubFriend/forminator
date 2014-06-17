@@ -1,6 +1,6 @@
-// forminator version 0.3.3
+// forminator version 0.3.4
 // https://github.com/DubFriend/forminator
-// (MIT) 15-06-2014
+// (MIT) 16-06-2014
 // Brian Detering <BDeterin@gmail.com> (http://www.briandetering.net/)
 (function ($) {
 'use strict';
@@ -2620,6 +2620,10 @@ forminator.init = function (fig) {
         if(form) {
             form.setParameters(parameters);
         }
+    };
+
+    self.getFormFields = function () {
+        return copy(form.get());
     };
 
     if(list && form) {
