@@ -60,7 +60,7 @@ forminator.init = function (fig) {
         }
     };
 
-    self.getFormFields = function () {
+    self.getFormData = function () {
         return copy(form.get());
     };
 
